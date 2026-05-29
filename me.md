@@ -39,6 +39,31 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 7. Every meaningful action should leave a Chronicle event.
 8. Agents should stay quiet unless human judgment is truly required.
 9. The workshop may improve itself only through reviewable proposals.
+10. Clean before work and clean after work using the repository cleanup protocol.
+
+## Cleanup protocol
+
+Read:
+
+- `docs/protocols/REPOSITORY_CLEANUP_PROTOCOL.md`
+- `skills/repo-cleanup/SKILL.md`
+
+Every meaningful work session has two cleanup gates:
+
+```text
+Preflight cleanup gate  = before changing files
+Closeout cleanup gate   = before opening/merging/ending work
+```
+
+Suggested commands:
+
+```sh
+python scripts/repo_cleanup.py --phase before
+# perform scoped work
+python scripts/repo_cleanup.py --phase after
+```
+
+Cleanup is non-destructive by default. Agents may propose cleanup actions, but must not silently delete branches, remove audit/history files, close high-risk review cards, alter protected branches, rewrite Chronicle events, or bypass human approval gates.
 
 ## Branch model
 
