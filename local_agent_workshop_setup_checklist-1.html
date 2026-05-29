@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Agent Workshop — Setup Checklist</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-solid: #111827;
+      --card: rgba(30, 41, 59, 0.78);
+      --card-done: rgba(22, 101, 52, 0.26);
+      --text: #f8fafc;
+      --muted: #b6c2d6;
+      --soft: #7d8ca5;
+      --line: rgba(255,255,255,0.12);
+      --accent: #7dd3fc;
+      --accent-2: #a7f3d0;
+      --warning: #fde68a;
+      --danger: #fca5a5;
+      --code: #0a1020;
+      --shadow: 0 24px 70px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(125,211,252,0.18), transparent 28rem),
+        radial-gradient(circle at 85% 10%, rgba(167,243,208,0.12), transparent 30rem),
+        linear-gradient(135deg, #0f172a, #111827 50%, #0b1120);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    a { color: var(--accent); }
+
+    .hero {
+      padding: 4.5rem 1.25rem 2.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .5rem;
+      align-items: center;
+      border: 1px solid rgba(125,211,252,.35);
+      color: var(--accent);
+      background: rgba(125,211,252,.08);
+      padding: .4rem .75rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 1rem 0 .6rem;
+      font-size: clamp(2.35rem, 6vw, 5.2rem);
+      line-height: .95;
+      letter-spacing: -0.07em;
+    }
+
+    .subtitle {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .top-panel {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 1rem;
+    }
+
+    .progress-card, .actions-card {
+      border: 1px solid var(--line);
+      border-radius: 1.35rem;
+      padding: 1rem;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: .75rem;
+    }
+
+    .progress-row strong {
+      font-size: 1.05rem;
+    }
+
+    .progress-shell {
+      height: 1rem;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .25s ease;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      margin-top: .8rem;
+    }
+
+    .button {
+      border: 1px solid rgba(125,211,252,.28);
+      background: rgba(125,211,252,.1);
+      color: var(--text);
+      border-radius: .8rem;
+      padding: .62rem .8rem;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, border .15s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: rgba(125,211,252,.17);
+      border-color: rgba(125,211,252,.55);
+    }
+
+    .button.warning {
+      border-color: rgba(252, 211, 77, .35);
+      background: rgba(252, 211, 77, .1);
+    }
+
+    .button.danger {
+      border-color: rgba(252, 165, 165, .35);
+      background: rgba(252, 165, 165, .1);
+    }
+
+    .layout {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 5rem;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 1.25rem;
+      background: var(--panel);
+      padding: 1rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar h2 {
+      margin: 0 0 .75rem;
+      font-size: 1rem;
+      color: var(--accent-2);
+    }
+
+    .sidebar nav {
+      display: grid;
+      gap: .35rem;
+    }
+
+    .sidebar a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: .75rem;
+      padding: .45rem .55rem;
+      font-size: .9rem;
+    }
+
+    .sidebar a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+    }
+
+    .legend {
+      border-top: 1px solid var(--line);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      color: var(--soft);
+      font-size: .86rem;
+    }
+
+    main {
+      min-width: 0;
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .phase {
+      border: 1px solid var(--line);
+      border-radius: 1.35rem;
+      background: var(--panel);
+      overflow: hidden;
+      box-shadow: 0 18px 50px rgba(0,0,0,.2);
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.2rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+    }
+
+    .phase-kicker {
+      margin: 0 0 .25rem;
+      color: var(--accent);
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .phase h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      letter-spacing: -.04em;
+    }
+
+    .phase-header p:last-child {
+      margin: .35rem 0 0;
+      color: var(--muted);
+    }
+
+    .phase-progress {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+    }
+
+    .phase-count {
+      border: 1px solid rgba(167,243,208,.28);
+      background: rgba(167,243,208,.1);
+      color: var(--accent-2);
+      border-radius: 999px;
+      padding: .4rem .65rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .task-grid {
+      display: grid;
+      gap: .7rem;
+      padding: 1rem;
+    }
+
+    .task-card {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 1rem;
+      padding: .9rem;
+      transition: background .15s ease, border .15s ease, transform .15s ease;
+    }
+
+    .task-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(125,211,252,.33);
+    }
+
+    .task-card.done {
+      background: var(--card-done);
+      border-color: rgba(167,243,208,.35);
+    }
+
+    .task-label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .75rem;
+      align-items: start;
+      cursor: pointer;
+    }
+
+    .task-label input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .custom-box {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid rgba(125,211,252,.55);
+      border-radius: .38rem;
+      margin-top: .1rem;
+      display: grid;
+      place-items: center;
+      transition: background .15s ease, border .15s ease;
+    }
+
+    .custom-box::after {
+      content: "";
+      width: .62rem;
+      height: .35rem;
+      border-left: 2px solid #052e16;
+      border-bottom: 2px solid #052e16;
+      transform: rotate(-45deg) translate(.02rem, -.02rem);
+      opacity: 0;
+    }
+
+    input:checked + .custom-box {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+
+    input:checked + .custom-box::after {
+      opacity: 1;
+    }
+
+    .task-text strong {
+      display: block;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .task-text small {
+      display: block;
+      margin-top: .2rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .task-card.done .task-text strong {
+      text-decoration: line-through;
+      opacity: .82;
+    }
+
+    details.commands {
+      margin: .8rem 0 0 2rem;
+      border-top: 1px solid var(--line);
+      padding-top: .65rem;
+    }
+
+    details.commands summary {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .88rem;
+    }
+
+    pre {
+      margin: .65rem 0 0;
+      border: 1px solid rgba(125,211,252,.18);
+      background: var(--code);
+      border-radius: .85rem;
+      padding: .85rem;
+      overflow-x: auto;
+    }
+
+    code {
+      color: #dbeafe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .88rem;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.72);
+      z-index: 50;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+      place-items: center;
+    }
+
+    .modal {
+      width: min(720px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 1.2rem;
+      background: #0f172a;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .modal h2 { margin-top: 0; }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      border: 1px solid var(--line);
+      border-radius: .85rem;
+      background: #08111f;
+      color: var(--text);
+      padding: .85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    @media (max-width: 900px) {
+      .top-panel, .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: #111827;
+      }
+      .hero, .progress-card, .actions-card, .sidebar, .phase, .task-card {
+        background: white;
+        color: #111827;
+        box-shadow: none;
+      }
+      .actions-card, .sidebar, .button {
+        display: none;
+      }
+      .layout {
+        display: block;
+      }
+      .phase {
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+      }
+      .task-text small, .subtitle, .phase-header p:last-child {
+        color: #475569;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Interactive Setup Checklist</div>
+      <h1>Local Agent Workshop</h1>
+      <p class="subtitle">A clickable, persistent checklist for importing the starter repository, establishing branch governance, enabling CI/CD, and preparing the first automated build loop.</p>
+
+      <div class="top-panel">
+        <section class="progress-card">
+          <div class="progress-row">
+            <strong>Overall progress</strong>
+            <span id="progressText">0 / 0 complete</span>
+          </div>
+          <div class="progress-shell" aria-label="Overall progress">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <p id="nextTask" style="color: var(--muted); margin: .8rem 0 0;">Next task will appear here.</p>
+        </section>
+
+        <section class="actions-card">
+          <strong>Checklist actions</strong>
+          <div class="actions">
+            <button class="button" id="expandAll">Expand commands</button>
+            <button class="button" id="collapseAll">Collapse commands</button>
+            <button class="button" id="exportState">Export progress</button>
+            <button class="button" id="importState">Import progress</button>
+            <button class="button warning" id="printPage">Print</button>
+            <button class="button danger" id="resetAll">Reset</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Setup phases</h2>
+      <nav>
+        <a href="#phase-1">1. Import the starter repository</a><a href="#phase-2">2. Establish branch governance</a><a href="#phase-3">3. Verify the instruction spine</a><a href="#phase-4">4. Start local development environment</a><a href="#phase-5">5. Start automated build and CI</a><a href="#phase-6">6. Create first implementation issues</a><a href="#phase-7">7. Bootstrap the first agent-safe workflow</a><a href="#phase-8">8. Prepare for resumable grind</a><a href="#phase-9">9. Build-readiness gate</a>
+      </nav>
+      <div class="legend">
+        <p><strong>Storage:</strong> checkbox progress is saved in this browser with localStorage.</p>
+        <p><strong>Tip:</strong> export progress before switching devices.</p>
+      </div>
+    </aside>
+
+    <main>
+      
+    <section class="phase" id="phase-1">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 1</p>
+          <h2>1. Import the starter repository</h2>
+          <p>Get the generated repo skeleton into GitHub cleanly.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="0">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="import_download_zip">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="import_download_zip">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Download the starter zip</strong>
+              <small>Use the generated `local-agent-workshop-starter.zip` as the initial repository skeleton.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="import_create_github_repo">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="import_create_github_repo">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create a new GitHub repository named `local-agent-workshop`</strong>
+              <small>Create it empty if possible, without auto-generating a README, license, or .gitignore, since the starter repo already includes these.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="import_extract_zip">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="import_extract_zip">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Extract the zip locally</strong>
+              <small>Confirm the extracted folder is named `local-agent-workshop/` and contains `me.md`, `AGENTS.md`, docs, schemas, workflows, and scripts.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>unzip local-agent-workshop-starter.zip
+cd local-agent-workshop
+ls</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="import_initial_git">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="import_initial_git">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Initialize Git and make the first commit</strong>
+              <small>Only do this if the extracted folder is not already a Git repository.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git init
+git add .
+git commit -m &quot;Initialize Local Agent Workshop skeleton&quot;</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="import_connect_remote">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="import_connect_remote">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Connect the local folder to the GitHub remote</strong>
+              <small>Replace the URL with your actual GitHub repo URL.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git remote add origin git@github.com:YOUR_USERNAME/local-agent-workshop.git
+git branch -M main
+git push -u origin main</code></pre>
+            </details>
+            
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-2">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 2</p>
+          <h2>2. Establish branch governance</h2>
+          <p>Create the stable, integration, and sandbox branch model before agents start working.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="1">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="branch_verify_policy">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="branch_verify_policy">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Review `.branch-policy.yaml`</strong>
+              <small>Confirm the stable branch is `main`, integration is `develop`, sandbox is `experimental`, and autonomous work uses `agent/*`.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>cat .branch-policy.yaml</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="branch_create_develop">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="branch_create_develop">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create and push `develop`</strong>
+              <small>`develop` becomes the reviewed integration branch.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git checkout -b develop
+git push -u origin develop</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="branch_create_experimental">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="branch_create_experimental">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create and push `experimental`</strong>
+              <small>`experimental` becomes the sandbox/lab branch for prototypes and overnight grind work.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git checkout main
+git checkout -b experimental
+git push -u origin experimental</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="branch_return_main">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="branch_return_main">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Return to `main`</strong>
+              <small>Keep `main` clean and protected as the stable branch.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git checkout main</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="branch_github_protections">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="branch_github_protections">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Enable GitHub branch protection rules</strong>
+              <small>Protect `main`, `develop`, and `release/*` or `rc/*`. Require pull requests and passing checks before merging.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-3">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 3</p>
+          <h2>3. Verify the instruction spine</h2>
+          <p>Make sure every AI tool starts at the correct canonical instructions.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="2">0/4</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="spine_review_me">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="spine_review_me">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Read `me.md` all the way through</strong>
+              <small>`me.md` should act as the canonical instruction spine for the whole repository.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="spine_check_agents">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="spine_check_agents">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm `AGENTS.md` points to `me.md`</strong>
+              <small>`AGENTS.md` should be a thin pointer, not a duplicated policy document.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>sed -n &#x27;1,120p&#x27; AGENTS.md</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="spine_check_claude_codex">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="spine_check_claude_codex">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm `CLAUDE.md` and `CODEX.md` point to `me.md`</strong>
+              <small>These tool adapter files should only contain tool-specific reminders.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>sed -n &#x27;1,120p&#x27; CLAUDE.md
+sed -n &#x27;1,120p&#x27; CODEX.md</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="spine_check_cursor">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="spine_check_cursor">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm Cursor rules start with `00-read-me-md-first.mdc`</strong>
+              <small>Cursor should also route agents to `me.md` before any repository work begins.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>ls .cursor/rules
+sed -n &#x27;1,120p&#x27; .cursor/rules/00-read-me-md-first.mdc</code></pre>
+            </details>
+            
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-4">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 4</p>
+          <h2>4. Start local development environment</h2>
+          <p>Confirm the local skeleton can run tests and scripts before adding real implementation.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="3">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="local_python_version">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="local_python_version">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm Python 3.11+ is available</strong>
+              <small>The starter `pyproject.toml` currently expects Python 3.11 or newer.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>python --version</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="local_create_venv">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="local_create_venv">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create and activate a virtual environment</strong>
+              <small>Use a local virtual environment for CLI development.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>python -m venv .venv
+source .venv/bin/activate  # macOS/Linux
+.venv\Scripts\activate     # Windows PowerShell</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="local_install_editable">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="local_install_editable">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Install the package in editable mode</strong>
+              <small>This should expose the future `workshop` command locally.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>pip install -e .</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="local_run_workshop">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="local_run_workshop">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Run the placeholder `workshop` command</strong>
+              <small>The initial CLI only prints a placeholder, but this confirms packaging works.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>workshop</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="local_run_verify">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="local_run_verify">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Run local verification</strong>
+              <small>The starter verification script is a placeholder. It should pass and later become the local CI entrypoint.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>bash scripts/verify.sh
+bash scripts/ci-local.sh</code></pre>
+            </details>
+            
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-5">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 5</p>
+          <h2>5. Start automated build and CI</h2>
+          <p>Make GitHub Actions run on pushes and pull requests.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="4">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="ci_review_workflows">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="ci_review_workflows">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Review GitHub Actions workflows</strong>
+              <small>Check CI, branch policy, security, and release workflows.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>ls .github/workflows
+sed -n &#x27;1,200p&#x27; .github/workflows/ci.yml</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="ci_push_test_branch">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="ci_push_test_branch">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create a test branch and push it</strong>
+              <small>Use a temporary branch to trigger CI without touching protected branches.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git checkout -b test/ci-smoke
+git push -u origin test/ci-smoke</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="ci_open_pull_request">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="ci_open_pull_request">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Open a pull request into `develop`</strong>
+              <small>Confirm the CI workflow runs on pull requests.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="ci_confirm_required_check">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="ci_confirm_required_check">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm the required CI check name</strong>
+              <small>Record the exact check name GitHub reports. Use it in branch protection settings.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="ci_enable_required_checks">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="ci_enable_required_checks">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Require passing checks before merge</strong>
+              <small>In GitHub branch protection, require the CI check on `main` and `develop`.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-6">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 6</p>
+          <h2>6. Create first implementation issues</h2>
+          <p>Turn the skeleton into a clear build plan for agents and humans.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="5">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="issues_create_mvp">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="issues_create_mvp">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create Issue 1: Implement `workshop init`</strong>
+              <small>This should generate the repository structure and thin pointer files for a target repo.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="issues_create_branch_policy">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="issues_create_branch_policy">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create Issue 2: Implement branch policy loader</strong>
+              <small>Read `.branch-policy.yaml` and expose branch safety checks.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="issues_create_events">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="issues_create_events">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create Issue 3: Implement Chronicle event writer</strong>
+              <small>Write append-only JSON events under `chronicle/events/`.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="issues_create_review_card">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="issues_create_review_card">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create Issue 4: Implement review card generator</strong>
+              <small>Generate structured review cards under `reviews/pending/`.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="issues_create_verify">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="issues_create_verify">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create Issue 5: Replace placeholder verification scripts</strong>
+              <small>Add real linting, tests, schema validation, and secret scanning.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-7">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 7</p>
+          <h2>7. Bootstrap the first agent-safe workflow</h2>
+          <p>Create the first end-to-end safe automation loop.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="6">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="workflow_agent_branch">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="workflow_agent_branch">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create first `agent/*` branch manually</strong>
+              <small>Practice the branch workflow before automation creates branches.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>git checkout develop
+git pull
+git checkout -b agent/0001-workshop-init</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="workflow_small_patch">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="workflow_small_patch">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Make a tiny safe patch</strong>
+              <small>For example, improve `docs/MVP_SPEC.md` or add one test placeholder.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="workflow_run_verify">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="workflow_run_verify">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Run verification on the agent branch</strong>
+              <small>Attach the command output to the PR or review card.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>bash scripts/verify.sh</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="workflow_create_review_card">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="workflow_create_review_card">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Manually create the first review card</strong>
+              <small>Use `examples/sample-review-card.json` as a reference until the generator exists.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>cp examples/sample-review-card.json reviews/pending/review-0001.json</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="workflow_pr_to_develop">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="workflow_pr_to_develop">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Open a PR from `agent/0001-workshop-init` to `develop`</strong>
+              <small>Confirm the review loop and CI work before adding more automation.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-8">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 8</p>
+          <h2>8. Prepare for resumable grind</h2>
+          <p>Set up the artifacts that future long-running automation will depend on.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="7">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="grind_review_protocol">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="grind_review_protocol">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Review `GRIND_PROTOCOL.md`</strong>
+              <small>Make sure the protocol matches your preferred long-running, interruptible workflow.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="grind_review_checkpoint">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="grind_review_checkpoint">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Review `CHECKPOINT_RESUME_PROTOCOL.md`</strong>
+              <small>Confirm the system can pause and resume without losing state.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="grind_create_state_sample">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="grind_create_state_sample">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Create a sample run-state file</strong>
+              <small>This helps guide the future implementation of `workshop grind resume`.</small>
+            </span>
+          </label>
+          
+            <details class="commands">
+              <summary>Commands</summary>
+              <pre><code>cp examples/sample-event.json chronicle/events/event-0001-run-started.json</code></pre>
+            </details>
+            
+        </article>
+        
+        <article class="task-card" data-task-id="grind_review_escalation">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="grind_review_escalation">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Review `ESCALATION_POLICY.md`</strong>
+              <small>Confirm when Signal/Telegram-style escalation should be allowed.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="grind_define_low_risk">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="grind_define_low_risk">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Define low-risk overnight task categories</strong>
+              <small>Examples: docs polish, tests, repo graph, CI cleanup, schema validation, non-production refactors.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    <section class="phase" id="phase-9">
+      <div class="phase-header">
+        <div>
+          <p class="phase-kicker">Phase 9</p>
+          <h2>9. Build-readiness gate</h2>
+          <p>Confirm the repository is ready for real implementation work.</p>
+        </div>
+        <div class="phase-progress">
+          <span class="phase-count" data-phase-index="8">0/5</span>
+        </div>
+      </div>
+      <div class="task-grid">
+        
+        <article class="task-card" data-task-id="gate_all_docs_reviewed">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="gate_all_docs_reviewed">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm core docs are reviewed</strong>
+              <small>`me.md`, branch policy, risk policy, grind protocol, review workflow, MVP spec, and roadmap should be coherent.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="gate_ci_green">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="gate_ci_green">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm CI is green on `main` and `develop`</strong>
+              <small>Do not start heavy agent automation until basic CI passes.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="gate_branch_protection">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="gate_branch_protection">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Confirm protected branches cannot be pushed to directly</strong>
+              <small>This protects the repo once agents begin creating work branches.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="gate_first_pr_merged">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="gate_first_pr_merged">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Merge the first small PR into `develop`</strong>
+              <small>This validates the PR + review + CI loop.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+        <article class="task-card" data-task-id="gate_ready_for_agent">
+          <label class="task-label">
+            <input type="checkbox" data-check-id="gate_ready_for_agent">
+            <span class="custom-box" aria-hidden="true"></span>
+            <span class="task-text">
+              <strong>Declare the repo ready for first agent-assisted issue</strong>
+              <small>Once this is checked, the repo can safely begin controlled autonomous development.</small>
+            </span>
+          </label>
+          
+        </article>
+        
+      </div>
+    </section>
+    
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h2 id="modalTitle">Export progress</h2>
+      <p id="modalHelp" style="color: var(--muted);"></p>
+      <textarea id="modalText"></textarea>
+      <div class="actions">
+        <button class="button" id="copyModal">Copy</button>
+        <button class="button" id="applyImport">Apply import</button>
+        <button class="button warning" id="closeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TASKS = [{"phase": "1. Import the starter repository", "goal": "Get the generated repo skeleton into GitHub cleanly.", "items": [{"id": "import_download_zip", "title": "Download the starter zip", "details": "Use the generated `local-agent-workshop-starter.zip` as the initial repository skeleton.", "commands": []}, {"id": "import_create_github_repo", "title": "Create a new GitHub repository named `local-agent-workshop`", "details": "Create it empty if possible, without auto-generating a README, license, or .gitignore, since the starter repo already includes these.", "commands": []}, {"id": "import_extract_zip", "title": "Extract the zip locally", "details": "Confirm the extracted folder is named `local-agent-workshop/` and contains `me.md`, `AGENTS.md`, docs, schemas, workflows, and scripts.", "commands": ["unzip local-agent-workshop-starter.zip", "cd local-agent-workshop", "ls"]}, {"id": "import_initial_git", "title": "Initialize Git and make the first commit", "details": "Only do this if the extracted folder is not already a Git repository.", "commands": ["git init", "git add .", "git commit -m \"Initialize Local Agent Workshop skeleton\""]}, {"id": "import_connect_remote", "title": "Connect the local folder to the GitHub remote", "details": "Replace the URL with your actual GitHub repo URL.", "commands": ["git remote add origin git@github.com:YOUR_USERNAME/local-agent-workshop.git", "git branch -M main", "git push -u origin main"]}]}, {"phase": "2. Establish branch governance", "goal": "Create the stable, integration, and sandbox branch model before agents start working.", "items": [{"id": "branch_verify_policy", "title": "Review `.branch-policy.yaml`", "details": "Confirm the stable branch is `main`, integration is `develop`, sandbox is `experimental`, and autonomous work uses `agent/*`.", "commands": ["cat .branch-policy.yaml"]}, {"id": "branch_create_develop", "title": "Create and push `develop`", "details": "`develop` becomes the reviewed integration branch.", "commands": ["git checkout -b develop", "git push -u origin develop"]}, {"id": "branch_create_experimental", "title": "Create and push `experimental`", "details": "`experimental` becomes the sandbox/lab branch for prototypes and overnight grind work.", "commands": ["git checkout main", "git checkout -b experimental", "git push -u origin experimental"]}, {"id": "branch_return_main", "title": "Return to `main`", "details": "Keep `main` clean and protected as the stable branch.", "commands": ["git checkout main"]}, {"id": "branch_github_protections", "title": "Enable GitHub branch protection rules", "details": "Protect `main`, `develop`, and `release/*` or `rc/*`. Require pull requests and passing checks before merging.", "commands": []}]}, {"phase": "3. Verify the instruction spine", "goal": "Make sure every AI tool starts at the correct canonical instructions.", "items": [{"id": "spine_review_me", "title": "Read `me.md` all the way through", "details": "`me.md` should act as the canonical instruction spine for the whole repository.", "commands": []}, {"id": "spine_check_agents", "title": "Confirm `AGENTS.md` points to `me.md`", "details": "`AGENTS.md` should be a thin pointer, not a duplicated policy document.", "commands": ["sed -n '1,120p' AGENTS.md"]}, {"id": "spine_check_claude_codex", "title": "Confirm `CLAUDE.md` and `CODEX.md` point to `me.md`", "details": "These tool adapter files should only contain tool-specific reminders.", "commands": ["sed -n '1,120p' CLAUDE.md", "sed -n '1,120p' CODEX.md"]}, {"id": "spine_check_cursor", "title": "Confirm Cursor rules start with `00-read-me-md-first.mdc`", "details": "Cursor should also route agents to `me.md` before any repository work begins.", "commands": ["ls .cursor/rules", "sed -n '1,120p' .cursor/rules/00-read-me-md-first.mdc"]}]}, {"phase": "4. Start local development environment", "goal": "Confirm the local skeleton can run tests and scripts before adding real implementation.", "items": [{"id": "local_python_version", "title": "Confirm Python 3.11+ is available", "details": "The starter `pyproject.toml` currently expects Python 3.11 or newer.", "commands": ["python --version"]}, {"id": "local_create_venv", "title": "Create and activate a virtual environment", "details": "Use a local virtual environment for CLI development.", "commands": ["python -m venv .venv", "source .venv/bin/activate  # macOS/Linux", ".venv\\Scripts\\activate     # Windows PowerShell"]}, {"id": "local_install_editable", "title": "Install the package in editable mode", "details": "This should expose the future `workshop` command locally.", "commands": ["pip install -e ."]}, {"id": "local_run_workshop", "title": "Run the placeholder `workshop` command", "details": "The initial CLI only prints a placeholder, but this confirms packaging works.", "commands": ["workshop"]}, {"id": "local_run_verify", "title": "Run local verification", "details": "The starter verification script is a placeholder. It should pass and later become the local CI entrypoint.", "commands": ["bash scripts/verify.sh", "bash scripts/ci-local.sh"]}]}, {"phase": "5. Start automated build and CI", "goal": "Make GitHub Actions run on pushes and pull requests.", "items": [{"id": "ci_review_workflows", "title": "Review GitHub Actions workflows", "details": "Check CI, branch policy, security, and release workflows.", "commands": ["ls .github/workflows", "sed -n '1,200p' .github/workflows/ci.yml"]}, {"id": "ci_push_test_branch", "title": "Create a test branch and push it", "details": "Use a temporary branch to trigger CI without touching protected branches.", "commands": ["git checkout -b test/ci-smoke", "git push -u origin test/ci-smoke"]}, {"id": "ci_open_pull_request", "title": "Open a pull request into `develop`", "details": "Confirm the CI workflow runs on pull requests.", "commands": []}, {"id": "ci_confirm_required_check", "title": "Confirm the required CI check name", "details": "Record the exact check name GitHub reports. Use it in branch protection settings.", "commands": []}, {"id": "ci_enable_required_checks", "title": "Require passing checks before merge", "details": "In GitHub branch protection, require the CI check on `main` and `develop`.", "commands": []}]}, {"phase": "6. Create first implementation issues", "goal": "Turn the skeleton into a clear build plan for agents and humans.", "items": [{"id": "issues_create_mvp", "title": "Create Issue 1: Implement `workshop init`", "details": "This should generate the repository structure and thin pointer files for a target repo.", "commands": []}, {"id": "issues_create_branch_policy", "title": "Create Issue 2: Implement branch policy loader", "details": "Read `.branch-policy.yaml` and expose branch safety checks.", "commands": []}, {"id": "issues_create_events", "title": "Create Issue 3: Implement Chronicle event writer", "details": "Write append-only JSON events under `chronicle/events/`.", "commands": []}, {"id": "issues_create_review_card", "title": "Create Issue 4: Implement review card generator", "details": "Generate structured review cards under `reviews/pending/`.", "commands": []}, {"id": "issues_create_verify", "title": "Create Issue 5: Replace placeholder verification scripts", "details": "Add real linting, tests, schema validation, and secret scanning.", "commands": []}]}, {"phase": "7. Bootstrap the first agent-safe workflow", "goal": "Create the first end-to-end safe automation loop.", "items": [{"id": "workflow_agent_branch", "title": "Create first `agent/*` branch manually", "details": "Practice the branch workflow before automation creates branches.", "commands": ["git checkout develop", "git pull", "git checkout -b agent/0001-workshop-init"]}, {"id": "workflow_small_patch", "title": "Make a tiny safe patch", "details": "For example, improve `docs/MVP_SPEC.md` or add one test placeholder.", "commands": []}, {"id": "workflow_run_verify", "title": "Run verification on the agent branch", "details": "Attach the command output to the PR or review card.", "commands": ["bash scripts/verify.sh"]}, {"id": "workflow_create_review_card", "title": "Manually create the first review card", "details": "Use `examples/sample-review-card.json` as a reference until the generator exists.", "commands": ["cp examples/sample-review-card.json reviews/pending/review-0001.json"]}, {"id": "workflow_pr_to_develop", "title": "Open a PR from `agent/0001-workshop-init` to `develop`", "details": "Confirm the review loop and CI work before adding more automation.", "commands": []}]}, {"phase": "8. Prepare for resumable grind", "goal": "Set up the artifacts that future long-running automation will depend on.", "items": [{"id": "grind_review_protocol", "title": "Review `GRIND_PROTOCOL.md`", "details": "Make sure the protocol matches your preferred long-running, interruptible workflow.", "commands": []}, {"id": "grind_review_checkpoint", "title": "Review `CHECKPOINT_RESUME_PROTOCOL.md`", "details": "Confirm the system can pause and resume without losing state.", "commands": []}, {"id": "grind_create_state_sample", "title": "Create a sample run-state file", "details": "This helps guide the future implementation of `workshop grind resume`.", "commands": ["cp examples/sample-event.json chronicle/events/event-0001-run-started.json"]}, {"id": "grind_review_escalation", "title": "Review `ESCALATION_POLICY.md`", "details": "Confirm when Signal/Telegram-style escalation should be allowed.", "commands": []}, {"id": "grind_define_low_risk", "title": "Define low-risk overnight task categories", "details": "Examples: docs polish, tests, repo graph, CI cleanup, schema validation, non-production refactors.", "commands": []}]}, {"phase": "9. Build-readiness gate", "goal": "Confirm the repository is ready for real implementation work.", "items": [{"id": "gate_all_docs_reviewed", "title": "Confirm core docs are reviewed", "details": "`me.md`, branch policy, risk policy, grind protocol, review workflow, MVP spec, and roadmap should be coherent.", "commands": []}, {"id": "gate_ci_green", "title": "Confirm CI is green on `main` and `develop`", "details": "Do not start heavy agent automation until basic CI passes.", "commands": []}, {"id": "gate_branch_protection", "title": "Confirm protected branches cannot be pushed to directly", "details": "This protects the repo once agents begin creating work branches.", "commands": []}, {"id": "gate_first_pr_merged", "title": "Merge the first small PR into `develop`", "details": "This validates the PR + review + CI loop.", "commands": []}, {"id": "gate_ready_for_agent", "title": "Declare the repo ready for first agent-assisted issue", "details": "Once this is checked, the repo can safely begin controlled autonomous development.", "commands": []}]}];
+    const STORAGE_KEY = "local-agent-workshop-setup-checklist-v1";
+    const checks = Array.from(document.querySelectorAll("[data-check-id]"));
+    const taskCards = Array.from(document.querySelectorAll(".task-card"));
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+    const nextTask = document.getElementById("nextTask");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalHelp = document.getElementById("modalHelp");
+    const modalText = document.getElementById("modalText");
+    const applyImport = document.getElementById("applyImport");
+
+    function flattenTasks() {
+      return TASKS.flatMap(phase => phase.items.map(item => ({
+        ...item,
+        phase: phase.phase
+      })));
+    }
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState() {
+      const state = {};
+      checks.forEach(check => {
+        state[check.dataset.checkId] = check.checked;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state, null, 2));
+      updateUI();
+    }
+
+    function applyState(state) {
+      checks.forEach(check => {
+        check.checked = Boolean(state[check.dataset.checkId]);
+      });
+      saveState();
+    }
+
+    function updateUI() {
+      const state = loadState();
+      let complete = 0;
+      checks.forEach(check => {
+        const isDone = Boolean(state[check.dataset.checkId]);
+        check.checked = isDone;
+        const card = check.closest(".task-card");
+        if (card) card.classList.toggle("done", isDone);
+        if (isDone) complete++;
+      });
+
+      const total = checks.length;
+      const pct = total ? Math.round((complete / total) * 100) : 0;
+      progressText.textContent = `${complete} / ${total} complete (${pct}%)`;
+      progressBar.style.width = `${pct}%`;
+
+      const flat = flattenTasks();
+      const next = flat.find(item => !state[item.id]);
+      if (next) {
+        nextTask.textContent = `Next: ${next.title}`;
+      } else {
+        nextTask.textContent = "All setup tasks are complete. The repository is ready for the first controlled automation cycle.";
+      }
+
+      TASKS.forEach((phase, index) => {
+        const done = phase.items.filter(item => state[item.id]).length;
+        const el = document.querySelector(`[data-phase-index="${index}"]`);
+        if (el) el.textContent = `${done}/${phase.items.length}`;
+      });
+    }
+
+    checks.forEach(check => {
+      check.addEventListener("change", saveState);
+    });
+
+    document.getElementById("expandAll").addEventListener("click", () => {
+      document.querySelectorAll("details.commands").forEach(d => d.open = true);
+    });
+
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      document.querySelectorAll("details.commands").forEach(d => d.open = false);
+    });
+
+    document.getElementById("resetAll").addEventListener("click", () => {
+      if (confirm("Reset all checklist progress?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        applyState({});
+      }
+    });
+
+    document.getElementById("printPage").addEventListener("click", () => window.print());
+
+    document.getElementById("exportState").addEventListener("click", () => {
+      modalTitle.textContent = "Export progress";
+      modalHelp.textContent = "Copy this JSON to move checklist progress to another browser or archive setup status.";
+      modalText.value = JSON.stringify(loadState(), null, 2);
+      applyImport.style.display = "none";
+      modalBackdrop.classList.add("open");
+    });
+
+    document.getElementById("importState").addEventListener("click", () => {
+      modalTitle.textContent = "Import progress";
+      modalHelp.textContent = "Paste exported checklist JSON here, then click Apply import.";
+      modalText.value = "";
+      applyImport.style.display = "inline-block";
+      modalBackdrop.classList.add("open");
+    });
+
+    document.getElementById("copyModal").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(modalText.value);
+      alert("Copied.");
+    });
+
+    applyImport.addEventListener("click", () => {
+      try {
+        const parsed = JSON.parse(modalText.value);
+        applyState(parsed);
+        modalBackdrop.classList.remove("open");
+      } catch (err) {
+        alert("Import failed: invalid JSON.");
+      }
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      modalBackdrop.classList.remove("open");
+    });
+
+    modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === modalBackdrop) modalBackdrop.classList.remove("open");
+    });
+
+    applyState(loadState());
+  </script>
+</body>
+</html>
