@@ -1,0 +1,14 @@
+{
+  "review_id": "review-design-first-0001",
+  "run_id": "design-first-0001-project-start",
+  "branch": "main",
+  "summary": "Review and approve the project design starting point before implementing the first CLI slice.",
+  "files_changed": [
+    "reports/design-first/design-first-0001-project-start.html",
+    "chronicle/events/event-design-first-0001.json",
+    "reviews/pending/review-design-first-0001.json"
+  ],
+  "risk_level": "medium",
+  "available_actions": ["approve", "reject", "modify", "resume"],
+  "resume_command": "workshop design-first resume design-first-0001-project-start"
+}
