@@ -9,10 +9,12 @@ from workshop.hyperkanban.state import (
     HyperKanbanError,
     build_packet,
     cards,
+    complete_card,
     find_card,
     format_card,
     load_state,
     next_card,
+    save_state_and_packet,
 )
 
 
@@ -20,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="workshop", description="Local Agent Workshop CLI")
     subparsers = parser.add_subparsers(dest="command")
 
-    hk = subparsers.add_parser("hk", help="Read HyperKanban orchestration state")
+    hk = subparsers.add_parser("hk", help="Read and update HyperKanban orchestration state")
     hk.add_argument(
         "--state",
         type=Path,
@@ -36,6 +38,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     show = hk_subparsers.add_parser("show", help="Show one HyperKanban card")
     show.add_argument("card_id", help="HyperKanban card ID, e.g. HK-001")
+
+    complete = hk_subparsers.add_parser("complete", help="Complete a HyperKanban card with evidence")
+    complete.add_argument("card_id", help="HyperKanban card ID, e.g. HK-001")
+    complete.add_argument(
+        "--evidence",
+        action="append",
+        default=[],
+        help="Evidence path proving completion; may be supplied multiple times",
+    )
+    complete.add_argument(
+        "--exception",
+        help="Review-card exception allowing completion when required evidence is absent",
+    )
 
     return parser
 
@@ -66,6 +81,12 @@ def handle_hk(args: argparse.Namespace) -> int:
 
     if args.hk_command == "show":
         print(format_card(find_card(state, args.card_id)))
+        return 0
+
+    if args.hk_command == "complete":
+        completed = complete_card(state, args.card_id, evidence=args.evidence, exception=args.exception)
+        save_state_and_packet(args.state, state)
+        print(f"Completed {completed['id']} with byte=0x{completed['byte']:02X}")
         return 0
 
     raise HyperKanbanError("missing hk subcommand")
