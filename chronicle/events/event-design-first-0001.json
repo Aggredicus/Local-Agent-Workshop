@@ -1,0 +1,8 @@
+{
+  "event_id": "event-design-first-0001",
+  "event_type": "design_first.completed",
+  "run_id": "design-first-0001-project-start",
+  "summary": "Generated the project design starting point.",
+  "report_path": "reports/design-first/design-first-0001-project-start.html",
+  "risk_level": "medium"
+}
