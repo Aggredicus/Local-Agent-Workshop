@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Agent Workshop — Design-First Report</title>
+  <meta name="description" content="Design-first workflow output for Local Agent Workshop">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.86);
+      --panel-2: rgba(30, 41, 59, 0.76);
+      --card: rgba(17, 24, 39, 0.78);
+      --text: #f8fafc;
+      --muted: #b6c2d6;
+      --soft: #7d8ca5;
+      --line: rgba(255,255,255,0.13);
+      --accent: #7dd3fc;
+      --accent-2: #a7f3d0;
+      --warning: #fde68a;
+      --danger: #fca5a5;
+      --purple: #c4b5fd;
+      --code: #07111f;
+      --ok-bg: rgba(22, 101, 52, 0.28);
+      --warn-bg: rgba(180, 83, 9, 0.22);
+      --risk-bg: rgba(127, 29, 29, 0.28);
+      --shadow: 0 24px 70px rgba(0,0,0,0.34);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(125,211,252,0.18), transparent 32rem),
+        radial-gradient(circle at 92% 8%, rgba(196,181,253,0.13), transparent 28rem),
+        radial-gradient(circle at 50% 100%, rgba(167,243,208,0.10), transparent 32rem),
+        linear-gradient(135deg, #0f172a, #111827 48%, #0b1120);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      padding: 4.5rem 1.25rem 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .5rem;
+      align-items: center;
+      color: var(--accent);
+      background: rgba(125,211,252,.08);
+      border: 1px solid rgba(125,211,252,.34);
+      border-radius: 999px;
+      padding: .38rem .75rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-weight: 800;
+      font-size: .78rem;
+    }
+
+    h1 {
+      margin: 1rem 0 .5rem;
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      line-height: .95;
+      letter-spacing: -0.07em;
+    }
+
+    .subtitle {
+      max-width: 920px;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .8rem;
+      margin-top: 1.6rem;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 1.1rem;
+      padding: .9rem;
+      box-shadow: 0 18px 48px rgba(0,0,0,.18);
+    }
+
+    .meta-card strong {
+      display: block;
+      color: var(--accent-2);
+      font-size: .75rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: .2rem;
+    }
+
+    .status-ribbon {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-top: 1.4rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: .4rem .7rem;
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .chip.ok { background: var(--ok-bg); border-color: rgba(167,243,208,.35); color: var(--accent-2); }
+    .chip.warn { background: var(--warn-bg); border-color: rgba(253,230,138,.35); color: var(--warning); }
+    .chip.risk { background: var(--risk-bg); border-color: rgba(252,165,165,.38); color: var(--danger); }
+
+    .layout {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 5rem;
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 1.25rem;
+      background: rgba(15, 23, 42, 0.88);
+      padding: 1rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar h2 {
+      margin: 0 0 .75rem;
+      color: var(--accent-2);
+      font-size: 1rem;
+    }
+
+    .sidebar nav {
+      display: grid;
+      gap: .25rem;
+    }
+
+    .sidebar a {
+      color: var(--muted);
+      border-radius: .75rem;
+      padding: .42rem .55rem;
+      font-size: .9rem;
+    }
+
+    .sidebar a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      text-decoration: none;
+    }
+
+    .actions {
+      display: grid;
+      gap: .5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    button {
+      width: 100%;
+      border: 1px solid rgba(125,211,252,.28);
+      background: rgba(125,211,252,.1);
+      color: var(--text);
+      border-radius: .8rem;
+      padding: .62rem .8rem;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: rgba(125,211,252,.18);
+      border-color: rgba(125,211,252,.5);
+    }
+
+    main {
+      min-width: 0;
+      display: grid;
+      gap: 1rem;
+    }
+
+    section.block {
+      border: 1px solid var(--line);
+      border-radius: 1.25rem;
+      background: var(--panel);
+      box-shadow: 0 18px 50px rgba(0,0,0,.2);
+      overflow: hidden;
+    }
+
+    .block-header {
+      padding: 1.15rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+    }
+
+    .block-kicker {
+      margin: 0 0 .2rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .73rem;
+      font-weight: 900;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      letter-spacing: -.04em;
+    }
+
+    .block-header p {
+      color: var(--muted);
+      margin: .35rem 0 0;
+    }
+
+    .block-body {
+      padding: 1.1rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .85rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .85rem;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--card);
+      padding: .9rem;
+    }
+
+    .card h3 {
+      margin: 0 0 .35rem;
+      color: var(--accent-2);
+      font-size: 1.05rem;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+    }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .decision {
+      border-left: 4px solid var(--accent);
+      background: rgba(125,211,252,.08);
+    }
+
+    .risk-high {
+      border-left: 4px solid var(--danger);
+      background: rgba(252,165,165,.08);
+    }
+
+    .risk-medium {
+      border-left: 4px solid var(--warning);
+      background: rgba(253,230,138,.08);
+    }
+
+    .risk-low {
+      border-left: 4px solid var(--accent-2);
+      background: rgba(167,243,208,.08);
+    }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .65rem;
+    }
+
+    .doc-link {
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: .85rem;
+      background: rgba(255,255,255,.045);
+      padding: .7rem;
+    }
+
+    .doc-link strong {
+      display: block;
+      color: var(--text);
+    }
+
+    .doc-link small {
+      color: var(--soft);
+    }
+
+    ul, ol { padding-left: 1.35rem; }
+    li::marker { color: var(--accent); }
+
+    code {
+      color: #bae6fd;
+      background: rgba(125,211,252,.11);
+      border: 1px solid rgba(125,211,252,.16);
+      padding: .08rem .3rem;
+      border-radius: .35rem;
+      font-size: .92em;
+    }
+
+    pre {
+      margin: .7rem 0 0;
+      padding: .9rem;
+      overflow-x: auto;
+      border: 1px solid rgba(125,211,252,.18);
+      border-radius: .9rem;
+      background: var(--code);
+    }
+
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: #dbeafe;
+    }
+
+    .checklist {
+      display: grid;
+      gap: .5rem;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .65rem;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: .85rem;
+      padding: .75rem;
+      background: rgba(255,255,255,.04);
+    }
+
+    .check-item input {
+      width: 1.15rem;
+      height: 1.15rem;
+      margin-top: .15rem;
+      accent-color: #a7f3d0;
+    }
+
+    .check-item span {
+      color: var(--muted);
+    }
+
+    .footer-note {
+      color: var(--soft);
+      font-size: .88rem;
+    }
+
+    @media (max-width: 960px) {
+      .layout, .meta-grid, .grid-2, .grid-3, .doc-grid {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+    }
+
+    @media print {
+      body { background: white; color: #111827; }
+      .hero, .sidebar, section.block, .card, .doc-link {
+        background: white;
+        color: #111827;
+        box-shadow: none;
+      }
+      .layout { display: block; }
+      .sidebar { display: none; }
+      section.block { page-break-inside: avoid; margin-bottom: 1rem; }
+      .subtitle, .card p, .card li, .block-header p { color: #475569; }
+      a { color: #0369a1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">/design-first output</div>
+      <h1>Local Agent Workshop</h1>
+      <p class="subtitle">Project design starting point for a local-first, human-governed autonomous development workshop that supports long-running LLM work, reviewable patches, branch-aware automation, Chronicle events, repo graph reasoning, and explicit human approval at risk boundaries.</p>
+
+      <div class="meta-grid">
+        <div class="meta-card"><strong>Run ID</strong>design-first-0001-project-start</div>
+        <div class="meta-card"><strong>Branch</strong>main → develop planned</div>
+        <div class="meta-card"><strong>Author / Agent</strong>ChatGPT using /design-first skill</div>
+        <div class="meta-card"><strong>Generated</strong>2026-05-28</div>
+      </div>
+
+      <div class="status-ribbon">
+        <span class="chip warn">Readiness: ready_for_initial_implementation_after_repo_import</span>
+        <span class="chip warn">Risk: medium</span>
+        <span class="chip warn">Approval: human review recommended before first implementation branch</span>
+        <span class="chip">Next: import starter repo, protect branches, then implement workshop init</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Report sections</h2>
+      <nav>
+        <a href="#executive-summary">Executive summary</a>
+        <a href="#instruction-context">Instruction context</a>
+        <a href="#problem-frame">Problem frame</a>
+        <a href="#constraints">Constraints</a>
+        <a href="#architecture">Architecture options</a>
+        <a href="#chosen-design">Chosen design</a>
+        <a href="#risk-boundaries">Risk boundaries</a>
+        <a href="#implementation-slices">Implementation slices</a>
+        <a href="#verification-plan">Verification plan</a>
+        <a href="#approval-gates">Approval gates</a>
+        <a href="#open-questions">Open questions</a>
+        <a href="#traceability">Traceability</a>
+      </nav>
+
+      <div class="actions">
+        <button onclick="window.print()">Print / Save PDF</button>
+        <button onclick="copySummary()">Copy executive summary</button>
+        <button onclick="copyDecisionJson()">Copy decision JSON</button>
+      </div>
+    </aside>
+
+    <main>
+      <section class="block" id="executive-summary">
+        <div class="block-header">
+          <p class="block-kicker">01 · Decision surface</p>
+          <h2>Executive summary</h2>
+          <p>The design-first workflow should make the next coding step obvious before implementation begins.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-2">
+            <div class="card decision">
+              <h3>Recommended decision</h3>
+              <p id="executiveSummary">Begin with a CLI-and-Markdown-first MVP centered on the canonical instruction spine (`me.md`), branch policy enforcement, Chronicle events, review cards, and a minimal `workshop init` command before building the dashboard or escalation integrations.</p>
+            </div>
+            <div class="card">
+              <h3>Why this design</h3>
+              <p>This preserves the core governance model early while avoiding premature UI complexity. It creates the minimum useful loop: initialize a governed repo, choose a small task, work on an isolated branch, verify, generate a review card, and resume safely.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="instruction-context">
+        <div class="block-header">
+          <p class="block-kicker">02 · Recursive context</p>
+          <h2>Instruction context loaded</h2>
+          <p>This report is tailored to the fully released Local Agent Workshop structure, including documents that may be placeholders during early development.</p>
+        </div>
+        <div class="block-body">
+          <div class="doc-grid">
+            <a class="doc-link" href="../../me.md"><strong>me.md</strong><small>Canonical instruction spine</small></a>
+            <a class="doc-link" href="../../AGENTS.md"><strong>AGENTS.md</strong><small>Agent thin pointer</small></a>
+            <a class="doc-link" href="../../docs/VISION.md"><strong>docs/VISION.md</strong><small>Project north star</small></a>
+            <a class="doc-link" href="../../docs/ARCHITECTURE.md"><strong>docs/ARCHITECTURE.md</strong><small>System architecture</small></a>
+            <a class="doc-link" href="../../docs/MVP_SPEC.md"><strong>docs/MVP_SPEC.md</strong><small>MVP boundary</small></a>
+            <a class="doc-link" href="../../docs/governance/BRANCH_POLICY.md"><strong>BRANCH_POLICY.md</strong><small>Branch governance</small></a>
+            <a class="doc-link" href="../../docs/governance/RISK_POLICY.md"><strong>RISK_POLICY.md</strong><small>Risk classification</small></a>
+            <a class="doc-link" href="../../docs/governance/HUMAN_APPROVAL_BOUNDARIES.md"><strong>HUMAN_APPROVAL_BOUNDARIES.md</strong><small>Human gates</small></a>
+            <a class="doc-link" href="../../docs/protocols/GRIND_PROTOCOL.md"><strong>GRIND_PROTOCOL.md</strong><small>Long-running work</small></a>
+            <a class="doc-link" href="../../docs/protocols/REVIEW_WORKFLOW.md"><strong>REVIEW_WORKFLOW.md</strong><small>Review card process</small></a>
+            <a class="doc-link" href="../../schemas/review-card.schema.json"><strong>review-card.schema.json</strong><small>Review artifact schema</small></a>
+            <a class="doc-link" href="../../schemas/event.schema.json"><strong>event.schema.json</strong><small>Chronicle event schema</small></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="problem-frame">
+        <div class="block-header">
+          <p class="block-kicker">03 · Problem framing</p>
+          <h2>Problem frame</h2>
+          <p>Define the real user need before choosing an implementation path.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-3">
+            <div class="card"><h3>User / operator</h3><p>Primary operator is Dillon: an advanced AI-assisted builder who wants local-first control, low-cost automation, overnight grind loops, clear morning review surfaces, and eventual Signal/Telegram escalation only for critical decisions.</p></div>
+            <div class="card"><h3>Job to be done</h3><p>When starting or improving a repository, the operator needs an agent-governed workspace that can prepare high-quality work autonomously while preserving branch safety, traceability, and human decision authority.</p></div>
+            <div class="card"><h3>Success outcome</h3><p>A user can import the repo, run a small set of commands, create protected branches, launch a safe task, receive a review card, approve or modify the work, and resume the next task without losing context.</p></div>
+          </div>
+          <div class="card" style="margin-top:.85rem;">
+            <h3>Non-goals</h3>
+            <ul><li>Do not build a full SaaS platform in the MVP.</li>
+<li>Do not start with a large multi-agent swarm.</li>
+<li>Do not allow silent production changes or protected-branch merges.</li>
+<li>Do not implement live Signal/Telegram escalation before the local review loop works.</li>
+<li>Do not optimize for a polished dashboard before the underlying artifacts are stable.</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="constraints">
+        <div class="block-header">
+          <p class="block-kicker">04 · Constraints</p>
+          <h2>Constraints and invariants</h2>
+          <p>Identify what the design must preserve even if implementation details change.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-2">
+            <div class="card"><h3>Functional constraints</h3><ul><li>Every agent/tool adapter must point to `me.md` as the instruction spine.</li>
+<li>The MVP must produce durable artifacts: Chronicle events, review cards, reports, and branch-aware state.</li>
+<li>The system must support long-running work through checkpoints and resumability.</li>
+<li>The system must provide clear next actions: approve, reject, modify, pause, resume, promote, or release.</li></ul></div>
+            <div class="card"><h3>Governance constraints</h3><ul><li>Protected branches require explicit human approval before merge.</li>
+<li>Sensitive work may be drafted, tested, simulated, and reviewed, but live consequences require approval.</li>
+<li>Agents must create reviewable patches instead of silently mutating stable branches.</li>
+<li>The workshop may improve its own skills and workflows only through reviewable proposals.</li></ul></div>
+            <div class="card"><h3>Technical constraints</h3><ul><li>Start with a Python CLI named `workshop`.</li>
+<li>Use Markdown, JSON, and HTML artifacts before a dynamic web dashboard.</li>
+<li>Use `.branch-policy.yaml` as machine-readable branch governance.</li>
+<li>Use schemas for events, run state, review cards, risk assessments, and design-first reports.</li>
+<li>Keep remote APIs optional and local-first operation preferred.</li></ul></div>
+            <div class="card"><h3>Environmental / budget constraints</h3><ul><li>Prefer local model and local script execution where practical.</li>
+<li>Avoid repeated failure loops and wasteful full-suite test runs.</li>
+<li>Use cheap checks on `agent/*` and `experimental`; reserve full checks for `develop`, `release/*`, and `main`.</li>
+<li>Track future wall time, model usage, remote calls, repeated errors, and estimated energy footprint.</li></ul></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="architecture">
+        <div class="block-header">
+          <p class="block-kicker">05 · Architecture comparison</p>
+          <h2>Architecture options considered</h2>
+          <p>Compare viable options before selecting a design.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3>Option A</h3>
+              <p>Artifact-first CLI MVP: build `workshop` as a local command that reads policy files, writes Chronicle events, creates review cards, and generates Markdown/HTML reports.</p>
+              <p><strong>Tradeoff:</strong> Fastest safe path and easiest to test, but less visually impressive until the dashboard arrives.</p>
+            </div>
+            <div class="card">
+              <h3>Option B</h3>
+              <p>Dashboard-first MVP: build the morning review cockpit immediately and wire backend behavior into it later.</p>
+              <p><strong>Tradeoff:</strong> More motivating UX, but risks hiding weak governance behind a polished interface.</p>
+            </div>
+            <div class="card">
+              <h3>Option C</h3>
+              <p>Agent-runner-first MVP: focus first on autonomous branch/worktree execution and long-running grind loops.</p>
+              <p><strong>Tradeoff:</strong> Gets to automation quickly, but risks unsafe behavior before branch policy, review cards, and event schemas are stable.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="chosen-design">
+        <div class="block-header">
+          <p class="block-kicker">06 · Chosen path</p>
+          <h2>Chosen design</h2>
+          <p>The recommended architecture slice to implement next.</p>
+        </div>
+        <div class="block-body">
+          <div class="card decision">
+            <h3>Design proposal</h3>
+            <p>Choose Option A first: an artifact-first CLI MVP. Implement the smallest reliable governance loop before agent autonomy becomes powerful. Then layer sandbox runner, repo graph, resumable grind, dashboard UX, and escalation bridge on top.</p>
+          </div>
+          <div class="grid-2" style="margin-top:.85rem;">
+            <div class="card"><h3>Data flow</h3><pre><code>tool adapter → me.md → /design-first → report HTML
+request → branch policy → risk classification → implementation slices
+implementation slice → agent branch → verification → Chronicle event → review card → human decision → resume</code></pre></div>
+            <div class="card"><h3>File impact</h3><ul><li>`me.md` becomes the canonical instruction spine.</li>
+<li>`skills/design-first/SKILL.md` defines design-first behavior.</li>
+<li>`workflows/design-first/WORKFLOW.md` defines command-level orchestration.</li>
+<li>`templates/reports/design-first-output.html.tmpl` becomes the report template.</li>
+<li>`schemas/design-first-report.schema.json` validates design-first output.</li>
+<li>`reports/design-first/` stores generated design reports.</li>
+<li>`chronicle/events/` stores immutable run events.</li>
+<li>`reviews/pending/` stores review cards awaiting human decision.</li></ul></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="risk-boundaries">
+        <div class="block-header">
+          <p class="block-kicker">07 · Risk and approval</p>
+          <h2>Risk boundaries</h2>
+          <p>Surface sensitive consequences before implementation begins.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-3">
+            <div class="card risk-low"><h3>Low risk allowed</h3><ul><li>Docs, schemas, placeholder tests, report templates, and example artifacts.</li>
+<li>Local-only CLI scaffolding with no external side effects.</li>
+<li>Review card and Chronicle event generation using sample data.</li>
+<li>Non-destructive repo graph placeholder generation.</li></ul></div>
+            <div class="card risk-medium"><h3>Review required</h3><ul><li>Branch policy enforcement behavior.</li>
+<li>Sandbox/worktree creation and cleanup.</li>
+<li>Risk classifier defaults.</li>
+<li>Any dependency additions.</li>
+<li>Any automation that creates commits or branches.</li></ul></div>
+            <div class="card risk-high"><h3>Human approval required</h3><ul><li>Protected branch merge.</li>
+<li>Production deployment behavior.</li>
+<li>Live credential use or secret rotation.</li>
+<li>Payment/auth live-effect behavior.</li>
+<li>Destructive file, Git, or remote repository operations.</li>
+<li>Signal/Telegram notification behavior that could expose sensitive context.</li></ul></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="implementation-slices">
+        <div class="block-header">
+          <p class="block-kicker">08 · Implementation plan</p>
+          <h2>Implementation slices</h2>
+          <p>Break the work into reviewable, testable steps.</p>
+        </div>
+        <div class="block-body">
+          <div class="checklist">
+            <label class="check-item"><input type="checkbox"><span>Implement `workshop init` to generate the canonical repo skeleton and thin pointer files.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Implement branch policy loading from `.branch-policy.yaml` and expose safe branch classification.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Implement Chronicle event writing for `run.started`, `design_first.completed`, and `review.requested`.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Implement review card generation under `reviews/pending/` using `review-card.schema.json`.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Implement `workshop design-first` to fill this HTML template from structured design-first data.</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="verification-plan">
+        <div class="block-header">
+          <p class="block-kicker">09 · Verification</p>
+          <h2>Verification plan</h2>
+          <p>Define evidence before claiming completion.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Commands to run</h3>
+              <pre><code>python --version
+pip install -e .
+workshop
+bash scripts/verify.sh
+python -m pytest
+python -m json.tool schemas/design-first-report.schema.json</code></pre>
+            </div>
+            <div class="card">
+              <h3>Acceptance criteria</h3>
+              <ul><li>`workshop init` can create or refresh the starter structure without overwriting user work unexpectedly.</li>
+<li>All thin pointer files route agents to `me.md`.</li>
+<li>Branch policy loader correctly identifies `main`, `develop`, `experimental`, `agent/*`, and `release/*`.</li>
+<li>A design-first run produces an HTML report, Chronicle event, and review card.</li>
+<li>Verification commands are documented and pass in the starter repository.</li>
+<li>No secrets or live external effects are required for the MVP.</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="approval-gates">
+        <div class="block-header">
+          <p class="block-kicker">10 · Human decision</p>
+          <h2>Approval gates</h2>
+          <p>Clarify whether implementation can proceed automatically or needs human input.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-2">
+            <div class="card decision">
+              <h3>Proceed condition</h3>
+              <p>Proceed with implementation once the starter repository is imported, `main`, `develop`, and `experimental` exist, branch protections are configured, and the first small PR confirms CI is running.</p>
+            </div>
+            <div class="card risk-high">
+              <h3>Stop condition</h3>
+              <p>Stop or request human approval if implementation would require live credentials, protected branch merges, destructive Git cleanup, production deployment, payment/auth live effects, or notification of sensitive content through an escalation channel.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="open-questions">
+        <div class="block-header">
+          <p class="block-kicker">11 · Remaining uncertainty</p>
+          <h2>Open questions</h2>
+          <p>Questions that should be resolved before or during the next implementation slice.</p>
+        </div>
+        <div class="block-body">
+          <div class="card">
+            <ul><li>Should the initial Python CLI use only the standard library, or should it adopt Typer/Click early?</li>
+<li>Should JSON schema validation be implemented with a dependency immediately, or deferred until v0.2?</li>
+<li>Should the first repo graph be a simple filesystem graph or a richer Python AST-based graph?</li>
+<li>Should generated reports be static HTML only at first, or should a small local dashboard server appear in v0.2?</li>
+<li>What exact branch protection settings should be used on GitHub for `develop` during early solo development?</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="traceability">
+        <div class="block-header">
+          <p class="block-kicker">12 · Audit trail</p>
+          <h2>Traceability artifacts</h2>
+          <p>The design-first output should be traceable into review cards, Chronicle events, and future dashboard views.</p>
+        </div>
+        <div class="block-body">
+          <div class="grid-3">
+            <div class="card"><h3>Chronicle event</h3><p><code>chronicle/events/event-design-first-0001.json</code></p></div>
+            <div class="card"><h3>Review card</h3><p><code>reviews/pending/review-design-first-0001.json</code></p></div>
+            <div class="card"><h3>Repo graph impact</h3><p><code>repo_graph/manifest.json</code></p></div>
+          </div>
+          <p class="footer-note">Generated by Local Agent Workshop `/design-first`. Template source: <code>templates/reports/design-first-output.html.tmpl</code>.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const decisionJson = {
+      project_name: "Local Agent Workshop",
+      run_id: "design-first-0001-project-start",
+      branch: "main → develop planned",
+      readiness_status: "ready_for_initial_implementation_after_repo_import",
+      risk_level: "medium",
+      approval_status: "human review recommended before first implementation branch",
+      recommended_next_action: "import starter repo, protect branches, then implement workshop init",
+      recommended_decision: "Begin with a CLI-and-Markdown-first MVP centered on the canonical instruction spine (`me.md`), branch policy enforcement, Chronicle events, review cards, and a minimal `workshop init` command before building the dashboard or escalation integrations.",
+      review_card_path: "reviews/pending/review-design-first-0001.json",
+      chronicle_event_path: "chronicle/events/event-design-first-0001.json"
+    };
+
+    function copySummary() {
+      const text = document.getElementById("executiveSummary").innerText;
+      navigator.clipboard.writeText(text).then(() => alert("Executive summary copied."));
+    }
+
+    function copyDecisionJson() {
+      navigator.clipboard.writeText(JSON.stringify(decisionJson, null, 2)).then(() => alert("Decision JSON copied."));
+    }
+  </script>
+</body>
+</html>
