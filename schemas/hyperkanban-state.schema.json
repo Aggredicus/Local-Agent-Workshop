@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local-agent-workshop.local/schemas/hyperkanban-state.schema.json",
+  "title": "HyperKanban State",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "project", "rank", "axes", "cards"],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "project": {
+      "type": "object",
+      "required": ["name", "purpose"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "rank": { "type": "integer", "minimum": 1 },
+    "axes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "hyperkanban-axis.schema.json" }
+    },
+    "cards": {
+      "type": "array",
+      "items": { "$ref": "hyperkanban-card.schema.json" }
+    },
+    "rules": {
+      "type": "array"
+    }
+  }
+}

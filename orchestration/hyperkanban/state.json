@@ -1,0 +1,141 @@
+{
+  "schema_version": "0.1.0",
+  "project": {
+    "name": "Local Agent Workshop",
+    "purpose": "Operational project-state topology for agentic orchestration. Chronicle events remain the long-term source of truth; this file is the current working projection."
+  },
+  "rank": 8,
+  "axes": [
+    {
+      "key": "ring",
+      "name": "Dependency ring",
+      "type": "integer",
+      "default": 0,
+      "values": [0, 1, 2, 3, 4, 5, 6, 7],
+      "role": "dependency_depth"
+    },
+    {
+      "key": "state",
+      "name": "Workflow state",
+      "type": "enum",
+      "default": "backlog",
+      "values": ["backlog", "ready", "active", "review", "done", "blocked"],
+      "role": "workflow"
+    },
+    {
+      "key": "shell",
+      "name": "Orbital shell",
+      "type": "integer",
+      "default": 0,
+      "values": [0, 1, 2, 3, 4, 5, 6, 7],
+      "role": "nesting_depth"
+    },
+    {
+      "key": "slot",
+      "name": "Octet slot",
+      "type": "integer",
+      "default": 0,
+      "values": [0, 1, 2, 3, 4, 5, 6, 7],
+      "role": "octet_position"
+    },
+    {
+      "key": "branch",
+      "name": "Version branch",
+      "type": "integer",
+      "default": 0,
+      "values": [0, 1, 2, 3, 4, 5, 6, 7],
+      "role": "timeline"
+    },
+    {
+      "key": "realm",
+      "name": "Realm",
+      "type": "enum",
+      "default": "Core",
+      "values": ["Core", "Governance", "Runtime", "Schemas", "QA", "Docs", "Integrations", "Future"],
+      "role": "context"
+    },
+    {
+      "key": "agent",
+      "name": "Agent lane",
+      "type": "enum",
+      "default": "Human",
+      "values": ["Human", "Architect", "Builder", "Reviewer", "Security", "Docs", "Release"],
+      "role": "owner_lane"
+    },
+    {
+      "key": "risk",
+      "name": "Risk gate",
+      "type": "enum",
+      "default": "none",
+      "values": ["none", "low", "medium", "high", "critical"],
+      "role": "safety"
+    }
+  ],
+  "cards": [
+    {
+      "id": "HK-001",
+      "title": "Establish HyperKanban state kernel",
+      "desc": "Create the minimal state, packet, schema, validator, and tests that future orchestration features build on.",
+      "deps": [],
+      "coords": {
+        "ring": 0,
+        "state": "active",
+        "shell": 0,
+        "slot": 0,
+        "branch": 0,
+        "realm": "Core",
+        "agent": "Builder",
+        "risk": "medium"
+      },
+      "byte": 3,
+      "tags": ["hyperkanban", "kernel", "validator"],
+      "evidence_paths": []
+    },
+    {
+      "id": "HK-002",
+      "title": "Add read-only HyperKanban CLI commands",
+      "desc": "Add validate, next, packet, show, and list commands after the kernel exists.",
+      "deps": ["HK-001"],
+      "coords": {
+        "ring": 1,
+        "state": "backlog",
+        "shell": 1,
+        "slot": 1,
+        "branch": 0,
+        "realm": "Runtime",
+        "agent": "Builder",
+        "risk": "medium"
+      },
+      "byte": 4,
+      "tags": ["cli", "read-only"],
+      "evidence_paths": []
+    },
+    {
+      "id": "HK-003",
+      "title": "Gate completion on evidence",
+      "desc": "Extend cards with test/doc contracts and block done-state transitions without evidence or explicit review-card exception.",
+      "deps": ["HK-001", "HK-002"],
+      "coords": {
+        "ring": 2,
+        "state": "backlog",
+        "shell": 2,
+        "slot": 2,
+        "branch": 0,
+        "realm": "QA",
+        "agent": "Reviewer",
+        "risk": "high"
+      },
+      "byte": 68,
+      "tags": ["evidence", "quality-gate", "review"],
+      "evidence_paths": []
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule-001",
+      "name": "Risk cards require review before completion",
+      "kind": "invariant",
+      "expr": "risk in ['high', 'critical'] implies review evidence before done"
+    }
+  ]
+}

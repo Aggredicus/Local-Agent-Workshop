@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local-agent-workshop.local/schemas/hyperkanban-card.schema.json",
+  "title": "HyperKanban Card",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["id", "title", "desc", "deps", "coords", "byte", "tags"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^HK-[0-9]{3,}$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "desc": { "type": "string" },
+    "deps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "coords": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "byte": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "evidence_paths": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

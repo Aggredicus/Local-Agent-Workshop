@@ -1,0 +1,5 @@
+HK/0.1.0 project=Local_Agent_Workshop rank=8 axes=ring,state,shell,slot,branch,realm,agent,risk
+FLAGS=0:ready,1:active,2:blocked,3:done,4:review,5:secret,6:risk,7:portal
+HK-001|03|d:-|p:ring=0;state=active;shell=0;slot=0;branch=0;realm=Core;agent=Builder;risk=medium|t:hyperkanban.kernel.validator
+HK-002|04|d:HK-001|p:ring=1;state=backlog;shell=1;slot=1;branch=0;realm=Runtime;agent=Builder;risk=medium|t:cli.read-only
+HK-003|44|d:HK-001.HK-002|p:ring=2;state=backlog;shell=2;slot=2;branch=0;realm=QA;agent=Reviewer;risk=high|t:evidence.quality-gate.review
