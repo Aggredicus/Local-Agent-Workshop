@@ -5,7 +5,7 @@ description = "Local-first autonomous agent development workshop."
 requires-python = ">=3.11"
 
 [project.scripts]
-workshop = "forge.cli:main"
+workshop = "workshop_core.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
