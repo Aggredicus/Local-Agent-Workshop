@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{project_name}} — Design-First Report</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e5e7eb; line-height: 1.6; }
+    header, main { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+    header { border-bottom: 1px solid rgba(255,255,255,.15); }
+    h1 { font-size: clamp(2rem, 6vw, 4rem); line-height: 1; margin: 0 0 1rem; }
+    h2 { color: #a7f3d0; margin-top: 2rem; }
+    .card { border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); border-radius: 1rem; padding: 1rem; margin: 1rem 0; }
+    code, pre { background: #020617; color: #bae6fd; border-radius: .5rem; }
+    pre { padding: 1rem; overflow-x: auto; }
+    a { color: #7dd3fc; }
+  </style>
+</head>
+<body>
+  <header>
+    <p>/design-first output</p>
+    <h1>{{project_name}}</h1>
+    <p>{{design_summary}}</p>
+    <p><strong>Run:</strong> {{run_id}} · <strong>Branch:</strong> {{branch}} · <strong>Risk:</strong> {{risk_level}}</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Recommended decision</h2>
+      <p>{{recommended_decision}}</p>
+    </section>
+    <section class="card">
+      <h2>Decision rationale</h2>
+      <p>{{decision_rationale}}</p>
+    </section>
+    <section class="card">
+      <h2>Implementation slices</h2>
+      <ul>{{implementation_slices}}</ul>
+    </section>
+    <section class="card">
+      <h2>Verification commands</h2>
+      <pre><code>{{verification_commands}}</code></pre>
+    </section>
+    <section class="card">
+      <h2>Traceability</h2>
+      <ul>
+        <li>Chronicle event: <code>{{chronicle_event_path}}</code></li>
+        <li>Review card: <code>{{review_card_path}}</code></li>
+        <li>Repo graph: <code>{{repo_graph_reference}}</code></li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Project links</h2>
+      <ul>
+        <li><a href="../../me.md">me.md</a></li>
+        <li><a href="../../docs/governance/RISK_POLICY.md">Risk policy</a></li>
+        <li><a href="../../docs/protocols/GRIND_PROTOCOL.md">Grind protocol</a></li>
+        <li><a href="../../schemas/design-first-report.schema.json">Design-first schema</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
