@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local-agent-workshop.local/schemas/hyperkanban-axis.schema.json",
+  "title": "HyperKanban Axis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["key", "name", "type", "default", "values", "role"],
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["integer", "enum", "text", "boolean"]
+    },
+    "default": {},
+    "values": {
+      "type": "array"
+    },
+    "role": { "type": "string", "minLength": 1 }
+  }
+}
