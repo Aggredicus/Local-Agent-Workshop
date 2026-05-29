@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Local Agent Workshop — Design-First Starting Point</title></head>
+<body>
+<h1>Local Agent Workshop — Design-First Starting Point</h1>
+<p>Run ID: design-first-0001-project-start</p>
+<p>Risk: medium</p>
+<h2>Recommended decision</h2>
+<p>Begin with a CLI-and-Markdown-first MVP centered on me.md, branch policy enforcement, Chronicle events, review cards, and a minimal workshop init command.</p>
+<h2>Implementation slices</h2>
+<ul>
+<li>Implement workshop init.</li>
+<li>Implement branch policy loading.</li>
+<li>Implement Chronicle event writing.</li>
+<li>Implement review card generation.</li>
+<li>Implement workshop design-first rendering.</li>
+</ul>
+<h2>Verification</h2>
+<pre>python --version
+pip install -e .
+workshop
+bash scripts/verify.sh
+python -m pytest</pre>
+</body>
+</html>
