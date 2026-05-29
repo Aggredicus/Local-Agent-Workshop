@@ -1,0 +1,29 @@
+branch_policy:
+  stable: main
+  integration: develop
+  sandbox: experimental
+  agent_prefix: agent/
+  release_prefix: release/
+  protected:
+    - main
+    - develop
+    - release/*
+    - rc/*
+  agent_can_push:
+    - agent/*
+    - experimental
+    - spike/*
+    - docs/*
+    - test/*
+  agent_cannot_push:
+    - main
+    - develop
+    - release/*
+    - rc/*
+  requires_human_approval:
+    - protected_branch_merge
+    - production_deploy
+    - live_credential_use
+    - payment_live_effect
+    - destructive_action
+    - customer_data_access
