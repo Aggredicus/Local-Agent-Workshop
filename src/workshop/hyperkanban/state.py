@@ -1,7 +1,8 @@
-"""Read-only HyperKanban state operations.
+"""HyperKanban state operations.
 
-The first CLI slice intentionally stays read-only: load, validate, list, show,
-select the next unblocked card, and emit the deterministic compact packet.
+This module keeps core orchestration behavior testable outside GitHub Actions.
+Early commands are intentionally small: load, validate, list, show, select the
+next unblocked card, emit a compact packet, and complete a card with evidence.
 """
 from __future__ import annotations
 
@@ -48,6 +49,21 @@ def load_state(path: Path = DEFAULT_STATE_PATH) -> dict[str, Any]:
     return data
 
 
+def save_state(path: Path, state: dict[str, Any]) -> None:
+    validate_state(state)
+    path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+
+
+def save_packet(state_path: Path, state: dict[str, Any]) -> None:
+    packet_path = state_path.parent / "packet.txt"
+    packet_path.write_text(build_packet(state), encoding="utf-8")
+
+
+def save_state_and_packet(path: Path, state: dict[str, Any]) -> None:
+    save_state(path, state)
+    save_packet(path, state)
+
+
 def validate_state(state: dict[str, Any]) -> None:
     required = {"schema_version", "project", "rank", "axes", "cards"}
     missing = sorted(required - set(state))
@@ -86,11 +102,34 @@ def validate_state(state: dict[str, Any]) -> None:
             raise HyperKanbanError(f"card {card_id} coords must be an object")
         if set(coords) != set(axis_keys):
             raise HyperKanbanError(f"card {card_id} coords must match registered axes")
+        for field in ("evidence_paths", "open_exceptions", "validation_commands", "generated_reports", "changed_docs"):
+            if field in card and not isinstance(card[field], list):
+                raise HyperKanbanError(f"card {card_id} {field} must be a list")
+        for field in ("test_contract", "doc_contract"):
+            if field in card and not isinstance(card[field], dict):
+                raise HyperKanbanError(f"card {card_id} {field} must be an object")
     for card in cards:
         card_id = card["id"]
         for dep in card["deps"]:
             if dep not in card_ids:
                 raise HyperKanbanError(f"card {card_id} depends on missing card {dep}")
+        if is_done(card):
+            validate_completion_evidence(card)
+
+
+def validate_completion_evidence(card: dict[str, Any]) -> None:
+    if completion_requires_evidence(card) and not completion_has_evidence_or_exception(card):
+        raise HyperKanbanError(f"card {card['id']} is done but lacks required evidence or exception")
+
+
+def completion_requires_evidence(card: dict[str, Any]) -> bool:
+    test_contract = card.get("test_contract", {})
+    doc_contract = card.get("doc_contract", {})
+    return bool(test_contract.get("required") or doc_contract.get("required"))
+
+
+def completion_has_evidence_or_exception(card: dict[str, Any]) -> bool:
+    return bool(card.get("evidence_paths") or card.get("open_exceptions"))
 
 
 def build_packet(state: dict[str, Any]) -> str:
@@ -156,10 +195,32 @@ def next_card(state: dict[str, Any]) -> dict[str, Any] | None:
     )[0]
 
 
+def complete_card(state: dict[str, Any], card_id: str, evidence: list[str] | None = None, exception: str | None = None) -> dict[str, Any]:
+    card = find_card(state, card_id)
+    if is_blocked(state, card):
+        raise HyperKanbanError(f"card {card_id} is blocked and cannot be completed")
+    if evidence:
+        paths = card.setdefault("evidence_paths", [])
+        for item in evidence:
+            if item not in paths:
+                paths.append(item)
+    if exception:
+        exceptions = card.setdefault("open_exceptions", [])
+        if exception not in exceptions:
+            exceptions.append(exception)
+    if completion_requires_evidence(card) and not completion_has_evidence_or_exception(card):
+        raise HyperKanbanError(f"card {card_id} requires evidence or review-card exception before completion")
+    card["byte"] = (card["byte"] | DONE) & ~(READY | ACTIVE | BLOCKED)
+    card.setdefault("coords", {})["state"] = "done"
+    validate_state(state)
+    return card
+
+
 def format_card(card: dict[str, Any]) -> str:
     flags = ",".join(decoded_flags(card["byte"])) or "none"
     deps = ",".join(card.get("deps", [])) or "-"
     coords = ";".join(f"{key}={value}" for key, value in card.get("coords", {}).items())
+    evidence = ",".join(card.get("evidence_paths", [])) or "-"
     return "\n".join(
         [
             f"{card['id']}: {card['title']}",
@@ -167,6 +228,7 @@ def format_card(card: dict[str, Any]) -> str:
             f"deps={deps}",
             f"coords={coords}",
             f"tags={','.join(card.get('tags', [])) or '-'}",
+            f"evidence={evidence}",
             card.get("desc", ""),
         ]
     )
