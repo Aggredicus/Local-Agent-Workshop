@@ -1,0 +1,8 @@
+---
+description: Always read the canonical instruction spine first.
+alwaysApply: true
+---
+
+Read `me.md` before making changes.
+
+This Cursor rule is a thin pointer. Do not treat this file as the source of truth.
