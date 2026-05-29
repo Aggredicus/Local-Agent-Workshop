@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Verification placeholder"
-echo "Add lint, tests, schema validation, and security checks here."
+echo "Running Local Agent Workshop verification"
 
-if command -v python >/dev/null 2>&1; then
-  python -m pytest
-fi
+python scripts/validate_hyperkanban.py orchestration/hyperkanban/state.json
+python -m pytest
