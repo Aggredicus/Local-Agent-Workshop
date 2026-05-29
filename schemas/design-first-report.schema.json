@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DesignFirstReport",
+  "type": "object",
+  "required": ["run_id", "project_name", "readiness_status", "risk_level", "recommended_decision"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "project_name": {"type": "string"},
+    "readiness_status": {"type": "string"},
+    "risk_level": {"type": "string"},
+    "recommended_decision": {"type": "string"},
+    "implementation_slices": {"type": "array", "items": {"type": "string"}},
+    "verification_commands": {"type": "array", "items": {"type": "string"}}
+  }
+}
