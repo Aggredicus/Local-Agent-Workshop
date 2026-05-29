@@ -17,7 +17,7 @@ workshop
 ## Core loop
 
 ```text
-repo → task selection → isolated branch/worktree → work → verify → review card → human decision → resume
+repo -> task selection -> isolated branch/worktree -> work -> verify -> review card -> human decision -> resume
 ```
 
 ## Instruction hierarchy
@@ -26,25 +26,28 @@ All agent/tool adapter files point to `me.md`.
 
 ```text
 AGENTS.md / CLAUDE.md / CODEX.md / Cursor rules
-  ↓
+  ->
 me.md
-  ↓
+  ->
 docs/, schemas/, skills/, workflows/, plan/, scripts/
-  ↓
+  ->
 runtime artifacts: chronicle/, reviews/, reports/, repo_graph/, .grind/
 ```
 
 ## Current status
 
-This repository is completing Issue #1: repository normalization from uploaded starter assets into a working Local Agent Workshop project root.
+Repository normalization and branch creation are complete enough to proceed. The canonical instruction spine, branch model, initial CI scaffold, and `/design-first` assets are installed.
 
-## First recommended steps
+The next focus is Issue #3: verify GitHub Actions CI with a smoke-test pull request into `develop`.
 
-1. Finish repository normalization from uploaded zip assets.
-2. Confirm `me.md` as the canonical instruction spine.
-3. Create `develop` and `experimental` branches.
-4. Verify GitHub Actions CI.
-5. Implement the first CLI command: `workshop init`.
+Temporary import zip files remain at the repository root by choice and can be moved to `archive/imports/` in a later cleanup.
+
+## Next recommended steps
+
+1. Verify GitHub Actions CI through a smoke-test pull request into `develop`.
+2. Record the exact CI check name for branch protection.
+3. Configure branch protection for `main` and `develop`.
+4. Implement the first CLI command: `workshop init`.
 
 ## Key documents
 
