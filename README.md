@@ -17,7 +17,7 @@ workshop
 ## Core loop
 
 ```text
-repo → task selection → isolated branch/worktree → work → verify → review card → human decision → resume
+repo → cleanup preflight → task selection → isolated branch/worktree → work → verify → cleanup closeout → review card → human decision → resume
 ```
 
 ## Instruction hierarchy
@@ -31,20 +31,30 @@ me.md
   ↓
 docs/, schemas/, skills/, workflows/, plan/, scripts/
   ↓
-runtime artifacts: chronicle/, reviews/, reports/, repo_graph/, .grind/
+runtime artifacts: chronicle/, reviews/, reports/, repo_graph/, .grind/, orchestration/
 ```
 
 ## Current status
 
-This repository is completing Issue #1: repository normalization from uploaded starter assets into a working Local Agent Workshop project root.
+Repository normalization and branch creation are complete enough to proceed with iterative implementation on `develop`.
 
-## First recommended steps
+The repository now includes:
 
-1. Finish repository normalization from uploaded zip assets.
-2. Confirm `me.md` as the canonical instruction spine.
-3. Create `develop` and `experimental` branches.
-4. Verify GitHub Actions CI.
-5. Implement the first CLI command: `workshop init`.
+- the canonical instruction spine in `me.md`,
+- branch governance documents,
+- risk and human-approval policies,
+- HyperKanban state, packet, validator, and CLI commands,
+- evidence-gated HyperKanban completion,
+- repository cleanup protocol and `/repo-cleanup` skill,
+- a non-destructive cleanup audit script.
+
+## Next recommended steps
+
+1. Finish cleanup automation and enforcement from #37.
+2. Implement high-concurrency multi-agent orchestration from #35.
+3. Add cleanup evidence fields to PR/review templates.
+4. Add card leases, stack plans, merge trains, and context packs.
+5. Continue hardening CI, verification, and branch protection.
 
 ## Key documents
 
@@ -54,4 +64,6 @@ This repository is completing Issue #1: repository normalization from uploaded s
 - `docs/governance/BRANCH_POLICY.md` — human-readable branch policy.
 - `docs/governance/RISK_POLICY.md` — risk and approval model.
 - `docs/protocols/GRIND_PROTOCOL.md` — long-running autonomous work protocol.
+- `docs/protocols/REPOSITORY_CLEANUP_PROTOCOL.md` — cleanup preflight and closeout protocol.
 - `docs/protocols/REVIEW_WORKFLOW.md` — review-card and human-decision workflow.
+- `orchestration/hyperkanban/README.md` — HyperKanban state and packet contract.
