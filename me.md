@@ -41,6 +41,7 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 9. The workshop may improve itself only through reviewable proposals.
 10. Clean before work and clean after work using the repository cleanup protocol.
 11. Quality must be analyzed at the beginning of meaningful work and again after closeout before human review.
+12. Publishing to `main` must be quality-gated, evidence-linked, and explicitly human-approved.
 
 ## Canonical automation loop
 
@@ -68,7 +69,7 @@ Every meaningful automation cycle should follow this order unless explicitly ski
 - `/generate-issue closeout-check` creates or skips follow-up issue candidates after duplicate/value checks.
 - `/cleanup closeout` leaves the repository synchronized, reviewable, and free of unresolved cleanup blockers.
 - `/quality-analysis final review gate` evaluates the complete closeout package before human review.
-- `review/human decision` approves, modifies, rejects, merges, defers, or redirects the work.
+- `review/human decision` approves, modifies, rejects, merges, defers, redirects, or authorizes `/publish`.
 
 The loop should remain cost-aware:
 
@@ -134,6 +135,29 @@ Final review quality analysis asks:
 - Are follow-up issue decisions complete?
 - Are risks and limitations documented?
 - Is the package ready for human review?
+- Is the package ready for `/publish`, if publishing is requested?
+
+## Publish protocol
+
+Read:
+
+- `docs/protocols/PUBLISH_PROTOCOL.md`
+- `skills/publish/SKILL.md`
+
+Use `/publish` only after review/human decision explicitly approves promoting reviewed `develop` work into `main`.
+
+Branch meaning:
+
+```text
+main     stable, released, client-safe code
+develop  reviewed integration branch
+```
+
+`/publish` is quality-gated. It depends on a successful `/quality-analysis final review gate` pass and a configurable publish approval profile.
+
+Agents may prepare publish packets, incident summaries, quality summaries, changelog summaries, `develop` → `main` PRs, and readiness recommendations.
+
+Agents must not silently merge into `main`, bypass branch protection, ignore failed verification, hide incidents, erase audit history, or publish without explicit human approval.
 
 ## Branch model
 
