@@ -40,6 +40,44 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 8. Agents should stay quiet unless human judgment is truly required.
 9. The workshop may improve itself only through reviewable proposals.
 10. Clean before work and clean after work using the repository cleanup protocol.
+11. Quality must be analyzed at the beginning of meaningful work and again after closeout before human review.
+
+## Canonical automation loop
+
+Every meaningful automation cycle should follow this order unless explicitly skipped with a reason:
+
+```text
+/cleanup preflight
+→ /quality-analysis baseline
+→ /generate-issue start-check
+→ /grind
+→ /self-improvement
+→ /generate-issue closeout-check
+→ /cleanup closeout
+→ /quality-analysis final review gate
+→ review/human decision
+```
+
+### Loop intent
+
+- `/cleanup preflight` confirms the repository is synchronized, tidy, and safe to work in.
+- `/quality-analysis baseline` checks whether the intended work is clear, scoped, testable, and worth doing.
+- `/generate-issue start-check` confirms there is a valid issue/card or creates/simplifies/skips one through reviewable logic.
+- `/grind` performs bounded implementation, documentation, testing, or review-preparation work.
+- `/self-improvement` reflects from evidence and writes bounded JSON proposals or lessons without silently mutating governance.
+- `/generate-issue closeout-check` creates or skips follow-up issue candidates after duplicate/value checks.
+- `/cleanup closeout` leaves the repository synchronized, reviewable, and free of unresolved cleanup blockers.
+- `/quality-analysis final review gate` evaluates the complete closeout package before human review.
+- `review/human decision` approves, modifies, rejects, merges, defers, or redirects the work.
+
+The loop should remain cost-aware:
+
+```text
+Analyze only enough.
+Create only bounded follow-up work.
+Stop when value drops below cost.
+Escalate only at risk boundaries.
+```
 
 ## Cleanup protocol
 
@@ -52,7 +90,7 @@ Every meaningful work session has two cleanup gates:
 
 ```text
 Preflight cleanup gate  = before changing files
-Closeout cleanup gate   = before opening/merging/ending work
+Closeout cleanup gate   = before final quality analysis and human review
 ```
 
 Suggested commands:
@@ -64,6 +102,38 @@ python scripts/repo_cleanup.py --phase after
 ```
 
 Cleanup is non-destructive by default. Agents may propose cleanup actions, but must not silently delete branches, remove audit/history files, close high-risk review cards, alter protected branches, rewrite Chronicle events, or bypass human approval gates.
+
+## Quality analysis protocol
+
+Read:
+
+- `docs/protocols/QUALITY_ANALYSIS_PROTOCOL.md`
+- `skills/quality-analysis/SKILL.md`
+
+Quality analysis has two gates:
+
+```text
+Baseline quality analysis      = after cleanup preflight, before issue/start work decisions
+Final review quality analysis  = after cleanup closeout, before review/human decision
+```
+
+Baseline quality analysis asks:
+
+- Is the intended work clear?
+- Is the scope bounded?
+- Are acceptance criteria present?
+- Are expected tests/docs known?
+- Is the risk level understood?
+- Should work proceed, split, simplify, or escalate?
+
+Final review quality analysis asks:
+
+- Did the work meet acceptance criteria?
+- Is evidence real and specific?
+- Did cleanup closeout pass?
+- Are follow-up issue decisions complete?
+- Are risks and limitations documented?
+- Is the package ready for human review?
 
 ## Branch model
 
