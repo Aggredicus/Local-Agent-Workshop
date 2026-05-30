@@ -62,7 +62,8 @@ Purpose:
 - verify test and cleanup claims,
 - detect scope creep,
 - identify missing documentation or risk notes,
-- decide whether the work is ready for human review.
+- decide whether the work is ready for human review,
+- decide whether the work can satisfy a publish-readiness profile when `/publish` is requested.
 
 Final review questions:
 
@@ -76,6 +77,7 @@ Are risks and limitations documented?
 Do changed files match stated scope?
 Is rollback or reversal clear?
 Is the package ready for review/human decision?
+Is the package ready for a /publish approval profile, if publishing is requested?
 ```
 
 ## Inputs
@@ -216,9 +218,23 @@ quality finding
 
 ## Handoff to `/self-improvement`
 
-Closeout quality analysis can become an input to self-improvement.
+The timing of this handoff depends on which quality-analysis gate produced the finding.
 
-Repeated quality findings should become lessons, skill proposals, test-gap proposals, or HyperKanban card proposals.
+Baseline quality analysis happens before `/self-improvement` in the same cycle, so its findings may inform same-cycle grind planning and self-improvement context.
+
+Final review quality analysis happens after `/self-improvement` in the canonical loop. Therefore final-review findings should normally become **next-cycle** self-improvement inputs, publish-readiness inputs, review-card notes, Chronicle candidates, or `/generate-issue` candidates.
+
+Do not imply that final review quality analysis feeds same-cycle `/self-improvement` unless an explicit extra reflection pass is requested and documented.
+
+Repeated quality findings should become lessons, skill proposals, test-gap proposals, or HyperKanban card proposals through the next appropriate cycle.
+
+## Handoff to `/publish`
+
+Final review quality analysis is the primary quality gate for `/publish`.
+
+A publish attempt should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a `develop` → `main` publish.
+
+Publish should be blocked when final quality analysis has unresolved `BLOCKER` findings, unresolved `ESCALATE` findings without a human decision, missing verification evidence, failed cleanup closeout, undocumented incidents, unapproved high-risk changes, or a missing publish packet.
 
 ## HyperKanban hooks
 
