@@ -60,6 +60,7 @@ Ask:
 - Are risks and limitations documented?
 - Do changed files match stated scope?
 - Is the package ready for review/human decision?
+- Is the package ready for a `/publish` approval profile, if publishing is requested?
 
 Recommended output:
 
@@ -69,6 +70,7 @@ Evidence:
 Risks:
 Follow-ups:
 Cleanup closeout:
+Publish readiness, if requested:
 Human decision needed:
 ```
 
@@ -161,7 +163,19 @@ quality finding
 
 ### To `/self-improvement`
 
-Repeated quality findings may become lessons, skill updates, tests, or HyperKanban proposals.
+Baseline quality findings can inform same-cycle planning because baseline mode happens before `/grind` and `/self-improvement`.
+
+Final review quality analysis happens after `/self-improvement` in the canonical loop. Final-review findings should normally become next-cycle self-improvement inputs, review notes, Chronicle candidates, HyperKanban proposals, or `/generate-issue` candidates.
+
+Do not treat final review quality findings as same-cycle `/self-improvement` input unless an explicit extra reflection pass is requested and documented.
+
+### To `/publish`
+
+Final review quality analysis is the primary quality gate for `/publish`.
+
+`/publish` should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a `develop` → `main` publish.
+
+Block publish on unresolved `BLOCKER` findings, unresolved `ESCALATE` findings without human decision, failed verification, failed cleanup closeout, undocumented incidents, unapproved high-risk changes, or missing publish packet.
 
 ### To HyperKanban
 
