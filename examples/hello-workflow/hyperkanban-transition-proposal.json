@@ -1,0 +1,18 @@
+{
+  "artifact_type": "hyperkanban_transition_proposal_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "proposal_id": "hello-hk-proposal-001",
+  "workflow_id": "hello-workflow-001",
+  "task_id": "hello-docs-task-001",
+  "operation": "add_evidence",
+  "target_card_id": "HK-HELLO-WORKFLOW-EXAMPLE",
+  "proposal_only": true,
+  "reason": "The hello workflow is a reference example. This file only demonstrates what a future HyperKanban proposal could look like.",
+  "evidence_refs": [
+    "examples/hello-workflow/evidence.json",
+    "examples/hello-workflow/human-review-packet.md"
+  ],
+  "recommended_status": "needs_human_review",
+  "next_action": "Review the example and decide whether a real HyperKanban card should be created later."
+}
