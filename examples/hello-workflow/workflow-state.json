@@ -1,0 +1,46 @@
+{
+  "artifact_type": "workflow_state_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "workflow_id": "hello-workflow-001",
+  "status": "completed",
+  "created_at": "2026-06-01T00:00:00Z",
+  "updated_at": "2026-06-01T00:10:00Z",
+  "initiator": "example-human",
+  "supervisor_id": "example-supervisor",
+  "task_ids": [
+    "hello-docs-task-001"
+  ],
+  "card_ids": [],
+  "lease_ids": [],
+  "trace_id": "trace-hello-workflow-001",
+  "attempts": [
+    {
+      "attempt": 1,
+      "role": "documenter",
+      "status": "completed",
+      "started_at": "2026-06-01T00:01:00Z",
+      "completed_at": "2026-06-01T00:09:00Z"
+    }
+  ],
+  "approval_state": "waiting_for_human_review",
+  "artifact_refs": [
+    "examples/hello-workflow/README.md",
+    "examples/hello-workflow/task-intake.json",
+    "examples/hello-workflow/supervisor-decision.json",
+    "examples/hello-workflow/evidence.json",
+    "examples/hello-workflow/handoff.json",
+    "examples/hello-workflow/hyperkanban-transition-proposal.json",
+    "examples/hello-workflow/chronicle-event.json",
+    "examples/hello-workflow/human-review-packet.md"
+  ],
+  "evidence_refs": [
+    "examples/hello-workflow/evidence.json"
+  ],
+  "incident_refs": [],
+  "handoff_refs": [
+    "examples/hello-workflow/handoff.json"
+  ],
+  "current_blockers": [],
+  "next_action": "Human reviews the packet and decides whether the example is acceptable as a reference fixture."
+}
