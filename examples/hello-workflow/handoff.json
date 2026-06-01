@@ -1,0 +1,37 @@
+{
+  "artifact_type": "agent_handoff_packet_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "handoff_id": "hello-handoff-001",
+  "issue": 116,
+  "workflow_id": "hello-workflow-001",
+  "task_id": "hello-docs-task-001",
+  "role": "documenter",
+  "branch_or_worktree": "agent-0116-hello-workflow",
+  "status": "complete_waiting_for_human_review",
+  "summary": "Minimal hello workflow example created as safe reference artifacts.",
+  "changed_files": [
+    "examples/hello-workflow/README.md",
+    "examples/hello-workflow/task-intake.json",
+    "examples/hello-workflow/supervisor-decision.json",
+    "examples/hello-workflow/workflow-state.json",
+    "examples/hello-workflow/evidence.json",
+    "examples/hello-workflow/handoff.json",
+    "examples/hello-workflow/hyperkanban-transition-proposal.json",
+    "examples/hello-workflow/chronicle-event.json",
+    "examples/hello-workflow/human-review-packet.md"
+  ],
+  "evidence_paths": [
+    "examples/hello-workflow/evidence.json",
+    "examples/hello-workflow/human-review-packet.md"
+  ],
+  "checks_run": [
+    "manual artifact review"
+  ],
+  "blockers": [],
+  "risks": [
+    "Schemas are planned, so examples are not yet machine-validated."
+  ],
+  "next_recommended_action": "Human reviews this example, then future work promotes it into a validation fixture once schemas exist.",
+  "human_decision_needed": "Accept, revise, or reject the hello workflow as the minimal reference workflow."
+}
