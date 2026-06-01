@@ -1,0 +1,132 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_status": "example_seed_not_canonical_runtime_state",
+  "repository": {
+    "full_name": "Aggredicus/Local-Agent-Workshop",
+    "active_sprint_issue": 118,
+    "first_pr": 119,
+    "self_model_issue": 120,
+    "mission": "Build a local-first, human-governed autonomous development workshop where agents can perform long-duration coding, testing, documentation, graph, and review-preparation work while preserving human control at risk boundaries."
+  },
+  "source_of_truth_layers": [
+    { "layer": "me.md", "role": "canonical instruction spine" },
+    { "layer": "GitHub Issues", "role": "planned work and coordination" },
+    { "layer": "Pull Requests", "role": "review boundary" },
+    { "layer": "CI", "role": "validation proof" },
+    { "layer": "Chronicle", "role": "historical event memory" },
+    { "layer": "HyperKanban", "role": "operational projection" },
+    { "layer": "Reports", "role": "evidence artifacts" },
+    { "layer": "Dashboard", "role": "generated visual projection, not authority" }
+  ],
+  "body_schema": {
+    "bones": ["docs/governance/", "docs/protocols/", "schemas/", "me.md"],
+    "muscles": ["scripts/", "skills/", "workshop CLI"],
+    "nervous_system": ["HyperKanban", "workflow state", "trace context", "event envelope", "dashboard projection"],
+    "memory": ["Chronicle events", "Git commits", "PR history", "issue history", "reports/"],
+    "senses": ["GitHub issues", "commits", "PRs", "CI results", "reports", "schema registry", "dashboard warnings"],
+    "immune_system": ["risk policy", "human approval boundaries", "secret hygiene", "prompt-injection policy", "side-effect wrappers"],
+    "metabolism": ["CI validation gates", "cleanup", "quality-analysis", "publish protocol"],
+    "proprioception": ["repository dependency graph", "planned-path map", "file ownership analysis", "dashboard verdicts"]
+  },
+  "core_invariants": [
+    "Dashboard views are projections, not authority.",
+    "Chronicle is append-only historical memory.",
+    "HyperKanban is a compact operational projection.",
+    "No protected branch mutation without explicit human approval.",
+    "No public endpoint exposure by default.",
+    "No secrets in repository artifacts.",
+    "No work is done without evidence.",
+    "No high-risk output self-approval.",
+    "No prior chat history should be required for cold-start agents."
+  ],
+  "roadmap_phases": [
+    {
+      "id": "M1",
+      "name": "Agent-operable grammar",
+      "status": "in_progress",
+      "issues": [92, 118, 119],
+      "primary_paths": ["docs/protocols/STANDARD_EXECUTION_CONTRACT.md", ".github/ISSUE_TEMPLATE/agent-task.md", "me.md"],
+      "exit_criteria": ["Standard execution contract exists", "Agent-task issue template exists", "me.md routes agents to the contract"]
+    },
+    {
+      "id": "M2",
+      "name": "Schema registry and validation metabolism",
+      "status": "planned",
+      "issues": [109, 111, 112],
+      "primary_paths": ["schemas/registry.schema.json", "schemas/schema-registry.json", "scripts/validate_repo_contracts.py", "reports/validation/", "tests/fixtures/workflows/"],
+      "exit_criteria": ["Schema registry validates", "Validation gate runs locally", "Fixtures cover success and failure cases"]
+    },
+    {
+      "id": "M3",
+      "name": "Navigation and hello workflow self-simulation",
+      "status": "planned",
+      "issues": [114, 115, 116],
+      "primary_paths": ["docs/README.md", "docs/NAVIGATION_INDEX.md", "docs/architecture/REPOSITORY_KNOWLEDGE_MAP.md", "examples/hello-workflow/"],
+      "exit_criteria": ["Duplicate documentation-map issue resolved", "Hello workflow validates", "Human review packet exists"]
+    },
+    {
+      "id": "M4",
+      "name": "Deterministic HyperKanban CI dashboard",
+      "status": "planned",
+      "issues": [117],
+      "primary_paths": ["schemas/repository_dependency_graph.schema.json", "schemas/dashboard_projection.schema.json", "scripts/build_dashboard_projection.py", "scripts/analyze_repository_graph.py", "scripts/render_ci_dashboard.py", "reports/dashboard/"],
+      "exit_criteria": ["Dashboard is generated from repo artifacts", "Every recommendation includes a reason chain", "CI uploads dashboard artifacts"]
+    },
+    {
+      "id": "M5",
+      "name": "Agent arrival and swarm constraints",
+      "status": "planned",
+      "issues": [81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91],
+      "primary_paths": ["docs/protocols/AGENT_ARRIVAL_PROTOCOL.md", "docs/governance/AGENT_PERMISSION_TIERS.md", "schemas/agent_task_intake.schema.json", "schemas/agent_runtime_budget.schema.json", "schemas/agent_work_evidence.schema.json", "schemas/agent_handoff_packet.schema.json"],
+      "exit_criteria": ["Fresh agents can orient without chat history", "Mutable tasks have role, budget, lease, evidence, and handoff requirements"]
+    },
+    {
+      "id": "M6",
+      "name": "Runtime control plane",
+      "status": "planned",
+      "issues": [93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104],
+      "primary_paths": ["docs/protocols/SUPERVISOR_CONTROL_PLANE.md", "schemas/workflow_state.schema.json", "schemas/trace_context.schema.json", "schemas/workshop_event_envelope.schema.json", "docs/governance/SIDE_EFFECT_WRAPPER_POLICY.md", "docs/security/UNTRUSTED_CONTENT_POLICY.md"],
+      "exit_criteria": ["Runtime state exists outside model context", "Trace IDs connect decisions and evidence", "Untrusted content cannot override governance"]
+    },
+    {
+      "id": "M7",
+      "name": "Proxmox Workshop Node implementation",
+      "status": "planned",
+      "issues": [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69],
+      "primary_paths": ["docs/infrastructure/PROXMOX_WORKSHOP_NODE.md", "schemas/local_model_provider.schema.json", "scripts/check_local_llm.py", "scripts/workshop_node_report.sh", "skills/proxmox-local-llm/SKILL.md", "reports/model-health/"],
+      "exit_criteria": ["Local model provider config validates", "Local LLM health check emits reports", "Workshop node check is non-destructive"]
+    },
+    {
+      "id": "M8",
+      "name": "Operations and long-term maintenance",
+      "status": "planned",
+      "issues": [70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80],
+      "primary_paths": ["docs/operations/BACKUP_AND_RESTORE_POLICY.md", "docs/operations/RETENTION_POLICY.md", "docs/operations/INCIDENT_RESPONSE_RUNBOOK.md", "scripts/check_artifact_integrity.py", "scripts/check_environment_drift.py"],
+      "exit_criteria": ["Backups and restore rehearsals documented", "Retention audit is read-only by default", "Artifact integrity and environment drift can be checked"]
+    }
+  ],
+  "adaptive_damage_model": [
+    { "condition": "local_model_endpoint_down", "symptom": "model health check fails", "response": "mark local-model tasks blocked and route docs/schema tasks to fallback" },
+    { "condition": "schema_drift", "symptom": "fixtures or examples fail validation", "response": "block dependent implementation and update schema registry or migration notes" },
+    { "condition": "duplicate_issue", "symptom": "two issues claim the same objective/path", "response": "mark duplicate or stale and require human decision" },
+    { "condition": "missing_evidence", "symptom": "task claims done but no report/check/packet exists", "response": "mark not human-ready and route back to evidence generation" },
+    { "condition": "proxmox_node_unavailable", "symptom": "local node smoke test fails", "response": "pause local-runtime-dependent work and continue docs/schema work" }
+  ],
+  "next_actions": [
+    { "rank": 1, "issue": 119, "action": "Review PR #119 for #92 and merge or request changes." },
+    { "rank": 2, "issue": 109, "action": "Implement schema registry and compatibility policy." },
+    { "rank": 3, "issue": 111, "action": "Implement CI/local validation gate." },
+    { "rank": 4, "issue": 114, "action": "Resolve #114/#115 duplication and implement documentation navigation." },
+    { "rank": 5, "issue": 116, "action": "Implement minimal hello workflow reference implementation." },
+    { "rank": 6, "issue": 117, "action": "Convert dashboard prototype into generated deterministic CI artifact." }
+  ],
+  "proxmox_optimization_path": [
+    "Keep first dashboard and graph pipeline runnable without Proxmox.",
+    "Add Proxmox local node checks as optional sensor inputs.",
+    "Run schema validation and dashboard generation on the local workshop runner.",
+    "Store large reports/artifacts locally and summarize to GitHub.",
+    "Use local LLM health checks to select local versus cloud model routing.",
+    "Use resource budgets to avoid overloading local CPU/RAM/GPU.",
+    "Treat Proxmox node health as part of the repository self-model."
+  ]
+}
