@@ -10,6 +10,8 @@ Merging is a protected decision point.
 
 Agents may inspect, summarize, recommend, and prepare evidence, but they must not merge or approve high-risk changes without explicit human authorization.
 
+When merge is authorized, prefer the smallest normal merge action supported by the tool.
+
 ## Relationship to other policies
 
 Read alongside:
@@ -82,6 +84,25 @@ Do not recommend merge if:
 - the PR performs Proxmox or host mutation without explicit approval,
 - the PR changes generated projections as if they were source of truth,
 - the PR lacks evidence for its acceptance criteria.
+
+## Merge action payload
+
+After a human explicitly authorizes a merge and all gates pass, prefer the minimal normal merge payload:
+
+```text
+repository_full_name
+pr_number
+```
+
+Avoid optional merge fields unless specifically required:
+
+- custom commit title,
+- custom commit message,
+- expected head SHA,
+- explicit merge method,
+- long generated summaries.
+
+Long or highly customized merge payloads may hit tool-layer limits or safety checks even when the PR itself is safe and approved. If an optional-field merge attempt is blocked by the tool layer, re-check authorization and retry only with the minimal normal merge payload.
 
 ## Evidence expectations
 
