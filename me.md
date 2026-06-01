@@ -43,6 +43,32 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 11. Quality must be analyzed at the beginning of meaningful work and again after closeout before human review.
 12. Publishing to `main` must be quality-gated, evidence-linked, and explicitly human-approved.
 
+## Standard execution contract
+
+Read:
+
+- `docs/protocols/STANDARD_EXECUTION_CONTRACT.md`
+- `.github/ISSUE_TEMPLATE/agent-task.md`
+
+Agent-executable work should use the standard execution contract unless a human explicitly provides a narrower structure.
+
+Every agent-executable issue should identify:
+
+```text
+Inputs
+Outputs
+Evidence required
+Stop conditions
+Non-goals
+Agent-ready checklist
+Human-ready checklist
+Handoff requirement
+```
+
+A task is not agent-ready unless the objective, role, scope, allowed paths, forbidden paths, risk level, evidence, acceptance criteria, stop conditions, and handoff requirement are clear.
+
+A completed task is not human-ready unless it includes a summary of changes, changed files, evidence paths, checks run, skipped or failed checks, known risks, follow-up recommendations, and any explicit human decision needed.
+
 ## Canonical automation loop
 
 Every meaningful automation cycle should follow this order unless explicitly skipped with a reason:
@@ -150,7 +176,7 @@ Branch meaning:
 
 ```text
 main     stable, released, client-safe code
-develop  reviewed integration branch
+develop  reviewed integration
 ```
 
 `/publish` is quality-gated. It depends on a successful `/quality-analysis final review gate` pass and a configurable publish approval profile.
