@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Aggredicus/Local-Agent-Workshop/schemas/registry.schema.json",
+  "title": "Local Agent Workshop Schema Registry",
+  "description": "Registry of schema-governed artifacts used by Local Agent Workshop.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "generated_by",
+    "schemas"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "artifact_type": {
+      "const": "schema_registry"
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "compatibility_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "versioning",
+        "breaking_change_requires_migration_notes",
+        "examples_required_for_active_schemas",
+        "planned_schemas_may_point_to_missing_paths"
+      ],
+      "properties": {
+        "versioning": {
+          "type": "string"
+        },
+        "breaking_change_requires_migration_notes": {
+          "type": "boolean"
+        },
+        "examples_required_for_active_schemas": {
+          "type": "boolean"
+        },
+        "planned_schemas_may_point_to_missing_paths": {
+          "type": "boolean"
+        }
+      }
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/schema_record"
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "schema_status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "draft",
+        "active",
+        "deprecated",
+        "retired"
+      ]
+    },
+    "schema_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "name",
+        "version",
+        "path",
+        "owner_protocol",
+        "status",
+        "compatible_versions",
+        "example_paths",
+        "validation_command",
+        "migration_notes"
+      ],
+      "properties": {
+        "schema_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_\\-\\.]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_protocol": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "$ref": "#/$defs/schema_status"
+        },
+        "compatible_versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "example_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "validation_command": {
+          "type": "string"
+        },
+        "migration_notes": {
+          "type": "string"
+        },
+        "last_reviewed_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
