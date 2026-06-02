@@ -15,10 +15,11 @@ requirements must map to proof
 non-goals must be proven preserved
 epics wait for child status
 human-gated work needs human review
-leave a closure packet
+leave a public closure packet or compact public evidence comment
+private handoff is not enough to close
 use compact public comments when needed
-prefer minimal close mutations after evidence is posted
-capture reusable friction for /improve-skill
+prefer minimal close mutations after public evidence is posted
+create a follow-up improvement issue after every skill use
 ```
 
 ## When to use
@@ -97,7 +98,7 @@ Use one of these verdicts.
 
 | Verdict | Meaning |
 |---|---|
-| `ready_to_close_completed` | Each requirement has a satisfied or explicitly deferred satisfaction row, evidence exists, linked PRs are merged or unnecessary, scope preservation is checked, and no stop condition remains. |
+| `ready_to_close_completed` | Each requirement has a satisfied or explicitly deferred satisfaction row, evidence exists, linked PRs are merged or unnecessary, scope preservation is checked, public closeout evidence is posted, and no stop condition remains. |
 | `ready_to_close_not_planned` | The issue should be closed as not planned because the work is intentionally deferred, rejected, obsolete, out of scope, or no longer valuable. |
 | `ready_to_close_duplicate` | The issue duplicates another issue or PR and the canonical successor is linked. |
 | `needs_satisfaction_matrix` | Evidence may exist, but requirements have not been mapped to proof row by row. |
@@ -113,14 +114,14 @@ Use GitHub closure state reasons carefully:
 
 | State reason | Use when |
 |---|---|
-| `completed` | The issue requirements are satisfied, the satisfaction matrix is complete, and evidence is linked. |
+| `completed` | The issue requirements are satisfied, the satisfaction matrix is complete, public closeout evidence is posted, and evidence is linked. |
 | `not_planned` | The issue is intentionally not being pursued, is obsolete, out of scope, or safely deferred. |
 | `duplicate` | The issue duplicates another issue and the canonical issue is linked. |
-| leave open | Evidence, review, CI, dependency, child issue, satisfaction matrix, or risk-boundary questions remain. |
+| leave open | Evidence, review, CI, dependency, child issue, satisfaction matrix, public closeout evidence, or risk-boundary questions remain. |
 
 Do not use `completed` just because a PR merged or CI passed.
 
-When using a tool to close an issue, prefer the minimal safe mutation after evidence has already been posted. If an optional `state_reason` field causes the close action to fail, retry only after confirming the evidence comment exists, and use the smallest supported close payload.
+When using a tool to close an issue, prefer the minimal safe mutation after public evidence has already been posted. If an optional `state_reason` field causes the close action to fail, retry only after confirming the evidence comment exists, and use the smallest supported close payload.
 
 ## Parent epic rules
 
@@ -194,7 +195,7 @@ Good evidence includes:
 - successful CI or validation run,
 - relevant report path,
 - review card or PR body summary,
-- explicit comment explaining intentionally skipped work,
+- explicit public comment explaining intentionally skipped work,
 - successor issue for deferred or superseded work,
 - duplicate issue link when closing as duplicate.
 
@@ -206,6 +207,7 @@ Weak evidence includes:
 - one PR merged but requirements were not checked,
 - CI passed but requirements were not mapped,
 - no link to the changed files or checks,
+- private handoff without public issue-thread evidence,
 - stale status docs without current PR/CI evidence.
 
 Weak evidence should produce `needs_satisfaction_matrix` or `needs_evidence`, not closure.
@@ -259,8 +261,9 @@ Closeout: PR #NN merged; satisfaction matrix checked; requirements satisfied; CI
 ```
 
 3. Avoid repeatedly submitting large failing comments.
-4. Do not close the issue until at least a compact evidence comment is posted or the failure is documented in a handoff.
+4. Do not close the issue until at least a compact public evidence comment is posted.
 5. If even the compact comment fails, leave the issue open and create a handoff.
+6. A private handoff may preserve context, but it must not substitute for public issue-thread evidence when closing.
 
 ## Safe closure flow
 
@@ -272,12 +275,12 @@ Closeout: PR #NN merged; satisfaction matrix checked; requirements satisfied; CI
 6. Check CI, review state, and human approval boundaries.
 7. For epics, check child issue status.
 8. Produce a closure packet.
-9. Post the full packet, or use the compact comment fallback if the full packet is blocked.
-10. Close only when the verdict supports closure and evidence has been posted or safely handed off.
+9. Post the full packet, or use the compact public comment fallback if the full packet is blocked.
+10. Close only when the verdict supports closure and public issue-thread evidence has been posted.
 11. Use the correct state reason when supported.
-12. If an optional close field fails, retry with a minimal close mutation only after evidence is posted.
-13. Leave the issue open if evidence, satisfaction matrix, scope preservation, or review is incomplete.
-14. Record reusable closeout friction as a future `/improve-skill` follow-up.
+12. If an optional close field fails, retry with a minimal close mutation only after public evidence is posted.
+13. Leave the issue open if evidence, satisfaction matrix, scope preservation, public closeout comment, or review is incomplete.
+14. Create a follow-up improvement issue for `/close-issue` after every run.
 
 ## Stop conditions
 
@@ -297,17 +300,15 @@ Stop and create a handoff instead of closing if:
 - closure would hide known follow-up work,
 - issue body and implementation disagree,
 - state reason is unclear,
-- the evidence comment cannot be posted and no handoff captures the closure packet.
+- public evidence comment cannot be posted.
 
-## Improvement hook
+## Mandatory improvement issue
 
-At the end of every `/close-issue` run, ask:
+At the end of every `/close-issue` run, create a follow-up improvement issue for `/close-issue`.
 
-```text
-Did this closeout reveal a reusable failure mode, ambiguity, tool friction, missing checklist item, or governance boundary?
-```
+The issue may be tiny and may record `no change recommended`, but it must exist. This creates an audit trail for every skill invocation and lets the repository decide whether the lesson is actionable.
 
-If yes, create or recommend a small `/improve-skill` follow-up. Prefer a docs-only patch to this skill unless the lesson requires a script, schema, or governance change.
+Use the global `skills/README.md` protocol for the improvement issue format.
 
 ## Good close-issue behavior
 
@@ -324,4 +325,4 @@ A good `/close-issue` run should not merely say “done.” It should say:
 - which state reason is appropriate,
 - whether human approval is needed,
 - whether the issue should close now or remain open,
-- and whether the run produced a reusable lesson for `/improve-skill`.
+- and which mandatory follow-up improvement issue was created for `/close-issue`.
