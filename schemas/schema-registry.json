@@ -2,7 +2,7 @@
   "schema_version": "0.1.0",
   "artifact_type": "schema_registry",
   "generated_by": "manual-seed-for-issue-109",
-  "updated_at": "2026-06-01T00:00:00Z",
+  "updated_at": "2026-06-02T01:48:00Z",
   "compatibility_policy": {
     "versioning": "semver-like: increment patch for compatible clarifications, minor for compatible fields or examples, major for breaking shape or semantic changes",
     "breaking_change_requires_migration_notes": true,
@@ -134,12 +134,13 @@
       "version": "0.1.0",
       "path": "schemas/repository_dependency_graph.schema.json",
       "owner_protocol": "#117 deterministic HyperKanban CI dashboard planning",
-      "status": "planned",
-      "compatible_versions": [],
+      "status": "draft",
+      "compatible_versions": ["0.1.x"],
       "example_paths": [],
-      "validation_command": "planned",
-      "migration_notes": "Planned schema for typed repository nodes, edges, verdicts, warnings, and recommendations.",
-      "last_reviewed_at": "2026-06-01"
+      "validation_command": "python scripts/validate_repo_contracts.py --schema-registry schemas/schema-registry.json",
+      "migration_notes": "Initial draft schema for typed repository nodes, edges, verdicts, warnings, and recommendations. No previous dashboard graph schema exists.",
+      "last_reviewed_at": "2026-06-01",
+      "notes": "Projection schema only. It must not make dashboard output a source of truth. Examples and generator validation should be added in a later #117 slice."
     },
     {
       "schema_id": "dashboard_projection",
@@ -147,12 +148,13 @@
       "version": "0.1.0",
       "path": "schemas/dashboard_projection.schema.json",
       "owner_protocol": "#117 deterministic HyperKanban CI dashboard planning",
-      "status": "planned",
-      "compatible_versions": [],
+      "status": "draft",
+      "compatible_versions": ["0.1.x"],
       "example_paths": [],
-      "validation_command": "planned",
-      "migration_notes": "Planned schema for generated dashboard projection data. Dashboard remains a projection, not source of truth.",
-      "last_reviewed_at": "2026-06-01"
+      "validation_command": "python scripts/validate_repo_contracts.py --schema-registry schemas/schema-registry.json",
+      "migration_notes": "Initial draft schema for generated dashboard projection data. No previous dashboard projection schema exists.",
+      "last_reviewed_at": "2026-06-01",
+      "notes": "Dashboard remains a generated projection, not source of truth. Examples, script validation, and rendered HTML should be added in later #117 slices."
     },
     {
       "schema_id": "repo_self_model",
