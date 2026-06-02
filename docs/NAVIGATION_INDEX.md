@@ -33,6 +33,8 @@ README.md
 | Schema registry | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | implemented | Schema status and compatibility policy; merged via #122. |
 | Validation gate | `protocols/REPO_VALIDATION_GATE.md` | implemented | Read-only registry validation gate; merged via #123. |
 | Self-model roadmap | `architecture/REPOSITORY_SELF_MODEL_ROADMAP.md` | implemented | Roadmap seed, not runtime authority; merged via #121. |
+| Issue taxonomy | `project-management/ISSUE_TAXONOMY.md` | implemented | Issue labels, readiness, risk, domain, and lifecycle classification. |
+| Milestone strategy | `project-management/MILESTONE_STRATEGY.md` | implemented | Roadmap milestone grouping and release-train planning. |
 
 ## Implemented runtime and script areas
 
