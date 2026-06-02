@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Aggredicus/Local-Agent-Workshop/schemas/repository_dependency_graph.schema.json",
+  "title": "Local Agent Workshop Repository Dependency Graph",
+  "description": "Deterministic typed graph projection for repository issues, pull requests, files, schemas, reports, skills, protocols, validation artifacts, and dashboard projections. This artifact is a generated projection, not a source of truth.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "generated_by",
+    "generated_at",
+    "projection_notice",
+    "source_artifacts",
+    "nodes",
+    "edges",
+    "verdicts",
+    "warnings",
+    "recommendations"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "artifact_type": {
+      "const": "repository_dependency_graph"
+    },
+    "generated_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "projection_notice": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Must state that the graph is generated from source artifacts and does not override issues, pull requests, CI, Chronicle, reports, me.md, or governance documents."
+    },
+    "source_artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source_artifact"
+      },
+      "uniqueItems": true
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      },
+      "uniqueItems": true
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      },
+      "uniqueItems": true
+    },
+    "verdicts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/verdict_record"
+      },
+      "uniqueItems": true
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recommendation"
+      }
+    }
+  },
+  "$defs": {
+    "node_type": {
+      "type": "string",
+      "enum": [
+        "issue",
+        "epic",
+        "pull_request",
+        "hyperkanban_card",
+        "file",
+        "schema",
+        "script",
+        "skill",
+        "protocol_doc",
+        "governance_doc",
+        "report",
+        "chronicle_event",
+        "commit",
+        "agent_role",
+        "validation_check",
+        "risk_gate",
+        "milestone",
+        "dashboard_projection"
+      ]
+    },
+    "edge_type": {
+      "type": "string",
+      "enum": [
+        "depends_on",
+        "blocks",
+        "implements",
+        "produces",
+        "validates",
+        "requires_evidence",
+        "touches_path",
+        "owns_path",
+        "references_schema",
+        "emits_report",
+        "requires_human_review",
+        "supersedes",
+        "duplicates",
+        "unblocks",
+        "belongs_to",
+        "derived_from",
+        "summarizes"
+      ]
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "ready_for_autonomous_merge",
+        "ready_for_human_approval",
+        "needs_authorization_note",
+        "human_gated",
+        "needs_human_review",
+        "blocked",
+        "missing_context",
+        "missing_schema",
+        "missing_evidence",
+        "needs_spec",
+        "stack_wait",
+        "duplicate",
+        "stale",
+        "superseded",
+        "risky",
+        "complete_candidate",
+        "unknown"
+      ]
+    },
+    "source_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path_or_ref", "source_type", "authority_role"],
+      "properties": {
+        "path_or_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_type": {
+          "type": "string",
+          "enum": ["file", "issue", "pull_request", "ci", "report", "chronicle", "hyperkanban", "schema_registry", "manual_fixture"]
+        },
+        "authority_role": {
+          "type": "string",
+          "enum": ["source_of_truth", "review_boundary", "validation_proof", "historical_memory", "operational_projection", "generated_projection", "evidence", "fixture"]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "title", "source_ref"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "$ref": "#/$defs/node_type"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string"
+        },
+        "risk": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high", "critical", "unknown"]
+        },
+        "authority_role": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type", "evidence"],
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "$ref": "#/$defs/edge_type"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["explicit", "derived", "manual_fixture"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "reason_chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule", "evidence"],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "result": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verdict_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "verdict", "reason_chain"],
+      "properties": {
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verdict": {
+          "$ref": "#/$defs/verdict"
+        },
+        "reason_chain": {
+          "$ref": "#/$defs/reason_chain"
+        },
+        "next_action": {
+          "type": "string"
+        },
+        "human_decision_needed": {
+          "type": "string"
+        }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "message"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warn", "blocker", "escalate"]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "verdict", "next_action", "reason_chain"],
+      "properties": {
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verdict": {
+          "$ref": "#/$defs/verdict"
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason_chain": {
+          "$ref": "#/$defs/reason_chain"
+        },
+        "development_packet_ref": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
