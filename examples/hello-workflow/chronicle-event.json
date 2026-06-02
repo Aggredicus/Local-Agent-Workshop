@@ -1,0 +1,23 @@
+{
+  "artifact_type": "chronicle_event_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "event_id": "hello-chronicle-event-001",
+  "event_type": "workflow.example.completed",
+  "time": "2026-06-01T00:10:00Z",
+  "source": "examples/hello-workflow",
+  "subject": "hello-workflow-001",
+  "summary": "Minimal hello workflow example completed and prepared for human review.",
+  "refs": {
+    "issue": 116,
+    "workflow_id": "hello-workflow-001",
+    "task_id": "hello-docs-task-001",
+    "evidence": [
+      "examples/hello-workflow/evidence.json"
+    ],
+    "handoff": [
+      "examples/hello-workflow/handoff.json"
+    ]
+  },
+  "append_only_note": "This is an example Chronicle event shape. It does not rewrite existing Chronicle history."
+}

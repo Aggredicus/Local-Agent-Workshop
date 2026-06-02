@@ -1,0 +1,52 @@
+{
+  "artifact_type": "agent_task_intake_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "issue": 116,
+  "task_id": "hello-docs-task-001",
+  "objective": "Demonstrate the minimal docs-only Local Agent Workshop workflow using safe example artifacts.",
+  "eligible_roles": ["documenter"],
+  "risk_level": "low",
+  "scope": {
+    "summary": "Create or inspect example documentation artifacts only.",
+    "allowed_paths": [
+      "examples/hello-workflow/"
+    ],
+    "forbidden_paths": [
+      "secrets",
+      ".env*",
+      "protected branch settings",
+      "Proxmox host configuration",
+      "public endpoint configuration"
+    ]
+  },
+  "budget": {
+    "timebox_minutes": 30,
+    "max_files_expected": 8,
+    "network_access_required": false,
+    "proxmox_required": false
+  },
+  "required_outputs": [
+    "example intake",
+    "example supervisor decision",
+    "example workflow state",
+    "example evidence record",
+    "example handoff packet",
+    "example HyperKanban transition proposal",
+    "example Chronicle event",
+    "human review packet"
+  ],
+  "required_evidence": [
+    "all example files are present",
+    "README explains artifact status and safety properties",
+    "human review packet summarizes the example workflow"
+  ],
+  "stop_conditions": [
+    "required context is missing",
+    "task requires real secrets",
+    "task requires Proxmox mutation",
+    "task requires protected branch mutation",
+    "task requires live endpoint exposure"
+  ],
+  "human_review_required": true
+}

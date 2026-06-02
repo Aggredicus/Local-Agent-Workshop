@@ -1,0 +1,42 @@
+{
+  "artifact_type": "supervisor_decision_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "decision_id": "hello-supervisor-decision-001",
+  "workflow_id": "hello-workflow-001",
+  "task_id": "hello-docs-task-001",
+  "card_id": null,
+  "supervisor_id": "example-supervisor",
+  "timestamp": "2026-06-01T00:00:00Z",
+  "input_refs": [
+    "examples/hello-workflow/task-intake.json"
+  ],
+  "eligible_roles": [
+    "documenter"
+  ],
+  "selected_role": "documenter",
+  "policy_checks": [
+    {
+      "name": "risk_boundary",
+      "result": "pass",
+      "reason": "docs-only example with no secrets, endpoints, protected branches, or Proxmox mutation"
+    },
+    {
+      "name": "allowed_paths",
+      "result": "pass",
+      "reason": "work is confined to examples/hello-workflow/"
+    }
+  ],
+  "budget_checks": [
+    {
+      "name": "timebox_minutes",
+      "result": "pass",
+      "value": 30
+    }
+  ],
+  "decision": "assign",
+  "reason": "Task is low-risk, bounded, and suitable for a documenter role.",
+  "next_action": "Create the hello workflow example artifacts and produce a human review packet.",
+  "human_approval_required": true,
+  "evidence_refs": []
+}

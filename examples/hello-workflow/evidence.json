@@ -1,0 +1,39 @@
+{
+  "artifact_type": "agent_work_evidence_example",
+  "artifact_status": "example_not_canonical_runtime_state",
+  "schema_status": "schema_planned",
+  "evidence_id": "hello-evidence-001",
+  "workflow_id": "hello-workflow-001",
+  "task_id": "hello-docs-task-001",
+  "role": "documenter",
+  "summary": "Created a minimal docs-only workflow example showing how Local Agent Workshop artifacts fit together.",
+  "changed_files": [
+    "examples/hello-workflow/README.md",
+    "examples/hello-workflow/task-intake.json",
+    "examples/hello-workflow/supervisor-decision.json",
+    "examples/hello-workflow/workflow-state.json",
+    "examples/hello-workflow/evidence.json",
+    "examples/hello-workflow/handoff.json",
+    "examples/hello-workflow/hyperkanban-transition-proposal.json",
+    "examples/hello-workflow/chronicle-event.json",
+    "examples/hello-workflow/human-review-packet.md"
+  ],
+  "checks_run": [
+    {
+      "name": "manual artifact review",
+      "status": "passed",
+      "notes": "All expected example artifacts are listed and contain no live secrets, endpoints, or Proxmox mutations."
+    }
+  ],
+  "skipped_checks": [
+    {
+      "name": "schema validation",
+      "reason": "Target schemas are planned but not implemented yet. This directory should become a fixture once schemas exist."
+    }
+  ],
+  "known_risks": [
+    "Example files are schema-adjacent but not yet schema-validated.",
+    "This example must not be treated as runtime authority."
+  ],
+  "human_review_required": true
+}
