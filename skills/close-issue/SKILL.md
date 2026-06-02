@@ -14,6 +14,9 @@ non-goals must be preserved
 epics wait for child status
 human-gated work needs human review
 leave a closure packet
+use compact public comments when needed
+prefer minimal close mutations after evidence is posted
+capture reusable friction for /improve-skill
 ```
 
 ## When to use
@@ -60,7 +63,8 @@ Collect:
 - linked duplicate/superseding issue if any,
 - evidence paths listed in PRs, comments, review cards, reports, or issue body,
 - cleanup and quality-analysis evidence when available,
-- risk level and human-review boundaries.
+- risk level and human-review boundaries,
+- any tool-layer failure or friction from the closeout attempt.
 
 ## Inspection checklist
 
@@ -79,6 +83,7 @@ For each issue, inspect:
 11. **Risk** — medium/high-risk closure has human review or explicit approval where required.
 12. **Children** — child issues of an epic are complete, superseded, duplicate, or explicitly deferred.
 13. **Status drift** — docs, labels, dashboard, HyperKanban, and issue body do not conflict in a way that affects closure.
+14. **Tool safety** — closeout evidence can be posted in a compact, safe form before mutation.
 
 ## Closure states
 
@@ -107,6 +112,8 @@ Use GitHub closure state reasons carefully:
 | leave open | Evidence, review, CI, dependency, child issue, or risk-boundary questions remain. |
 
 Do not use `completed` just because a PR merged.
+
+When using a tool to close an issue, prefer the minimal safe mutation after evidence has already been posted. If an optional `state_reason` field causes the close action to fail, retry only after confirming the evidence comment exists, and use the smallest supported close payload.
 
 ## Parent epic rules
 
@@ -186,6 +193,21 @@ follow_up_issues:
 human_decision_needed:
 ```
 
+## Tool-safe closure comments
+
+A full closure packet is preferred, but tool layers or public issue threads may reject or poorly display long structured comments. If that happens:
+
+1. Keep the full packet in the PR body, review card, handoff note, or local report when available.
+2. Post a compact public closeout comment that includes only the essential proof:
+
+```text
+Closeout: PR #NN merged; evidence checked; acceptance criteria satisfied; CI passed or skipped with reason; verdict ready_to_close_completed; blockers none.
+```
+
+3. Avoid repeatedly submitting large failing comments.
+4. Do not close the issue until at least a compact evidence comment is posted or the failure is documented in a handoff.
+5. If even the compact comment fails, leave the issue open and create a handoff.
+
 ## Safe closure flow
 
 1. Read `me.md` and the target issue.
@@ -195,9 +217,12 @@ human_decision_needed:
 5. Check CI, review state, and human approval boundaries.
 6. For epics, check child issue status.
 7. Produce a closure packet.
-8. Close only when the verdict supports closure.
-9. Use the correct state reason.
-10. Leave the issue open if evidence or review is incomplete.
+8. Post the full packet, or use the compact comment fallback if the full packet is blocked.
+9. Close only when the verdict supports closure and evidence has been posted or safely handed off.
+10. Use the correct state reason when supported.
+11. If an optional close field fails, retry with a minimal close mutation only after evidence is posted.
+12. Leave the issue open if evidence or review is incomplete.
+13. Record reusable closeout friction as a future `/improve-skill` follow-up.
 
 ## Stop conditions
 
@@ -212,7 +237,18 @@ Stop and create a handoff instead of closing if:
 - the issue affects governance, security, schemas, scripts, source code, CI/workflows, Proxmox/local infrastructure, public endpoints, migrations, source-of-truth promotions, or merge policy without human review,
 - closure would hide known follow-up work,
 - issue body and implementation disagree,
-- state reason is unclear.
+- state reason is unclear,
+- the evidence comment cannot be posted and no handoff captures the closure packet.
+
+## Improvement hook
+
+At the end of every `/close-issue` run, ask:
+
+```text
+Did this closeout reveal a reusable failure mode, ambiguity, tool friction, missing checklist item, or governance boundary?
+```
+
+If yes, create or recommend a small `/improve-skill` follow-up. Prefer a docs-only patch to this skill unless the lesson requires a script, schema, or governance change.
 
 ## Good close-issue behavior
 
@@ -225,4 +261,5 @@ A good `/close-issue` run should not merely say “done.” It should say:
 - what risks remain,
 - which state reason is appropriate,
 - whether human approval is needed,
-- and whether the issue should close now or remain open.
+- whether the issue should close now or remain open,
+- and whether the run produced a reusable lesson for `/improve-skill`.
