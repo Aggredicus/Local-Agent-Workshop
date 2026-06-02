@@ -12,7 +12,7 @@ README.md
 → docs/architecture/REPOSITORY_KNOWLEDGE_MAP.md
 ```
 
-## Implemented or active-stack documentation
+## Implemented documentation
 
 | Area | Path | Status | Notes |
 |---|---|---|---|
@@ -29,10 +29,10 @@ README.md
 | Checkpoint/resume | `protocols/CHECKPOINT_RESUME_PROTOCOL.md` | implemented | Resumable agent work. |
 | Empty inbox | `protocols/EMPTY_INBOX_PROTOCOL.md` | implemented | Inbox routing protocol. |
 | Self improvement | `protocols/SELF_IMPROVEMENT_PROTOCOL.md` | implemented | Reviewable improvement loop. |
-| Standard execution contract | `protocols/STANDARD_EXECUTION_CONTRACT.md` | active PR #119 | Agent-executable issue grammar. |
-| Schema registry | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | active PR #122 | Schema status and compatibility policy. |
-| Validation gate | `protocols/REPO_VALIDATION_GATE.md` | active PR #123 | Read-only registry validation gate. |
-| Self-model roadmap | `architecture/REPOSITORY_SELF_MODEL_ROADMAP.md` | active PR #121 | Roadmap seed, not runtime authority. |
+| Standard execution contract | `protocols/STANDARD_EXECUTION_CONTRACT.md` | implemented | Agent-executable issue grammar; merged via #119. |
+| Schema registry | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | implemented | Schema status and compatibility policy; merged via #122. |
+| Validation gate | `protocols/REPO_VALIDATION_GATE.md` | implemented | Read-only registry validation gate; merged via #123. |
+| Self-model roadmap | `architecture/REPOSITORY_SELF_MODEL_ROADMAP.md` | implemented | Roadmap seed, not runtime authority; merged via #121. |
 
 ## Implemented runtime and script areas
 
@@ -42,9 +42,9 @@ README.md
 | HyperKanban packet | `../orchestration/hyperkanban/packet.txt` | implemented | Compact agent-readable packet. |
 | HyperKanban validator | `../scripts/validate_hyperkanban.py` | implemented | Deterministic state validation. |
 | Repository cleanup | `../scripts/repo_cleanup.py` | implemented | Non-destructive cleanup checks. |
-| Repo contract validator | `../scripts/validate_repo_contracts.py` | active PR #123 | Validates schema registry. |
+| Repo contract validator | `../scripts/validate_repo_contracts.py` | implemented | Validates schema registry; merged via #123. |
 | CLI | `../src/workshop/cli.py` | implemented | Current CLI mainly covers HyperKanban. |
-| Verification script | `../scripts/verify.sh` | implemented / active PR #123 extends | Runs HyperKanban validation, repo contracts, and pytest. |
+| Verification script | `../scripts/verify.sh` | implemented | Runs HyperKanban validation, repo contract validation, and pytest. |
 
 ## Planned documentation and runtime areas
 
@@ -70,7 +70,7 @@ README.md
 
 - Treat `me.md` as the instruction spine.
 - Treat this index as a map, not as authority over issue acceptance criteria.
-- Check issue bodies and PR branches for active-stack files.
+- Check issue bodies and PR branches for task scope, but do not call a file `active-stack` unless an open PR currently carries it.
 - Do not assume planned paths exist.
 - Do not treat dashboards or example seeds as source of truth.
 - Stop and create a handoff if docs disagree about authority or current status.
