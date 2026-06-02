@@ -13,6 +13,8 @@ autonomous merge only inside the approved low-risk lane
 explicit human approval required outside the low-risk lane
 never bypass protected branch policy
 prefer minimal merge payloads
+governance-changing docs are not ordinary docs
+canonical instruction changes require authorization notes
 ```
 
 ## When to use
@@ -37,7 +39,8 @@ This skill does not:
 - bypass CI,
 - bypass branch policy,
 - treat dashboards as merge authority,
-- treat generated projections as review evidence unless their source artifacts are also available.
+- treat generated projections as review evidence unless their source artifacts are also available,
+- treat canonical instruction-spine changes as ordinary docs-only changes.
 
 ## Inputs
 
@@ -57,7 +60,9 @@ Collect:
 - issue links,
 - evidence paths,
 - risk notes,
-- known stack order.
+- known stack order,
+- whether the PR changes canonical instructions, global skill rules, merge policy, approval boundaries, or other governance behavior,
+- explicit human authorization notes when governance-relevant docs are changed.
 
 ## Inspection checklist
 
@@ -70,10 +75,12 @@ For each PR, inspect:
 5. **Evidence** — tests, reports, docs, or examples are listed.
 6. **CI** — required checks passed, pending, failed, missing, or unavailable.
 7. **Review** — human approval, requested changes, missing review, or standing low-risk authorization.
-8. **Risk** — secrets, protected branch settings, public endpoints, infrastructure, Proxmox, destructive actions, security-sensitive behavior, or generated-authority confusion.
-9. **Stack order** — dependency PRs must merge before dependent PRs.
-10. **Autonomous lane eligibility** — changed paths and risk profile must fit the low-risk lane before autonomous merge is allowed.
-11. **Stop conditions** — any uncertainty that requires handoff.
+8. **Risk** — secrets, protected branch settings, public endpoints, infrastructure, Proxmox, destructive actions, security-sensitive behavior, generated-authority confusion, or governance/approval-boundary changes.
+9. **Governance relevance** — canonical instruction spine, global skill protocol, merge policy, branch policy, human approval boundaries, or source-of-truth status changed.
+10. **Authorization notes** — governance-relevant docs changes must have explicit authorization context or become `ready_for_human_approval`.
+11. **Stack order** — dependency PRs must merge before dependent PRs.
+12. **Autonomous lane eligibility** — changed paths and risk profile must fit the low-risk lane before autonomous merge is allowed.
+13. **Stop conditions** — any uncertainty that requires handoff.
 
 ## Verdicts
 
@@ -83,6 +90,7 @@ Use one of these verdicts.
 |---|---|
 | `ready_for_autonomous_merge` | PR passes review, fits the approved low-risk lane, and may be merged without another human confirmation. |
 | `ready_for_human_approval` | PR appears reviewable, evidence is present, but explicit human approval is still required. |
+| `needs_authorization_note` | PR changes governance-relevant docs but lacks explicit human authorization context in the PR body, issue, or chat/task instruction. |
 | `needs_ci` | CI or local verification is missing, pending, or failed. |
 | `needs_review` | Human review, requested reviewer response, or policy clarification is missing. |
 | `blocked` | Dependency, conflict, failed check, requested changes, or missing evidence blocks merge. |
@@ -106,6 +114,7 @@ Use one of these verdicts.
 - No secrets, credentials, tokens, or environment files are touched.
 - No Proxmox, host, deployment, public endpoint, infrastructure, payment, customer-data, destructive-command, migration, or security-sensitive behavior is touched.
 - No generated projection is promoted to source of truth.
+- Governance-relevant docs are either unchanged or include explicit human authorization context.
 - Merge uses the minimal payload rule.
 
 Approved low-risk paths:
@@ -119,6 +128,35 @@ reports/validation/**
 ```
 
 Even inside approved paths, autonomous merge must stop if the content changes governance boundaries, approval boundaries, secrets, infrastructure, Proxmox behavior, security posture, protected branch settings, or source-of-truth status.
+
+## Governance-relevant docs rule
+
+Some docs are operational authority, not merely explanatory text. Changes to these files may be docs-only but still governance-relevant:
+
+```text
+me.md
+AGENTS.md
+skills/README.md
+skills/merge-review/SKILL.md
+skills/close-issue/SKILL.md
+docs/governance/**
+docs/protocols/MERGE_REVIEW_PROTOCOL.md
+docs/protocols/STANDARD_EXECUTION_CONTRACT.md
+docs/protocols/REPO_VALIDATION_GATE.md
+.branch-policy.yaml
+.github/ISSUE_TEMPLATE/**
+```
+
+A governance-relevant docs PR may still be merged after review, but `/merge-review` must not classify it as ordinary docs-only work. It must record:
+
+```text
+governance_relevant: yes
+changed_authority_surface: <what changed>
+authorization_context: <issue, PR comment, or explicit human instruction>
+autonomous_lane_eligible: yes | no
+```
+
+If authorization context is missing, use `needs_authorization_note` or `ready_for_human_approval`, not `ready_for_autonomous_merge`.
 
 Human approval remains required for these paths unless a later reviewed policy explicitly relaxes them:
 
@@ -203,6 +241,9 @@ PR #:
   review_status:
   risk_level:
   changed_files:
+  governance_relevant:
+  changed_authority_surface:
+  authorization_context:
   autonomous_lane_eligible:
   evidence:
   blockers:
@@ -212,6 +253,7 @@ PR #:
 summary:
   ready_for_autonomous_merge:
   ready_for_human_approval:
+  needs_authorization_note:
   needs_ci:
   needs_review:
   blocked:
@@ -232,6 +274,7 @@ Stop and create a handoff if:
 - branch base is wrong,
 - PR stack order is unclear,
 - requested changes are unresolved,
+- governance-relevant docs changed without authorization context,
 - the PR touches secrets, protected branch settings, public endpoints, infrastructure, Proxmox, security-sensitive behavior, or destructive behavior,
 - autonomous-lane eligibility is uncertain,
 - the PR would require the agent to approve its own medium-risk or high-risk work.
@@ -242,6 +285,9 @@ A good `/merge-review` run should not merely say “looks good.” It should say
 
 - what was checked,
 - what could not be checked,
+- whether the PR is governance-relevant,
+- what authority surface changed,
+- what authorization context exists,
 - which PRs are ready for autonomous merge,
 - which PRs are ready for human approval,
 - which PRs are waiting on stack order,
