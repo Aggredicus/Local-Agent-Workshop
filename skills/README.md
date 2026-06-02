@@ -25,6 +25,21 @@ After every skill run:
    - superseded by another improvement issue.
 5. If no improvement is needed, close the issue as `not_planned` only after leaving a brief reason.
 
+## Recursion breaker
+
+The mandatory issue rule must not create an infinite closeout loop.
+
+When `/close-issue` is used only to close a no-change improvement issue that already exists solely because of this protocol, that same issue may serve as the terminal audit record for the `/close-issue` run.
+
+In that narrow case:
+
+- do not create another improvement issue,
+- leave a public comment saying the issue is the terminal no-change audit record,
+- close it as `not_planned`,
+- stop.
+
+This exception applies only to no-change improvement issues created by this skill-use protocol. It does not apply to normal feature, bug, governance, schema, script, CI, or release issues.
+
 ## Improvement issue template
 
 ```text
