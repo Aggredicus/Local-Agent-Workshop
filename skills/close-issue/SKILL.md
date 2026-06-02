@@ -19,6 +19,7 @@ leave a public closure packet or compact public evidence comment
 private handoff is not enough to close
 use compact public comments when needed
 prefer minimal close mutations after public evidence is posted
+if close mutation is blocked, leave blocked-close handoff
 create a follow-up improvement issue after every skill use
 ```
 
@@ -91,6 +92,7 @@ For each issue, inspect:
 14. **Children** — child issues of an epic are complete, superseded, duplicate, or explicitly deferred.
 15. **Status drift** — docs, labels, dashboard, HyperKanban, and issue body do not conflict in a way that affects closure.
 16. **Tool safety** — closeout evidence can be posted in a compact, safe form before mutation.
+17. **Close mutation result** — if public evidence is posted but close mutation fails, record `blocked_close_mutation` instead of pretending closure succeeded.
 
 ## Closure states
 
@@ -101,6 +103,7 @@ Use one of these verdicts.
 | `ready_to_close_completed` | Each requirement has a satisfied or explicitly deferred satisfaction row, evidence exists, linked PRs are merged or unnecessary, scope preservation is checked, public closeout evidence is posted, and no stop condition remains. |
 | `ready_to_close_not_planned` | The issue should be closed as not planned because the work is intentionally deferred, rejected, obsolete, out of scope, or no longer valuable. |
 | `ready_to_close_duplicate` | The issue duplicates another issue or PR and the canonical successor is linked. |
+| `blocked_close_mutation` | Public closeout evidence is posted and closure is justified, but the GitHub close mutation failed or was blocked. Leave the issue open, create/keep a follow-up issue, and report the exact blocked state. |
 | `needs_satisfaction_matrix` | Evidence may exist, but requirements have not been mapped to proof row by row. |
 | `needs_evidence` | Work may be complete, but evidence is missing, vague, stale, or not linked. |
 | `needs_review` | Review, human approval, CI, requested-change resolution, or definition-of-done clarification is missing. |
@@ -117,11 +120,11 @@ Use GitHub closure state reasons carefully:
 | `completed` | The issue requirements are satisfied, the satisfaction matrix is complete, public closeout evidence is posted, and evidence is linked. |
 | `not_planned` | The issue is intentionally not being pursued, is obsolete, out of scope, or safely deferred. |
 | `duplicate` | The issue duplicates another issue and the canonical issue is linked. |
-| leave open | Evidence, review, CI, dependency, child issue, satisfaction matrix, public closeout evidence, or risk-boundary questions remain. |
+| leave open | Evidence, review, CI, dependency, child issue, satisfaction matrix, public closeout evidence, risk-boundary questions, or blocked close mutation remain. |
 
 Do not use `completed` just because a PR merged or CI passed.
 
-When using a tool to close an issue, prefer the minimal safe mutation after public evidence has already been posted. If an optional `state_reason` field causes the close action to fail, retry only after confirming the evidence comment exists, and use the smallest supported close payload.
+When using a tool to close an issue, prefer the minimal safe mutation after public evidence has already been posted. If an optional `state_reason` field causes the close action to fail, retry only after confirming the evidence comment exists, and use the smallest supported close payload. If the smallest supported close payload also fails, use `blocked_close_mutation` and stop retrying.
 
 ## Parent epic rules
 
@@ -242,6 +245,7 @@ stop_conditions_checked:
 ci_or_validation:
 review_state:
 cleanup_or_quality_evidence:
+close_mutation_result:
 closure_verdict:
 state_reason:
 blockers:
@@ -279,8 +283,9 @@ Closeout: PR #NN merged; satisfaction matrix checked; requirements satisfied; CI
 10. Close only when the verdict supports closure and public issue-thread evidence has been posted.
 11. Use the correct state reason when supported.
 12. If an optional close field fails, retry with a minimal close mutation only after public evidence is posted.
-13. Leave the issue open if evidence, satisfaction matrix, scope preservation, public closeout comment, or review is incomplete.
-14. Create a follow-up improvement issue for `/close-issue` after every run.
+13. If the minimal close mutation fails, record `blocked_close_mutation`, leave the issue open, and stop retrying.
+14. Leave the issue open if evidence, satisfaction matrix, scope preservation, public closeout comment, review, or close mutation is incomplete.
+15. Create a follow-up improvement issue for `/close-issue` after every run, unless the recursion breaker in `skills/README.md` applies.
 
 ## Stop conditions
 
@@ -300,7 +305,8 @@ Stop and create a handoff instead of closing if:
 - closure would hide known follow-up work,
 - issue body and implementation disagree,
 - state reason is unclear,
-- public evidence comment cannot be posted.
+- public evidence comment cannot be posted,
+- close mutation is blocked after public evidence is posted.
 
 ## Mandatory improvement issue
 
@@ -308,7 +314,7 @@ At the end of every `/close-issue` run, create a follow-up improvement issue for
 
 The issue may be tiny and may record `no change recommended`, but it must exist. This creates an audit trail for every skill invocation and lets the repository decide whether the lesson is actionable.
 
-Use the global `skills/README.md` protocol for the improvement issue format.
+Use the global `skills/README.md` protocol for the improvement issue format. Apply the recursion breaker only for terminal no-change improvement issues as defined there.
 
 ## Good close-issue behavior
 
@@ -325,4 +331,5 @@ A good `/close-issue` run should not merely say “done.” It should say:
 - which state reason is appropriate,
 - whether human approval is needed,
 - whether the issue should close now or remain open,
+- what happened when the close mutation was attempted,
 - and which mandatory follow-up improvement issue was created for `/close-issue`.
