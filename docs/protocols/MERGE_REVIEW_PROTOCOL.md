@@ -1,6 +1,6 @@
 # Merge Review Protocol
 
-The merge review protocol defines how Local Agent Workshop evaluates PRs and PR stacks before human approval or merge.
+The merge review protocol defines how Local Agent Workshop evaluates PRs and PR stacks before approval or merge.
 
 It complements the branch policy, human approval boundaries, review workflow, cleanup protocol, and publish protocol.
 
@@ -8,9 +8,11 @@ It complements the branch policy, human approval boundaries, review workflow, cl
 
 Merging is a protected decision point.
 
-Agents may inspect, summarize, recommend, and prepare evidence, but they must not merge or approve high-risk changes without explicit human authorization.
+Agents may inspect, summarize, recommend, prepare evidence, and merge PRs that fall entirely inside the approved autonomous low-risk lane.
 
-When merge is authorized, prefer the smallest normal merge action supported by the tool.
+Explicit human approval remains required outside that low-risk lane.
+
+When merge is authorized by either explicit human approval or the autonomous low-risk lane, prefer the smallest normal merge action supported by the tool.
 
 ## Relationship to other policies
 
@@ -28,9 +30,10 @@ Read alongside:
 
 | State | Meaning |
 |---|---|
-| `ready_for_human_approval` | Evidence and checks are sufficient for a human to decide. |
+| `ready_for_autonomous_merge` | Evidence and checks are sufficient, the PR fits the approved low-risk lane, and no additional human confirmation is required. |
+| `ready_for_human_approval` | Evidence and checks are sufficient, but explicit human approval is still required. |
 | `needs_ci` | CI or verification is missing, failed, or pending. |
-| `needs_review` | Human review or requested reviewer response is missing. |
+| `needs_review` | Human review, requested reviewer response, or policy clarification is missing. |
 | `blocked` | Dependency, stack order, conflict, requested changes, or evidence problem blocks merge. |
 | `do_not_merge` | Safety, authority, or branch policy boundary is violated. |
 | `stack_wait` | PR is acceptable only after an earlier stacked PR merges and the branch is retargeted/rechecked. |
@@ -50,6 +53,53 @@ A merge-review should inspect:
 9. Evidence paths and skipped checks.
 10. Risk notes and non-goals.
 11. Stack order and dependency PRs.
+12. Autonomous-lane eligibility.
+
+## Autonomous low-risk merge lane
+
+A PR may be merged without additional human confirmation only when every condition below is true:
+
+- PR is open and non-draft.
+- PR targets an allowed integration branch.
+- PR is mergeable.
+- CI is successful, or CI is not required and the reason is documented.
+- `/merge-review` verdict is `ready_for_autonomous_merge`.
+- Risk level is low.
+- Diff is small and bounded.
+- Changed files are limited to approved low-risk paths.
+- PR body includes evidence and non-goals.
+- No requested changes are unresolved.
+- No protected branch settings are changed.
+- No secrets, credentials, tokens, or environment files are touched.
+- No Proxmox, host, deployment, public endpoint, infrastructure, payment, customer-data, destructive-command, migration, or security-sensitive behavior is touched.
+- No generated projection is promoted to source of truth.
+- Merge uses the minimal payload rule.
+
+Approved low-risk paths:
+
+```text
+docs/**
+skills/**/SKILL.md
+examples/**
+reports/review/**
+reports/validation/**
+```
+
+Even inside these paths, autonomous merge must stop if the content changes governance boundaries, approval boundaries, secrets, infrastructure, Proxmox behavior, security posture, protected branch settings, or source-of-truth status.
+
+Human approval remains required for these paths unless a later reviewed policy explicitly relaxes them:
+
+```text
+.github/workflows/**
+.github/ISSUE_TEMPLATE/**
+.branch-policy.yaml
+schemas/**
+scripts/**
+src/**
+docs/governance/**
+docs/security/**
+docs/infrastructure/**
+```
 
 ## Stacked PR protocol
 
@@ -83,11 +133,12 @@ Do not recommend merge if:
 - the PR exposes local endpoints publicly,
 - the PR performs Proxmox or host mutation without explicit approval,
 - the PR changes generated projections as if they were source of truth,
-- the PR lacks evidence for its acceptance criteria.
+- the PR lacks evidence for its acceptance criteria,
+- autonomous-lane eligibility is uncertain.
 
 ## Merge action payload
 
-After a human explicitly authorizes a merge and all gates pass, prefer the minimal normal merge payload:
+After merge is authorized by explicit human approval or by the autonomous low-risk lane, prefer the minimal normal merge payload:
 
 ```text
 repository_full_name
@@ -102,7 +153,23 @@ Avoid optional merge fields unless specifically required:
 - explicit merge method,
 - long generated summaries.
 
-Long or highly customized merge payloads may hit tool-layer limits or safety checks even when the PR itself is safe and approved. If an optional-field merge attempt is blocked by the tool layer, re-check authorization and retry only with the minimal normal merge payload.
+Long or highly customized merge payloads may hit tool-layer limits or safety checks even when the PR itself is safe and approved. If an optional-field merge attempt is blocked by the tool layer, re-check authorization or autonomous-lane eligibility and retry only with the minimal normal merge payload.
+
+## Explicit human approval requirements
+
+Explicit human approval is still required before:
+
+- changing this autonomous merge policy,
+- merging medium-risk or high-risk PRs,
+- changing protected branch settings,
+- enabling GitHub auto-merge globally,
+- publishing to stable release branches,
+- accepting high-risk governance changes,
+- accepting security-sensitive changes,
+- accepting Proxmox or local infrastructure changes,
+- accepting destructive or externally visible behavior changes,
+- accepting source-of-truth promotions,
+- accepting migrations or persistent state changes.
 
 ## Evidence expectations
 
@@ -115,6 +182,7 @@ Every merge-review packet should include:
 - CI status,
 - review status,
 - changed files,
+- autonomous-lane eligibility,
 - evidence paths,
 - risk notes,
 - verdict,
@@ -123,38 +191,25 @@ Every merge-review packet should include:
 
 ## Current stack example
 
-For the current #118 preparation sprint, the expected review stack is:
+For the current post-preparation sprint, low-risk documentation cleanup PRs may qualify for `ready_for_autonomous_merge` after this policy is merged.
 
-```text
-#119 — standard execution contract
-#121 — repository self-model roadmap
-#122 — schema registry and compatibility policy
-#123 — repo contract validation gate
-#124 — documentation map and navigation index
-#125 — minimal hello workflow reference implementation
-```
-
-PRs that are based on another PR branch should not be treated as merge-ready to `main` until their parent PR has merged, they are retargeted or rebased as needed, and CI/mergeability are checked again.
+Runtime, schema, script, workflow, infrastructure, Proxmox, security, or governance changes should continue to use `ready_for_human_approval` unless a later policy deliberately grants a narrower autonomous lane.
 
 ## Output example
 
 ```text
 repo: Aggredicus/Local-Agent-Workshop
 reviewed_at: 2026-06-01
-recommended_order: #119, #121, #122, #123, #124, #125
+recommended_order: #129
 
-PR #119:
-  verdict: ready_for_human_approval
-  next_action: human reviews and decides whether to merge
-
-PR #123:
-  verdict: stack_wait
-  next_action: wait for #122, then retarget/recheck
+PR #129:
+  verdict: ready_for_autonomous_merge
+  next_action: merge with minimal payload
 
 human_decision_needed:
-  approve merge order or request changes
+  none
 ```
 
 ## Non-goals
 
-This protocol does not implement automatic merge, auto-approval, branch-protection changes, or deployment.
+This protocol does not enable GitHub auto-merge globally, weaken branch protection, approve high-risk changes, or authorize infrastructure/deployment changes without human approval.
