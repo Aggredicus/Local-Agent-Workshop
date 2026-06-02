@@ -43,6 +43,17 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 11. Quality must be analyzed at the beginning of meaningful work and again after closeout before human review.
 12. Publishing to `main` must be quality-gated, evidence-linked, and explicitly human-approved.
 
+## Skill protocol
+
+Before using any skill under `skills/*/SKILL.md`, read:
+
+- `skills/README.md`
+- the target skill file
+
+Every skill use must follow the global skill protocol. In particular, every skill run must create a follow-up improvement issue for that skill unless the recursion-breaker rule in `skills/README.md` applies.
+
+This makes skill improvement visible from the canonical instruction spine, so agents that jump directly to an individual skill still have a single global protocol to obey.
+
 ## Standard execution contract
 
 Read:
