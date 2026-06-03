@@ -15,6 +15,8 @@ never bypass protected branch policy
 prefer minimal merge payloads
 governance-changing docs are not ordinary docs
 canonical instruction changes require authorization notes
+create a follow-up improvement issue after every use
+update the /merge-review artifact trail after every use
 ```
 
 ## When to use
@@ -40,7 +42,8 @@ This skill does not:
 - bypass branch policy,
 - treat dashboards as merge authority,
 - treat generated projections as review evidence unless their source artifacts are also available,
-- treat canonical instruction-spine changes as ordinary docs-only changes.
+- treat canonical instruction-spine changes as ordinary docs-only changes,
+- skip the mandatory skill-use improvement issue or skill artifact update required by `skills/README.md`.
 
 ## Inputs
 
@@ -62,7 +65,9 @@ Collect:
 - risk notes,
 - known stack order,
 - whether the PR changes canonical instructions, global skill rules, merge policy, approval boundaries, or other governance behavior,
-- explicit human authorization notes when governance-relevant docs are changed.
+- explicit human authorization notes when governance-relevant docs are changed,
+- post-use improvement issue target,
+- post-use artifact update target: `skills/merge-review/SKILL.md` or `skills/merge-review/IMPROVEMENT_LOG.md`.
 
 ## Inspection checklist
 
@@ -80,7 +85,8 @@ For each PR, inspect:
 10. **Authorization notes** — governance-relevant docs changes must have explicit authorization context or become `ready_for_human_approval`.
 11. **Stack order** — dependency PRs must merge before dependent PRs.
 12. **Autonomous lane eligibility** — changed paths and risk profile must fit the low-risk lane before autonomous merge is allowed.
-13. **Stop conditions** — any uncertainty that requires handoff.
+13. **Skill artifact update** — the run must plan either a `SKILL.md` behavior patch or an `IMPROVEMENT_LOG.md` entry for `/merge-review` after use.
+14. **Stop conditions** — any uncertainty that requires handoff.
 
 ## Verdicts
 
@@ -221,6 +227,17 @@ Explicit human approval is still required before:
 - accepting source-of-truth promotions,
 - accepting migrations or persistent state changes.
 
+## Mandatory post-use improvement
+
+After every `/merge-review` run:
+
+1. Create the required follow-up improvement issue for `/merge-review`.
+2. If the run found a reusable behavior lesson, patch `skills/merge-review/SKILL.md`.
+3. If the run found no behavior change, append a compact entry to `skills/merge-review/IMPROVEMENT_LOG.md`.
+4. Mention the improvement issue and artifact update in the merge-review packet or handoff.
+
+Do not treat a merge-review run as complete until the improvement issue and artifact update are accounted for, unless a tool-layer block is recorded publicly.
+
 ## Output format
 
 Produce a merge-review packet:
@@ -250,6 +267,11 @@ PR #:
   verdict:
   next_action:
 
+post_use_improvement:
+  improvement_issue:
+  artifact_update:
+  artifact_update_type: SKILL.md patch | IMPROVEMENT_LOG.md entry | blocked
+
 summary:
   ready_for_autonomous_merge:
   ready_for_human_approval:
@@ -277,7 +299,8 @@ Stop and create a handoff if:
 - governance-relevant docs changed without authorization context,
 - the PR touches secrets, protected branch settings, public endpoints, infrastructure, Proxmox, security-sensitive behavior, or destructive behavior,
 - autonomous-lane eligibility is uncertain,
-- the PR would require the agent to approve its own medium-risk or high-risk work.
+- the PR would require the agent to approve its own medium-risk or high-risk work,
+- the post-use improvement issue or skill artifact update cannot be created and no public blocked-artifact-update note is recorded.
 
 ## Good merge-review behavior
 
@@ -293,4 +316,6 @@ A good `/merge-review` run should not merely say “looks good.” It should say
 - which PRs are waiting on stack order,
 - which PRs need CI or review,
 - which PRs are blocked,
-- and what exact human decision, if any, is needed.
+- what exact human decision, if any, is needed,
+- which improvement issue was created for `/merge-review`,
+- and which `/merge-review` artifact was updated after use.
