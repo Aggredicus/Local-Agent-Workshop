@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local-agent-workshop/schemas/skills/skill-report.schema.json",
+  "title": "Local Agent Workshop Skill Report",
+  "type": "object",
+  "required": [
+    "skill",
+    "run_id",
+    "mode",
+    "input_summary",
+    "findings",
+    "artifacts",
+    "risks",
+    "recommendations",
+    "evidence"
+  ],
+  "properties": {
+    "skill": { "type": "string" },
+    "run_id": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "enum": ["dry-run", "analysis", "draft-generation", "approved-mutation"]
+    },
+    "input_summary": { "type": "object" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["info", "low", "medium", "high", "critical"]
+          },
+          "message": { "type": "string" },
+          "path": { "type": "string" },
+          "line": { "type": ["integer", "null"] }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "commands_run": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "skipped_checks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "source_paths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
