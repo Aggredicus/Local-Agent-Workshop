@@ -1,14 +1,14 @@
 # skill-security-auditor Implementation Review Packet
 
 issue: #174
-role: implementation scaffold / skill import planning
+role: implementation scaffold plus read-only wrapper
 branch/worktree: `agent/powerful-tier-skills-scaffold`
 
 ## Summary
 
-This patch begins POWERFUL-tier skill import development by adding the staged import plan, porting standard, manifest, shared schemas, and a repo-native scaffold for `/skill-security-auditor`.
+This patch begins POWERFUL-tier skill import development by adding the staged import plan, porting standard, manifest, shared schemas, and a repo-native implementation slice for `/skill-security-auditor`.
 
-The patch intentionally does not activate or copy the upstream scanner script. It records source provenance and the Local Agent Workshop operating contract first.
+The patch does not copy or execute the upstream scanner script. It adds a conservative Local Agent Workshop wrapper inspired by the upstream design and constrained to local read-only directory review.
 
 ## Changed files
 
@@ -21,7 +21,10 @@ The patch intentionally does not activate or copy the upstream scanner script. I
 - `skills/skill-security-auditor/README.md`
 - `skills/skill-security-auditor/IMPROVEMENT_LOG.md`
 - `skills/skill-security-auditor/upstream.json`
+- `scripts/skills/skill_security_auditor.py`
 - `tests/fixtures/skills/skill-security-auditor/README.md`
+- `tests/fixtures/skills/skill-security-auditor/safe-skill/SKILL.md`
+- `tests/skills/test_skill_security_auditor.py`
 - `reviews/pending/skill-security-auditor-implementation-review.md`
 
 ## Evidence paths
@@ -30,30 +33,48 @@ The patch intentionally does not activate or copy the upstream scanner script. I
 - Porting standard: `docs/skills/SKILL_PORTING_STANDARD.md`
 - Source metadata: `skills/skill-security-auditor/upstream.json`
 - Shared report schema: `schemas/skills/skill-report.schema.json`
-- Fixture placeholder: `tests/fixtures/skills/skill-security-auditor/README.md`
+- Wrapper: `scripts/skills/skill_security_auditor.py`
+- Safe fixture: `tests/fixtures/skills/skill-security-auditor/safe-skill/SKILL.md`
+- Tests: `tests/skills/test_skill_security_auditor.py`
 
 ## Checks run
 
-- No upstream scripts were activated in this first scaffold.
-- File creation was performed through GitHub repository writes on branch `agent/powerful-tier-skills-scaffold`.
+Local check outside the repo connector, using the same file contents before GitHub commit:
+
+```sh
+python -m pytest -q tests/skills/test_skill_security_auditor.py
+```
+
+Result:
+
+```text
+2 passed
+```
+
+Additional evidence:
+
+- The wrapper is local-directory only.
+- No upstream script was executed.
+- No external repository cloning is implemented in the wrapper.
 - The manifest records all 25 requested skills and the special `incident-commander` source path.
 
 ## Skipped checks
 
-- JSON schema validation was not run in this chat session.
-- Python tests were not run because no executable scanner wrapper was added.
-- Source archive extraction was not performed inside the repo.
+- JSON schema validation was not run in the repository environment.
+- Full repository test suite was not run through the GitHub connector.
+- Source archive extraction was not performed inside the repository.
 
 ## Risks
 
-- The current `/skill-security-auditor` is a scaffold, not a functioning scanner.
-- Follow-up work must inspect the upstream scanner before adapting any script.
-- The manifest is Markdown-first; a future patch should add a machine-readable manifest JSON if automation needs it.
+- The scanner is heuristic and can produce false positives or false negatives.
+- It does not perform dependency advisory lookups.
+- It should be treated as a first-pass review gate, not a complete security guarantee.
+- The Markdown manifest should eventually gain a machine-readable manifest JSON if automation depends on it.
 
 ## Next recommended action
 
-Open a follow-up implementation issue for adapting the upstream `/skill-security-auditor` scanner into a read-only Local Agent Workshop wrapper with fixtures and tests.
+Review this PR, then either merge the scaffold plus read-only wrapper or request changes before continuing with the remaining security-gate skills.
 
 ## Human decision needed
 
-Decide whether this scaffold should be merged before implementing the first executable skill wrapper.
+Decide whether the first import slice is ready to move from draft to review or needs more validation first.
