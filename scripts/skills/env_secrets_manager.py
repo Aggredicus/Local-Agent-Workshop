@@ -72,6 +72,14 @@ def is_example_file(path: Path) -> bool:
     return name.endswith((".example", ".sample", ".template")) or ".example" in name or ".sample" in name or ".template" in name
 
 
+def display_path(path: Path, root: Path) -> str:
+    """Render a path for reports without assuming it is inside root."""
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
+
+
 def iter_env_files(root: Path) -> Iterable[Path]:
     for path in sorted(root.rglob("*")):
         if path.is_file() and is_supported_env_file(path):
@@ -85,7 +93,7 @@ def redact(value: str) -> str:
 
 
 def parse_env_file(path: Path, root: Path) -> tuple[list[EnvEntry], list[Finding]]:
-    rel = str(path.relative_to(root))
+    rel = display_path(path, root)
     entries: list[EnvEntry] = []
     findings: list[Finding] = []
     seen: dict[str, int] = {}
@@ -135,8 +143,8 @@ def compare_key_sets(example_path: Path, env_path: Path, root: Path) -> list[Fin
     env_entries, _ = parse_env_file(env_path, root)
     example_keys = {entry.key for entry in example_entries}
     env_keys = {entry.key for entry in env_entries}
-    rel_example = str(example_path.relative_to(root))
-    rel_env = str(env_path.relative_to(root))
+    rel_example = display_path(example_path, root)
+    rel_env = display_path(env_path, root)
     findings: list[Finding] = []
     for key in sorted(example_keys - env_keys):
         findings.append(Finding("medium", f"`{key}` is documented in example/template but missing from env file.", rel_env, None, "drift", "Add locally or document optionality."))
@@ -180,7 +188,7 @@ def build_report(root: Path, run_id: str, command: list[str], example: str | Non
         "mode": "analysis",
         "input_summary": {
             "target_path": str(root),
-            "files_scanned": [str(path.relative_to(root)) for path in files],
+            "files_scanned": [display_path(path, root) for path in files],
             "key_count": len(entries),
             "verdict": verdict,
         },
