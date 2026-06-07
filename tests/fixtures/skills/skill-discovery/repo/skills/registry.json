@@ -1,0 +1,12 @@
+{
+  "skills": [
+    {
+      "name": "/merge-review",
+      "path": "skills/merge-review/SKILL.md"
+    },
+    {
+      "name": "/missing-skill",
+      "path": "skills/missing-skill/SKILL.md"
+    }
+  ]
+}
