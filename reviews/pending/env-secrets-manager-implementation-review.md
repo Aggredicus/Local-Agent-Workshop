@@ -11,6 +11,10 @@ This patch implements `/env-secrets-manager` as the third Phase 1 POWERFUL-tier 
 
 The v1.0 wrapper is local and review-oriented. It reads dotenv-style files, redacts all values in reports, flags likely concrete private values in example/template files, compares key drift when explicit files are provided, and emits a Local Agent Workshop skill report.
 
+## Code review finding fixed before merge
+
+During pre-merge review, explicit `--example` / `--env` paths outside the project root were found to be capable of triggering an unsafe `relative_to()` path-rendering failure. The wrapper now uses safe report-path rendering and includes a regression test for outside-root explicit comparison files.
+
 ## Changed files
 
 - `skills/env-secrets-manager/SKILL.md`
@@ -41,10 +45,10 @@ Local check outside the repo connector, using the same file contents before GitH
 python -m pytest -q tests/skills/test_env_secrets_manager.py
 ```
 
-Result:
+Result after code-review fix:
 
 ```text
-2 passed
+3 passed
 ```
 
 ## Skipped checks
@@ -59,6 +63,7 @@ Result:
 - Dotenv-style parsing can miss project-specific configuration formats.
 - Drift findings can be intentional for optional integrations.
 - The scanner uses heuristic detection for concrete values in example/template files.
+- Absolute explicit comparison paths may appear in reports, but values remain redacted.
 - The wrapper should be treated as first-pass review, not a complete secret-management system.
 
 ## Next recommended action
