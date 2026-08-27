@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Local Agent Workshop generated project-skill cache
+.agents/skills/
+
+# Local/editor noise
+.DS_Store
+*.swp

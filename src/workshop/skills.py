@@ -1,0 +1,133 @@
+"""Agent Skill discovery, validation, and project-local synchronization."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import re
+import shutil
+
+VALID_SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+FRONTMATTER = re.compile(r"\A---\s*\n(?P<body>.*?)\n---\s*(?:\n|$)", re.DOTALL)
+
+
+@dataclass(frozen=True)
+class SkillInfo:
+    name: str
+    description: str
+    path: Path
+    errors: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+    legacy: bool = False
+
+
+def _frontmatter_value(body: str, key: str) -> str:
+    match = re.search(rf"(?m)^{re.escape(key)}\s*:\s*(.+?)\s*$", body)
+    if not match:
+        return ""
+    value = match.group(1).strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        value = value[1:-1]
+    return value
+
+
+def _infer_legacy_description(text: str) -> str:
+    paragraphs = re.split(r"\n\s*\n", text)
+    for paragraph in paragraphs:
+        candidate = " ".join(line.strip() for line in paragraph.splitlines()).strip()
+        if not candidate or candidate.startswith("#") or candidate.startswith("```"):
+            continue
+        candidate = re.sub(r"\s+", " ", candidate)
+        return candidate[:1024]
+    return "Legacy Local Agent Workshop skill; use when its named workflow applies."
+
+
+def inspect_skill(skill_md: Path, *, allow_legacy: bool = True) -> SkillInfo:
+    text = skill_md.read_text(encoding="utf-8")
+    expected_name = skill_md.parent.name
+    errors: list[str] = []
+    warnings: list[str] = []
+    match = FRONTMATTER.match(text)
+    if not match:
+        if allow_legacy:
+            description = _infer_legacy_description(text)
+            warnings.append("legacy SKILL.md has no YAML frontmatter; sync will normalize the generated copy")
+            return SkillInfo(expected_name, description, skill_md, (), tuple(warnings), True)
+        return SkillInfo(expected_name, "", skill_md, ("missing YAML frontmatter",), (), True)
+
+    body = match.group("body")
+    name = _frontmatter_value(body, "name")
+    description = _frontmatter_value(body, "description")
+
+    if not name:
+        errors.append("missing required 'name' frontmatter")
+    elif not VALID_SKILL_NAME.fullmatch(name) or "--" in name:
+        errors.append(f"invalid skill name: {name!r}")
+    if name and name != expected_name:
+        errors.append(f"frontmatter name {name!r} does not match directory {expected_name!r}")
+    if not description:
+        errors.append("missing required 'description' frontmatter")
+    elif len(description) > 1024:
+        errors.append("description exceeds 1024 characters")
+
+    return SkillInfo(name or expected_name, description, skill_md, tuple(errors), tuple(warnings), False)
+
+
+def discover_skills(skills_root: Path, *, allow_legacy: bool = True) -> list[SkillInfo]:
+    if not skills_root.exists():
+        return []
+    return [inspect_skill(path, allow_legacy=allow_legacy) for path in sorted(skills_root.glob("*/SKILL.md"))]
+
+
+def validate_skills(skills_root: Path, *, strict: bool = False) -> list[SkillInfo]:
+    return [skill for skill in discover_skills(skills_root, allow_legacy=not strict) if skill.errors]
+
+
+def _normalized_skill_text(skill: SkillInfo) -> str:
+    original = skill.path.read_text(encoding="utf-8")
+    if not skill.legacy:
+        return original
+    description = skill.description.replace("\n", " ").replace('"', "\\\"")
+    return (
+        "---\n"
+        f"name: {skill.name}\n"
+        f'description: "{description}"\n'
+        "metadata:\n"
+        "  local-agent-workshop-source: legacy-normalized\n"
+        "---\n\n"
+        + original
+    )
+
+
+def sync_skills(skills_root: Path, target_root: Path) -> list[Path]:
+    """Materialize canonical skills into an Agent Skills discovery directory.
+
+    Legacy first-party skills without frontmatter are normalized only in the generated
+    copy. The canonical ``skills/`` tree remains the source of truth and existing,
+    unrelated target directories are left untouched.
+    """
+    problems = validate_skills(skills_root)
+    if problems:
+        details = "; ".join(f"{item.path.parent.name}: {', '.join(item.errors)}" for item in problems)
+        raise ValueError(f"refusing to sync invalid skills: {details}")
+
+    skills = discover_skills(skills_root)
+    if not skills:
+        raise ValueError(f"no skills found under {skills_root}")
+
+    target_root.mkdir(parents=True, exist_ok=True)
+    copied: list[Path] = []
+    for skill in skills:
+        source_dir = skill.path.parent
+        destination = target_root / source_dir.name
+        shutil.copytree(source_dir, destination, dirs_exist_ok=True)
+        (destination / "SKILL.md").write_text(_normalized_skill_text(skill), encoding="utf-8")
+        copied.append(destination)
+
+    marker = target_root / ".workshop-generated"
+    marker.write_text(
+        "Generated by `workshop skills sync` from the canonical top-level skills/ directory.\n"
+        "Legacy skill metadata may be normalized in this cache.\n"
+        "Do not edit generated copies; edit skills/<name>/ and sync again.\n",
+        encoding="utf-8",
+    )
+    return copied

@@ -1,69 +1,106 @@
 # Local Agent Workshop
 
-**Local Agent Workshop** is a local-first, human-governed autonomous software development workspace for long-running LLM-assisted coding, reviewable patches, branch-aware automation, Chronicle event logs, repo graphs, and clear human approval at risk boundaries.
+**Local Agent Workshop** is a local-first, human-governed workspace for agent-assisted software development: reusable Agent Skills, reviewable branches, deterministic project state, evidence-backed verification, and explicit human approval at risk boundaries.
 
-Working repository name:
+## Get running again
 
-```text
-local-agent-workshop
+Requirements: Python 3.11+ and Git.
+
+```bash
+git clone https://github.com/Aggredicus/Local-Agent-Workshop.git
+cd Local-Agent-Workshop
+python -m venv .venv
 ```
 
-CLI command name:
+Activate the virtual environment, then:
 
-```text
-workshop
+```bash
+python -m pip install -e ".[dev]"
+workshop skills validate
+workshop skills sync
+workshop doctor
+bash scripts/verify.sh
 ```
 
-## Core loop
+`workshop skills sync` materializes the canonical `skills/` library into `.agents/skills/`, the modern project-level Agent Skills discovery location used by Cursor and other compatible clients. Older first-party skills are normalized to current Agent Skills frontmatter in the generated cache, while newer standards-compliant skills are copied as-is. The generated copy is gitignored: **edit `skills/<name>/` and sync again**, rather than editing `.agents/skills/`.
+
+After syncing, reopen or reload your agent client so its skill inventory refreshes.
+
+## Useful commands
 
 ```text
-repo → cleanup preflight → task selection → isolated branch/worktree → work → verify → cleanup closeout → review card → human decision → resume
+workshop --version
+workshop doctor
+workshop skills list
+workshop skills validate
+workshop skills sync
+workshop hk validate
+workshop hk next
+workshop hk list
+workshop hk show HK-001
 ```
 
-## Instruction hierarchy
+`workshop doctor` checks the local Python/Git environment, core repository files, Agent Skill validity/discovery, and HyperKanban state. Warnings are actionable but non-fatal; hard readiness failures return a non-zero exit code.
 
-All agent/tool adapter files point to `me.md`.
+## What is canonical?
 
 ```text
 AGENTS.md / CLAUDE.md / CODEX.md / Cursor rules
   ↓
-me.md
+me.md                         canonical instruction spine
   ↓
-docs/, schemas/, skills/, workflows/, plan/, scripts/
+skills/                      canonical reusable Agent Skills source
+schemas/ + docs/ + scripts/  contracts, protocols, verification
   ↓
-runtime artifacts: chronicle/, reviews/, reports/, repo_graph/, .grind/, orchestration/
+chronicle/                    historical event memory
+orchestration/hyperkanban/    operational project-state projection
+reviews/ + reports/           review/evidence artifacts
 ```
 
-## Current status
+`.agents/skills/` is a generated compatibility/discovery cache, not a second source of truth.
 
-Repository normalization and branch creation are complete enough to proceed with iterative implementation on `develop`.
+## Core loop
 
-The repository now includes:
+```text
+repo → preflight → task selection → isolated agent branch/worktree
+→ work → verify → closeout → review card → human decision → resume
+```
 
-- the canonical instruction spine in `me.md`,
-- branch governance documents,
-- risk and human-approval policies,
-- HyperKanban state, packet, validator, and CLI commands,
-- evidence-gated HyperKanban completion,
-- repository cleanup protocol and `/repo-cleanup` skill,
-- a non-destructive cleanup audit script.
+The branch policy is intentionally conservative: agents work on `agent/*` (or other explicitly allowed non-protected branches), while protected-branch merges and other consequential actions remain human-gated.
 
-## Next recommended steps
+## Development workflow
 
-1. Finish cleanup automation and enforcement from #37.
-2. Implement high-concurrency multi-agent orchestration from #35.
-3. Add cleanup evidence fields to PR/review templates.
-4. Add card leases, stack plans, merge trains, and context packs.
-5. Continue hardening CI, verification, and branch protection.
+Before changing code:
 
-## Key documents
+```bash
+workshop doctor
+bash scripts/verify.sh
+```
 
-- `me.md` — canonical instruction spine.
-- `AGENTS.md`, `CLAUDE.md`, `CODEX.md` — thin pointer files for AI coding tools.
-- `.branch-policy.yaml` — machine-readable branch governance.
-- `docs/governance/BRANCH_POLICY.md` — human-readable branch policy.
-- `docs/governance/RISK_POLICY.md` — risk and approval model.
-- `docs/protocols/GRIND_PROTOCOL.md` — long-running autonomous work protocol.
-- `docs/protocols/REPOSITORY_CLEANUP_PROTOCOL.md` — cleanup preflight and closeout protocol.
-- `docs/protocols/REVIEW_WORKFLOW.md` — review-card and human-decision workflow.
-- `orchestration/hyperkanban/README.md` — HyperKanban state and packet contract.
+During development, keep changes on an isolated branch and add tests alongside behavior. Before opening or updating a PR:
+
+```bash
+workshop skills validate
+bash scripts/verify.sh
+python scripts/repo_cleanup.py --phase after
+```
+
+CI tests supported Python versions and runs the same local verification path.
+
+## HyperKanban
+
+HyperKanban is a deterministic operational projection, not the sole source of truth. The current CLI supports validation, compact packets, card inspection, next-card selection, and evidence-gated completion.
+
+```bash
+workshop hk validate
+workshop hk next
+workshop hk show HK-002
+```
+
+## Repository instruction entrypoint
+
+Start with `me.md`. Tool-specific instruction files such as `AGENTS.md`, `CLAUDE.md`, `CODEX.md`, and Cursor rules are intentionally thin adapters that route back to it.
+
+## Status
+
+The August 2026 revival sprint focuses on restoring a trustworthy cold start: standards-compliant Agent Skills, native project skill discovery, a useful `workshop` health surface, explicit Python packaging, and multi-version CI. Larger orchestration/dashboard/runtime work remains separate from this recovery layer.

@@ -14,18 +14,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install package and test dependency
+          python-version: ${{ matrix.python-version }}
+      - name: Install package and development dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e .
-          python -m pip install pytest
+          python -m pip install -e ".[dev]"
       - name: Check CLI entrypoint
-        run: workshop
+        run: workshop --version
+      - name: Validate and materialize Agent Skills
+        run: |
+          workshop skills validate
+          workshop skills sync --target /tmp/local-agent-workshop-skills
+          workshop skills --root /tmp/local-agent-workshop-skills validate --strict
       - name: Run local verification
         run: bash scripts/verify.sh
