@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -17,7 +18,7 @@ from workshop.hyperkanban.state import (
     next_card,
     save_state_and_packet,
 )
-from workshop.skills import discover_skills, sync_skills, validate_skills
+from workshop.skills import discover_skills, select_skills, sync_skills, validate_skills
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -28,7 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     doctor = subparsers.add_parser("doctor", help="Check whether this checkout is ready for local agent work")
     doctor.add_argument("--repo", type=Path, default=Path.cwd(), help="Repository root (default: current directory)")
 
-    skills = subparsers.add_parser("skills", help="Inspect and synchronize Agent Skills")
+    skills = subparsers.add_parser("skills", help="Inspect, select, and synchronize Agent Skills")
     skills.add_argument("--root", type=Path, default=Path("skills"), help="Canonical skills directory")
     skills_subparsers = skills.add_subparsers(dest="skills_command")
     skills_subparsers.add_parser("list", help="List canonical skills")
@@ -36,6 +37,10 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--strict", action="store_true", help="Require every source SKILL.md to already conform to the Agent Skills frontmatter spec")
     sync = skills_subparsers.add_parser("sync", help="Copy canonical skills to a client-discoverable project directory")
     sync.add_argument("--target", type=Path, default=Path(".agents/skills"), help="Generated project skill directory")
+    select = skills_subparsers.add_parser("select", help="Select the most relevant local skill for a task")
+    select.add_argument("--task", required=True, help="Task summary to match against the local skill library")
+    select.add_argument("--skill", help="Named skill to check directly before broad matching")
+    select.add_argument("--json", action="store_true", dest="json_output", help="Emit the full deterministic selection report as JSON")
 
     hk = subparsers.add_parser("hk", help="Read and update HyperKanban orchestration state")
     hk.add_argument(
@@ -111,7 +116,26 @@ def handle_skills(args: argparse.Namespace) -> int:
         print(f"Synchronized {len(copied)} skill(s) to {args.target}")
         return 0
 
-    print("Missing skills subcommand. Choose list, validate, or sync.", file=sys.stderr)
+    if args.skills_command == "select":
+        report = select_skills(args.root, args.task, args.skill)
+        if args.json_output:
+            print(json.dumps(report, indent=2, sort_keys=True))
+            return 0
+        selected = report["selected_primary_skill"]
+        if selected is None:
+            print("No matching local skill found. Inspect the library before creating a new skill.")
+            return 1
+        print(f"/{selected['name']}\t{selected['path']}")
+        for reason in selected["reasons"]:
+            print(f"  - {reason}")
+        secondary = report["secondary_or_composed_skills"]
+        if secondary:
+            print("Secondary candidates:")
+            for item in secondary:
+                print(f"  /{item['name']} (score={item['score']})")
+        return 0
+
+    print("Missing skills subcommand. Choose list, validate, sync, or select.", file=sys.stderr)
     return 2
 
 
