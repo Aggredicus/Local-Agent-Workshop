@@ -1,0 +1,31 @@
+{
+  "source_repository": "alirezarezvani/claude-skills",
+  "source_archive": "claude-skills-2-main.zip",
+  "source_archive_sha256": "c8e1df8a6c3748a73a51d61fdd56c67d91138ddd278cca5f59a156d960b9c9fc",
+  "source_path": "claude-skills-2-main/engineering/skills/env-secrets-manager/",
+  "license": "MIT",
+  "copyright": "Copyright (c) 2025 Alireza Rezvani",
+  "adapted_for": "Local Agent Workshop",
+  "skill_name": "env-secrets-manager",
+  "files_to_inspect_before_copying": [
+    "SKILL.md",
+    "scripts/env_secrets_manager.py",
+    "references/env_management.md",
+    "templates/env.example"
+  ],
+  "files_copied": [],
+  "files_adapted": [
+    "SKILL.md concept and local wrapper contract",
+    "README.md scaffold",
+    "IMPROVEMENT_LOG.md scaffold",
+    "scripts/skills/env_secrets_manager.py local read-only wrapper"
+  ],
+  "local_changes_required": [
+    "Add Local Agent Workshop instruction hierarchy references",
+    "Restrict v1.0 to local dotenv-style file review",
+    "Redact all values in reports",
+    "Normalize output artifacts to shared skill report schema",
+    "Add synthetic fixtures and pytest coverage",
+    "Record skipped checks for credential rotation and provider behavior"
+  ]
+}
