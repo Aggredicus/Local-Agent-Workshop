@@ -1,4 +1,4 @@
-"""Agent Skill discovery, validation, and project-local synchronization."""
+"""Agent Skill discovery, validation, selection, and project-local synchronization."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,6 +8,29 @@ import shutil
 
 VALID_SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER = re.compile(r"\A---\s*\n(?P<body>.*?)\n---\s*(?:\n|$)", re.DOTALL)
+
+MANDATORY_SKILL_RULES = (
+    (
+        "merge-review",
+        ("merge", "merging", "pull request", "pr review", "approve", "approval", "stacked pr", "retarget"),
+        "Merge or PR-review tasks must consider /merge-review.",
+    ),
+    (
+        "skill-security-auditor",
+        ("external skill", "skill import", "importing skills", "activate skill", "untrusted", "upstream skill", "script review"),
+        "External skill import or activation must consider /skill-security-auditor.",
+    ),
+    (
+        "dependency-auditor",
+        ("dependency", "dependencies", "package.json", "requirements.txt", "license", "version pinning"),
+        "Dependency review tasks should consider /dependency-auditor.",
+    ),
+    (
+        "env-secrets-manager",
+        (".env", "env file", "environment config", "secret", "secrets", "credential", "redaction"),
+        "Env/config review tasks should consider /env-secrets-manager.",
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -80,6 +103,86 @@ def discover_skills(skills_root: Path, *, allow_legacy: bool = True) -> list[Ski
 
 def validate_skills(skills_root: Path, *, strict: bool = False) -> list[SkillInfo]:
     return [skill for skill in discover_skills(skills_root, allow_legacy=not strict) if skill.errors]
+
+
+def _task_tokens(text: str) -> set[str]:
+    return {
+        token
+        for token in re.findall(r"[a-z0-9_.*/-]+", text.lower())
+        if len(token) >= 4
+    }
+
+
+def select_skills(skills_root: Path, task: str, named_skill: str | None = None) -> dict[str, object]:
+    """Rank local skills for a task using deterministic, inspectable rules.
+
+    This is the package-level counterpart to the repository's /skill-discovery
+    helper scripts. It intentionally uses simple lexical rules rather than an LLM
+    so cold-start behavior is reproducible and available offline.
+    """
+    inventory = discover_skills(skills_root)
+    by_name = {skill.name: skill for skill in inventory if not skill.errors}
+    task_lower = re.sub(r"\s+", " ", task.lower()).strip()
+    task_tokens = _task_tokens(task)
+    candidates: dict[str, dict[str, object]] = {}
+
+    def add(name: str, score: int, reason: str) -> None:
+        skill = by_name.get(name)
+        if skill is None:
+            return
+        candidate = candidates.setdefault(
+            name,
+            {"name": skill.name, "path": str(skill.path), "score": 0, "reasons": []},
+        )
+        candidate["score"] = int(candidate["score"]) + score
+        reasons = candidate["reasons"]
+        assert isinstance(reasons, list)
+        reasons.append(reason)
+
+    direct_lookup: dict[str, object] | None = None
+    if named_skill:
+        normalized_name = named_skill.strip().lstrip("/")
+        direct = by_name.get(normalized_name)
+        direct_lookup = {
+            "name": normalized_name,
+            "found": direct is not None,
+            "path": str(direct.path) if direct else str(skills_root / normalized_name / "SKILL.md"),
+        }
+        if direct:
+            add(normalized_name, 100, "User named this skill; direct path was checked before broad matching.")
+
+    for name, terms, reason in MANDATORY_SKILL_RULES:
+        if any(term in task_lower for term in terms):
+            add(name, 80, reason)
+
+    for skill in inventory:
+        if skill.errors:
+            continue
+        candidate_text = f"{skill.name} {skill.description}".lower()
+        overlap = sum(1 for token in task_tokens if token in candidate_text)
+        if overlap:
+            add(skill.name, overlap, "Task terms overlap this skill's name or description.")
+
+    ranked = sorted(candidates.values(), key=lambda item: (-int(item["score"]), str(item["name"])))
+    selected = ranked[0] if ranked else None
+
+    return {
+        "task_summary": task,
+        "direct_lookup": direct_lookup,
+        "selected_primary_skill": selected,
+        "secondary_or_composed_skills": ranked[1:],
+        "alternatives_considered": [
+            {"name": skill.name, "path": str(skill.path)}
+            for skill in inventory
+            if not skill.errors and (selected is None or skill.name != selected["name"])
+        ],
+        "new_skill_needed": selected is None,
+        "recommended_next_action": (
+            "Read the selected SKILL.md and follow its workflow."
+            if selected
+            else "Create or improve a skill only after confirming no existing skill overlaps the task."
+        ),
+    }
 
 
 def _normalized_skill_text(skill: SkillInfo) -> str:
