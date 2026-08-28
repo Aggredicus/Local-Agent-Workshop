@@ -22,7 +22,7 @@ workshop doctor
 bash scripts/verify.sh
 ```
 
-`workshop skills sync` materializes the canonical `skills/` library into `.agents/skills/`, the modern project-level Agent Skills discovery location used by Cursor and other compatible clients. Older first-party skills are normalized to current Agent Skills frontmatter in the generated cache, while newer standards-compliant skills are copied as-is. The generated copy is gitignored: **edit `skills/<name>/` and sync again**, rather than editing `.agents/skills/`.
+`workshop skills sync` materializes the canonical `skills/` library into `.agents/skills/`, the modern project-level Agent Skills discovery location used by Cursor and other compatible clients. Legacy first-party skills are normalized to current Agent Skills frontmatter in the generated cache, while standards-compliant skills are copied as-is. The generated copy is gitignored: **edit `skills/<name>/` and sync again**, rather than editing `.agents/skills/`.
 
 After syncing, reopen or reload your agent client so its skill inventory refreshes.
 
@@ -34,11 +34,14 @@ workshop doctor
 workshop skills list
 workshop skills validate
 workshop skills sync
+workshop skills select --task "review this pull request before merge"
 workshop hk validate
 workshop hk next
 workshop hk list
 workshop hk show HK-001
 ```
+
+`workshop skills select` is the deterministic CLI entrypoint for the repository's `/skill-discovery` gate. It checks explicitly named skills first, applies mandatory gate rules for merge review, external skill imports, dependency review, and environment/secrets review, then ranks the remaining local skills using inspectable lexical matching. Use `--json` for the full selection report or `--skill /name` to force a direct-path check before broad matching.
 
 `workshop doctor` checks the local Python/Git environment, core repository files, Agent Skill validity/discovery, and HyperKanban state. Warnings are actionable but non-fatal; hard readiness failures return a non-zero exit code.
 
@@ -74,6 +77,7 @@ Before changing code:
 
 ```bash
 workshop doctor
+workshop skills select --task "describe the work you are about to do"
 bash scripts/verify.sh
 ```
 
@@ -103,4 +107,4 @@ Start with `me.md`. Tool-specific instruction files such as `AGENTS.md`, `CLAUDE
 
 ## Status
 
-The August 2026 revival sprint focuses on restoring a trustworthy cold start: standards-compliant Agent Skills, native project skill discovery, a useful `workshop` health surface, explicit Python packaging, and multi-version CI. Larger orchestration/dashboard/runtime work remains separate from this recovery layer.
+The August 2026 revival work has restored a trustworthy cold start and is now connecting the repository's agent-operability pieces into one usable surface: native project skill discovery, deterministic skill selection, repository health checks, explicit Python packaging, multi-version CI, and existing HyperKanban operations. Larger orchestration/dashboard/runtime work remains separate from this recovery layer.
