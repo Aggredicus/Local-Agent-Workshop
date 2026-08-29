@@ -1,32 +1,37 @@
 # Publish Protocol
 
-`/publish` is the safe end-of-day release and save-file workflow for Local Agent Workshop.
+`/publish` is the safe release/save-file workflow for a reviewed `main` state in Local Agent Workshop.
 
-It prepares reviewed `develop` work for promotion into `main`, but it must not bypass quality gates, branch protection, incident visibility, or human approval.
+It does not replace the normal pull-request review boundary and it does not exist to shuttle work through a separate integration branch.
 
 ## Branch meaning
 
-The branch policy defines:
+The active branch model is:
 
 ```text
-main     stable, released, client-safe code
-develop  reviewed integration branch
+main          reviewed stable trunk, normal PR target, released/client-safe baseline
+experimental  sandbox and lab branch
+agent/*       autonomous work branches
+release/*     exceptional release staging when actually needed
+rc/*          exceptional release-candidate staging when actually needed
 ```
 
-Do not rename `main` to `stable`. Use `main` as the branch name and describe it as stable, released, and client-safe.
+`develop` is a legacy historical branch retained temporarily for history and rollback reference. It is not an active integration branch and is not a normal pull-request target.
 
 ## Purpose
 
-`/publish` should make the end of a work session feel like a safe save point:
+`/publish` should make a reviewed `main` state feel like a safe save point:
 
 ```text
-finish work
-verify quality
-capture incidents
-record improvement opportunities
-prepare stable state
-walk away with a clean save file
-resume tomorrow from a known-good baseline
+finish bounded work on a short-lived branch
+verify and review the pull request
+human approves merge to main
+merge to main
+verify the resulting main state
+capture incidents and follow-up work
+prepare a stable release/save-file packet
+perform any separately approved release action
+leave a resume-ready baseline
 ```
 
 ## Relationship to the automation loop
@@ -45,37 +50,36 @@ The normal work loop is:
 → review/human decision
 ```
 
-`/publish` starts only after review/human decision approves a publish attempt.
+Normal implementation pull requests target `main`. Human approval to merge into `main` remains a separate protected-branch decision.
+
+`/publish` starts only when a human explicitly asks to finalize the reviewed `main` state as a stable release/save point or authorizes a separate release action.
 
 Suggested publish loop:
 
 ```text
-review/human decision approves publish
+human requests publish of reviewed main
 → /publish preflight
-→ publish approval profile check
+→ verify main and publish approval profile
 → release/save-file packet
-→ develop→main PR
-→ explicit human approval
-→ merge to main
+→ incident/follow-up review
+→ optional release/tag/deploy proposal
+→ explicit human approval for any live/protected effect
 → publish closeout
-→ next-day resume notes
+→ next-session resume notes
 ```
 
 ## Quality gate dependency
 
-`/publish` depends on a successful `/quality-analysis final review gate` pass.
+`/publish` depends on a successful `/quality-analysis final review gate` and verification of the `main` state being published.
 
 Publishing should not happen merely because work ended or because the day ended.
-
-Publishing is allowed only when the final quality-analysis report satisfies a configurable publish approval profile.
 
 Example approval profile:
 
 ```json
 {
-  "profile": "end_of_day_publish",
-  "source_branch": "develop",
-  "target_branch": "main",
+  "profile": "stable_main_publish",
+  "source_branch": "main",
   "requires": {
     "cleanup_closeout": "passed",
     "quality_analysis_final": "passed",
@@ -85,7 +89,7 @@ Example approval profile:
     "high_risk_items": "human_approved",
     "incident_handling": "documented_or_none",
     "followup_issues": "created_or_intentionally_skipped",
-    "next_day_resume_note": "present"
+    "resume_note": "present"
   },
   "blocks_publish_if": [
     "quality_analysis_has_BLOCKER",
@@ -101,24 +105,25 @@ Example approval profile:
 
 ## Publish preflight
 
-Before preparing a `develop` → `main` publish, verify:
+Before publishing, verify:
 
-- the request is explicit,
-- `develop` is the intended source branch,
-- `main` is the intended target branch,
+- the human request is explicit,
+- the source state is the intended reviewed `main` commit,
 - cleanup closeout passed,
 - final quality analysis passed,
-- verification passed,
+- verification passed on the state being published,
 - incidents are documented or absent,
 - unresolved blockers are zero,
 - high-risk items have human approval,
 - follow-up issues are created or intentionally skipped,
-- a next-day resume note exists or will be generated,
+- a resume note exists or will be generated,
 - the publish packet will be reviewable.
+
+If the requested action includes creating a tag, GitHub release, deployment, release branch, or other live/protected effect, that action requires its own explicit authorization when repository policy says so.
 
 ## Publish packet
 
-A publish packet is the reviewable evidence bundle for the release/save-file state.
+A publish packet is the reviewable evidence bundle for the stable state.
 
 Suggested path:
 
@@ -136,10 +141,10 @@ reports/publish/latest.json
 
 A publish packet should include:
 
-- source branch,
-- target branch,
+- source `main` commit,
+- previous published baseline when known,
 - commit range,
-- merged PRs since last publish,
+- merged PRs since the previous publish,
 - issues completed,
 - tests and verification run,
 - cleanup result,
@@ -148,8 +153,9 @@ A publish packet should include:
 - known limitations,
 - follow-up issues,
 - human approval status,
+- any proposed release/tag/deploy action,
 - rollback or reversal notes,
-- next-day starting point.
+- next-session starting point.
 
 ## Incident and improvement handling
 
@@ -173,23 +179,6 @@ Improvement opportunities should route through:
 → Chronicle or self-improvement record
 ```
 
-## Ethics and safety values
-
-`/publish` should encode safety-first governance.
-
-Values:
-
-```text
-Safety before speed.
-Evidence before confidence.
-Human review before irreversible action.
-Mental health and burnout risks matter.
-Secure software protects people.
-Physical safety of humanity and nature matters.
-AI cooperation must remain accountable to human and ecological well-being.
-Automation should reduce harm, not accelerate unsafe work.
-```
-
 ## Human approval boundary
 
 Agents may prepare:
@@ -198,16 +187,17 @@ Agents may prepare:
 - incident summaries,
 - quality summaries,
 - changelog summaries,
-- `develop` → `main` PRs,
-- merge readiness recommendations.
+- release/tag/deploy proposals,
+- merge or release readiness recommendations.
 
 Agents must not silently:
 
 - merge into `main`,
-- bypass branch protection,
+- bypass branch protection or repository policy,
 - ignore failed verification,
 - hide incidents,
 - erase audit history,
+- create tags/releases/deployments with live effect when approval is required,
 - publish without explicit human approval.
 
 ## Stop rules
@@ -221,20 +211,21 @@ Stop publish when:
 - incidents are undocumented,
 - high-risk changes lack approval,
 - publish packet is missing,
+- the requested source is not the intended reviewed `main` state,
 - the human did not explicitly approve publishing.
 
 ## Future CLI direction
 
-Initial automation should be dry-run and local-first.
+Initial automation should remain local-first and evidence-first.
 
 Possible future commands:
 
 ```sh
-workshop publish preflight --source develop --target main
-workshop publish packet --out reports/publish/latest.json
+workshop publish preflight --source main
+workshop publish packet --source main --out reports/publish/latest.json
 workshop publish ready --require-human-approval
-workshop publish create-pr --source develop --target main
-workshop publish closeout --publish-pr <number>
+workshop publish propose-release --source main
+workshop publish closeout --source main
 ```
 
-Actual merge to `main` must remain explicitly human-approved.
+Routine feature integration belongs to normal `branch -> PR -> human-approved merge to main` workflow, not to `/publish`.
