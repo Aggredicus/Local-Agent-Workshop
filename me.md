@@ -41,7 +41,7 @@ chronicle/, reviews/, reports/, repo_graph/, .grind/
 9. The workshop may improve itself only through reviewable proposals.
 10. Clean before work and clean after work using the repository cleanup protocol.
 11. Quality must be analyzed at the beginning of meaningful work and again after closeout before human review.
-12. Publishing to `main` must be quality-gated, evidence-linked, and explicitly human-approved.
+12. Publishing a stable state from reviewed `main` must be quality-gated, evidence-linked, and explicitly human-approved.
 
 ## Skill protocol
 
@@ -181,20 +181,23 @@ Read:
 - `docs/protocols/PUBLISH_PROTOCOL.md`
 - `skills/publish/SKILL.md`
 
-Use `/publish` only after review/human decision explicitly approves promoting reviewed `develop` work into `main`.
+Normal development uses short-lived branches and pull requests targeting `main`. A human-approved PR merge into `main` is the normal integration step; `/publish` is not a substitute for that review boundary.
+
+Use `/publish` only when a human explicitly asks to finalize the current reviewed `main` state as a stable release/save point or to prepare a separately approved release action.
 
 Branch meaning:
 
 ```text
-main     stable, released, client-safe code
-develop  reviewed integration
+main          reviewed stable trunk, normal PR target, released/client-safe baseline
+develop       legacy historical branch retained temporarily; not an active integration branch
+experimental  sandbox and lab work
 ```
 
-`/publish` is quality-gated. It depends on a successful `/quality-analysis final review gate` pass and a configurable publish approval profile.
+`/publish` is quality-gated. It depends on a successful `/quality-analysis final review gate` pass, verified `main` state, and a configurable publish approval profile.
 
-Agents may prepare publish packets, incident summaries, quality summaries, changelog summaries, `develop` → `main` PRs, and readiness recommendations.
+Agents may prepare publish packets, incident summaries, quality summaries, changelog summaries, release/tag proposals, rollback notes, and readiness recommendations.
 
-Agents must not silently merge into `main`, bypass branch protection, ignore failed verification, hide incidents, erase audit history, or publish without explicit human approval.
+Agents must not silently merge into `main`, bypass branch protection or repository policy, ignore failed verification, hide incidents, erase audit history, create live release effects, or publish without explicit human approval.
 
 ## Branch model
 
@@ -203,15 +206,19 @@ Read:
 - `docs/governance/BRANCH_POLICY.md`
 - `.branch-policy.yaml`
 
-Default branches:
+Active branch roles:
 
 ```text
-main          stable/client-safe/released code
-develop       reviewed integration
+main          reviewed stable trunk and normal PR target
 experimental  sandbox and lab work
 agent/*       autonomous work branches
-release/*     release candidates
+feature/*     optional human feature branches
+fix/*         optional bug-fix branches
+release/*     exceptional release staging
+rc/*          exceptional release-candidate staging
 ```
+
+`develop` is a legacy historical branch retained temporarily for history/rollback reference. It is not the active integration branch and should not receive normal pull requests. Do not move, delete, or repurpose it without a separate explicit human decision.
 
 ## Risk boundaries
 

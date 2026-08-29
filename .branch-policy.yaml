@@ -1,6 +1,6 @@
 branch_policy:
   stable: main
-  integration: develop
+  integration: main
   sandbox: experimental
   agent_prefix: agent/
   release_prefix: release/
