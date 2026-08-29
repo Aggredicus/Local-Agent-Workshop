@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from workshop.skills import discover_skills, sync_skills, validate_skills
+from workshop.skills import discover_skills, select_skills, sync_skills, validate_skills
 
 
 def write_skill(root: Path, name: str, *, description: str = "Use for tests.", frontmatter: bool = True) -> Path:
@@ -58,3 +58,27 @@ def test_sync_refuses_invalid_frontmatter(tmp_path):
     path.write_text("---\nname: wrong-name\ndescription: nope\n---\n# broken\n", encoding="utf-8")
     with pytest.raises(ValueError, match="refusing to sync invalid skills"):
         sync_skills(source, tmp_path / ".agents" / "skills")
+
+
+def test_select_skills_applies_merge_review_gate(tmp_path):
+    root = tmp_path / "skills"
+    write_skill(root, "merge-review", description="Review pull requests and merge readiness.")
+    write_skill(root, "design-first", description="Design software before implementation.")
+
+    report = select_skills(root, "Review this pull request before we merge it")
+
+    assert report["selected_primary_skill"]["name"] == "merge-review"
+    assert report["new_skill_needed"] is False
+    assert any("must consider /merge-review" in reason for reason in report["selected_primary_skill"]["reasons"])
+
+
+def test_select_skills_checks_named_skill_directly(tmp_path):
+    root = tmp_path / "skills"
+    write_skill(root, "design-first", description="Design software before implementation.")
+    write_skill(root, "repo-cleanup", description="Clean repository state before and after work.")
+
+    report = select_skills(root, "Do some general preparation", named_skill="/repo-cleanup")
+
+    assert report["direct_lookup"]["found"] is True
+    assert report["selected_primary_skill"]["name"] == "repo-cleanup"
+    assert report["selected_primary_skill"]["score"] >= 100
