@@ -1,59 +1,44 @@
 # /publish
 
-Use this skill when a human explicitly wants to promote reviewed `develop` work into `main` as a stable end-of-day release/save-file state.
+Use this skill when a human explicitly wants to finalize the current reviewed `main` state as a stable release/save-file baseline or prepare a separately approved release action.
 
-`/publish` is not a shortcut around review. It is a quality-gated release workflow.
+`/publish` is not a shortcut around pull-request review, protected-branch approval, or verification.
 
 ## Branch target
 
 ```text
-main     stable, released, client-safe code
-develop  reviewed integration branch
+main          reviewed stable trunk, normal PR target, released/client-safe baseline
+develop       legacy historical branch retained temporarily; not active integration
 ```
 
-Use the branch name `main`. Do not rename it to `stable`.
+Routine work should use a short-lived branch and a pull request targeting `main`. A human-approved merge into `main` happens before `/publish` finalizes that stable state.
 
 ## When to use
 
-Use `/publish` only after:
+Use `/publish` only after the normal work/review loop has produced a reviewed `main` state and the human explicitly asks to publish or create a stable save point.
 
 ```text
-/cleanup preflight
-→ /quality-analysis baseline
-→ /generate-issue start-check
-→ /grind
-→ /self-improvement
-→ /generate-issue closeout-check
-→ /cleanup closeout
-→ /quality-analysis final review gate
-→ review/human decision approves publish
-```
-
-## Publish loop
-
-```text
-review/human decision approves publish
-→ /publish preflight
-→ publish approval profile check
-→ release/save-file packet
-→ develop→main PR
+short-lived branch
+→ verification and review
+→ main-targeted PR
 → explicit human approval
 → merge to main
+→ /publish preflight
+→ publish packet
+→ optional separately approved release action
 → publish closeout
-→ next-day resume notes
 ```
 
 ## Quality gate dependency
 
-`/publish` depends on a successful `/quality-analysis final review gate` pass.
+`/publish` depends on a successful `/quality-analysis final review gate` and verification of the `main` commit being published.
 
 Do not publish simply because the day ended.
-
-Publish only when the final quality-analysis report satisfies a custom publish approval profile.
 
 Minimum approval criteria:
 
 ```text
+source is reviewed main
 cleanup closeout passed
 quality-analysis final passed
 verification passed
@@ -62,7 +47,7 @@ zero unresolved blockers
 high-risk items human-approved
 incidents documented or absent
 follow-up issues created or intentionally skipped
-next-day resume note present
+resume note present
 ```
 
 Block publish when:
@@ -75,6 +60,7 @@ cleanup closeout failed
 incident is undocumented
 high-risk change is unapproved
 publish packet is missing
+source is not the intended reviewed main state
 human approval is missing
 ```
 
@@ -82,16 +68,17 @@ human approval is missing
 
 Before publishing, check:
 
-- source branch is `develop`,
-- target branch is `main`,
+- source state is the intended reviewed `main` commit,
 - final quality-analysis result is acceptable,
 - cleanup closeout passed,
-- `scripts/verify.sh` passed,
+- `scripts/verify.sh` passed for the state being published,
 - incident reports are complete or not needed,
 - unresolved risks are documented,
 - follow-up issues are created or intentionally skipped,
 - publish packet exists or will be generated,
 - human approval is explicit.
+
+If the requested action includes a tag, GitHub release, deployment, release branch, or other live/protected effect, require the additional approval demanded by repository policy.
 
 ## Publish packet
 
@@ -103,10 +90,10 @@ reports/publish/
 
 The packet should include:
 
-- source branch,
-- target branch,
+- source `main` commit,
+- previous published baseline when known,
 - commit range,
-- merged PRs since last publish,
+- merged PRs since the previous publish,
 - issues completed,
 - verification evidence,
 - cleanup result,
@@ -115,8 +102,9 @@ The packet should include:
 - known limitations,
 - follow-up issues,
 - human approval status,
+- any proposed release/tag/deploy action,
 - rollback or reversal notes,
-- next-day starting point.
+- next-session starting point.
 
 ## Incident handling
 
@@ -131,21 +119,6 @@ For each incident, record:
 - publish blocking decision,
 - reason if publish proceeds despite the incident.
 
-## Ethics and safety values
-
-`/publish` should express the project’s safety-first governance.
-
-```text
-Safety before speed.
-Evidence before confidence.
-Human review before irreversible action.
-Mental health and burnout risks matter.
-Secure software protects people.
-Physical safety of humanity and nature matters.
-AI cooperation must remain accountable to human and ecological well-being.
-Automation should reduce harm, not accelerate unsafe work.
-```
-
 ## Agent permissions
 
 Agents may prepare:
@@ -154,16 +127,17 @@ Agents may prepare:
 - incident summaries,
 - quality summaries,
 - changelog summaries,
-- `develop` → `main` PRs,
-- merge readiness recommendations.
+- release/tag/deploy proposals,
+- merge or release readiness recommendations.
 
 Agents must not silently:
 
 - merge into `main`,
-- bypass branch protection,
+- bypass branch protection or repository policy,
 - ignore failed verification,
 - hide incidents,
 - erase audit history,
+- create live release effects without required approval,
 - publish without explicit human approval.
 
 ## Stop rules
@@ -177,6 +151,7 @@ Stop when:
 - unresolved blockers exist,
 - high-risk changes lack approval,
 - publish packet is missing,
+- source is not the intended reviewed `main` state,
 - the human did not approve publishing.
 
 ## Future CLI direction
@@ -184,11 +159,11 @@ Stop when:
 Future commands may include:
 
 ```sh
-workshop publish preflight --source develop --target main
-workshop publish packet --out reports/publish/latest.json
+workshop publish preflight --source main
+workshop publish packet --source main --out reports/publish/latest.json
 workshop publish ready --require-human-approval
-workshop publish create-pr --source develop --target main
-workshop publish closeout --publish-pr <number>
+workshop publish propose-release --source main
+workshop publish closeout --source main
 ```
 
 Until those commands exist, follow this skill and `docs/protocols/PUBLISH_PROTOCOL.md` manually.
