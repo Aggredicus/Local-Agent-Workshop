@@ -69,7 +69,7 @@ repo → preflight → task selection → isolated agent branch/worktree
 → work → verify → closeout → review card → human decision → resume
 ```
 
-The branch policy is intentionally conservative: agents work on `agent/*` (or other explicitly allowed non-protected branches), while protected-branch merges and other consequential actions remain human-gated.
+The branch policy is intentionally conservative: normal work happens on short-lived branches and pull requests target `main`. Protected-branch merges and other consequential actions remain human-gated. The old `develop` branch is retained only as legacy history and is not part of the active development path.
 
 ## Development workflow
 
@@ -81,7 +81,7 @@ workshop skills select --task "describe the work you are about to do"
 bash scripts/verify.sh
 ```
 
-During development, keep changes on an isolated branch and add tests alongside behavior. Before opening or updating a PR:
+During development, keep changes on an isolated branch and add tests alongside behavior. Open normal pull requests against `main`. Before opening or updating a PR:
 
 ```bash
 workshop skills validate
