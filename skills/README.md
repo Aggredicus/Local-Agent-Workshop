@@ -114,3 +114,8 @@ This rule does not require every improvement issue to produce a behavior PR. It 
 - a durable skill artifact update.
 
 Do not use this rule to bypass human-review boundaries, merge policy, branch policy, or evidence requirements.
+
+
+## Recursive simulated-user QA/QC
+
+Use [`/recursive-user-qa`](./recursive-user-qa/SKILL.md) for a budgeted, instrumented n=3 → x experiment with deterministic persona scripts, observed-versus-simulated evidence labels, adversarial failure discovery, bounded fixes, regression tests and a reviewable report. It does **not** claim fake human sessions are human research. This skill follows the mandatory improvement-issue/artifact-update protocol above.
