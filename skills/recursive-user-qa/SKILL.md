@@ -61,3 +61,6 @@ For real users: seek informed consent before recording voice, screens, keystroke
 ## Example: Svara Lab 2026-10-26
 
 See `references/svara-lab-example.md` for the n=3 → x=12 iterative case. Reuse the *method*, not its task-specific assumptions or outcomes.
+## Input-modality regression gate (learned from Svara Lab v1.4)
+
+For interactive touch/gesture/audio instruments, expand the scenario matrix to the **Cartesian coverage** of all declared keys × directions × sound-producing modes, including deliberately empty destinations. Do not accept a passing text output alone as evidence that the audio path works. For each mapped item, test (a) correct output character, (b) transliteration/mapping, (c) nonempty bounded audio output, and (d) an actual AudioBufferSource or instrument event during a user activation. Include at least one true browser-native touch sequence (e.g. CDP dispatchTouchEvent or equivalent), one two-contact release-order test, and failure-path tests for cancelled capture. Simulated PointerEvent dispatch can be a cheap broad test but cannot replace browser-native input. Distinguish technically nonzero PCM from a native-speaker-rated phoneme and label native and physical-device tests as unverified until conducted. See [Svara Lab v1.4](https://github.com/Aggredicus/Svara-Lab/blob/feature/svara-lab-v1-2/qa/2026-10-26/CONSONANT_AUDIT_v1.4.md).
