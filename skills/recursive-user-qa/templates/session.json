@@ -1,0 +1,34 @@
+{
+  "schema": "recursive-qa-session/v1",
+  "session_id": "SIM-01",
+  "provenance": "observed_automation",
+  "participant_kind": "synthetic_persona",
+  "human_participant": false,
+  "consent_recording": false,
+  "recording_uri": null,
+  "tested_commit": "replace-with-actual-sha",
+  "environment": {
+    "browser": "Chromium",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "task_log": [
+    {
+      "task": "Paste राम and press Backspace",
+      "expected": "रा",
+      "observed": "",
+      "pass": false,
+      "evidence": "log-or-screenshot-path"
+    }
+  ],
+  "simulated_feedback_hypotheses": [
+    "Users might expect Backspace to remove one edit unit"
+  ],
+  "real_user_quotes": [],
+  "duration_seconds": null,
+  "limitations": [
+    "No real human participated"
+  ]
+}
