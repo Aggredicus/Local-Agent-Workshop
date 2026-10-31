@@ -63,6 +63,16 @@ CREATE TABLE IF NOT EXISTS agent_versions (
   recorded_utc TEXT NOT NULL,
   reason TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS machine_snapshots (
+  snapshot_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  computer_id TEXT NOT NULL REFERENCES nodes(id),
+  os_family TEXT NOT NULL,
+  logical_cpus INTEGER,
+  memory_gib_estimate INTEGER,
+  scope TEXT NOT NULL,
+  created_utc TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_machine_snapshots_computer ON machine_snapshots(computer_id);
 CREATE TABLE IF NOT EXISTS event_log (
   event_id INTEGER PRIMARY KEY AUTOINCREMENT,
   node_id TEXT REFERENCES nodes(id),
@@ -229,6 +239,32 @@ class LocalRegistry:
                             (token,node_id,skill_id,action,"pending",utc_now()))
             self._event(node_id, "proposed", {"skill_id":skill_id,"action":action})
         return token
+
+    def record_hardware(self, computer_id: str, observations: dict) -> dict:
+        """Record a coarse, local-only machine snapshot; no hostname, MAC or serial."""
+        validate_id(computer_id)
+        keys = {"schema_version","os_family","logical_cpus","memory_gib_estimate","gpu","scope"}
+        if set(observations) != keys or observations["schema_version"] != 1:
+            raise ValueError("Unrecognized hardware observations")
+        if observations["os_family"] not in {"linux","darwin","windows","other"}:
+            raise ValueError("Unexpected OS family")
+        if observations["gpu"] != "unknown-not-probed" or observations["scope"] != "local-advisory-not-attested":
+            raise ValueError("Unverified GPU/attestation data")
+        cpu, ram = observations["logical_cpus"], observations["memory_gib_estimate"]
+        if cpu is not None and (type(cpu) is not int or not 0 < cpu <= 4096):
+            raise ValueError("Invalid CPU count")
+        if ram is not None and (type(ram) is not int or not 0 <= ram <= 1048576):
+            raise ValueError("Invalid RAM estimate")
+        with self.transaction():
+            node = self.db.execute("SELECT kind FROM nodes WHERE id=?",(computer_id,)).fetchone()
+            if node is None or node["kind"] != "computer":
+                raise ValueError("Hardware snapshot requires a computer node")
+            self.db.execute("""INSERT INTO machine_snapshots
+                (computer_id,os_family,logical_cpus,memory_gib_estimate,scope,created_utc)
+                VALUES(?,?,?,?,?,?)""",
+                (computer_id,observations["os_family"],cpu,ram,observations["scope"],utc_now()))
+            self._event(computer_id,"hardware_observed",{"not_attested":True})
+        return {"computer_id":computer_id,"snapshot_recorded":True,"identity_collected":False}
 
     def summary(self) -> dict:
         counts = {kind:self.db.execute("SELECT COUNT(*) FROM nodes WHERE kind=?",(kind,)).fetchone()[0]
