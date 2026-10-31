@@ -1,0 +1,49 @@
+name: CAW-LAW contract compatibility
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout LAW
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          path: local-agent-workshop
+      - name: Checkout pinned CAW contract and fixture
+        uses: actions/checkout@v4
+        with:
+          repository: Aggredicus/Codex-Agent-Workshop
+          ref: 121e21841a8284716db59fca4cdc8ad224af30a1
+          persist-credentials: false
+          path: codex-agent-workshop
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate actual shared v1 contract
+        run: |
+          cd local-agent-workshop
+          python scripts/work_packet.py validate \
+            --schema ../codex-agent-workshop/contracts/caw-law-work-packet.v1.json \
+            --packet ../codex-agent-workshop/contracts/fixtures/caw-law-work-packet.example.json
+          python scripts/work_packet.py plan \
+            --schema ../codex-agent-workshop/contracts/caw-law-work-packet.v1.json \
+            --packet ../codex-agent-workshop/contracts/fixtures/caw-law-work-packet.example.json > /tmp/law-plan.json
+          python - <<'PY'
+          import json
+          p = json.load(open('/tmp/law-plan.json'))
+          assert p['execution_enabled'] is False
+          assert p['network'] == 'deny'
+          assert p['host_credentials'] == 'deny'
+          assert p['workspace_write'] == 'deny-until-trusted-runner'
+          PY
