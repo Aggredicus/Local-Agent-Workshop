@@ -41,3 +41,16 @@
 ## v1.0 — Stable Local Agent Workshop
 
 - Production-quality local-first agentic development harness.
+
+## v0.2 integration increment — CAW / LAW boundary
+
+- [x] Introduce private serverless SQLite node state with stable pseudonymous installation/agent IDs.
+- [x] Preserve agent source/version/digest history and invalidate pending capability proposals on changes.
+- [x] Support locally validated CAW work packets via one canonical CAW contract JSON.
+- [x] Produce default-deny execution plans without claiming to run an enforceable sandbox.
+- [ ] Implement and adversarially verify an actual restricted runner (filesystem, secret, network and host controls).
+- [ ] Implement hardware capability probes and local model-provider adapters, privacy-first.
+- [ ] Integrate authenticated GitHub review claims with least-privilege runtime credentials.
+- [ ] Validate a cross-repo integration fixture from a pinned CAW version, then roll out to more than one physical host.
+
+The runtime stays in LAW. Human/agent skill policy, contributor matching, PM and governance live in CAW. GitHub retains final merge authority.

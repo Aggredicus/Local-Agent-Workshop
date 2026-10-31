@@ -26,6 +26,14 @@ bash scripts/verify.sh
 
 After syncing, reopen or reload your agent client so its skill inventory refreshes.
 
+## Local runtime and CAW interoperability (experimental)
+
+This is LAW's implementation home for private local **human/computer/agent node identities**, versioned agent-origin records and prospective runtime execution. These records use a private SQLite file, not a shared network database or public JSON.
+
+See [CAW–LAW integration and security boundaries](docs/CAW_LAW_INTEGRATION.md). The work-packet contract and skill taxonomy are canonical in [Codex Agent Workshop](https://github.com/Aggredicus/Codex-Agent-Workshop); LAW reads a reviewed local checkout. The new `scripts/work_packet.py` command validates a task and generates a **non-executable, default-deny plan**. It does not yet provide OS-level sandbox enforcement.
+
+Quick local check: `python scripts/node_registry.py summary`. See integration docs for node enrollment and `--taxonomy` usage.
+
 ## Useful commands
 
 ```text

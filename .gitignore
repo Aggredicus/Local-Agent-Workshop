@@ -13,3 +13,10 @@ build/
 # Local/editor noise
 .DS_Store
 *.swp
+
+# Private agent and hardware inventory (never commit)
+.local/
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
