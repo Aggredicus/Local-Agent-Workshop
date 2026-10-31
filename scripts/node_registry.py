@@ -52,6 +52,8 @@ def main() -> int:
     proposal.add_argument("--skill", required=True)
     proposal.add_argument("--action", required=True,
                           choices=("skill.execute","pr.propose","pr.review","pr.merge"))
+    probe = sub.add_parser("probe", help="Record local nonidentifying hardware capabilities")
+    probe.add_argument("--id", required=True, help="Previously enrolled computer ID")
     sub.add_parser("summary")
     parser.add_argument("--taxonomy", type=Path, help="Path to reviewed CAW skill-inventory/taxonomy.json, required for inventory and proposals")
     args = parser.parse_args()
@@ -72,6 +74,9 @@ def main() -> int:
             elif args.command == "propose":
                 result = {"proposal_id":store.propose(args.id,args.skill,args.action,
                          known=skills(args.taxonomy)),"authorization":"not-granted"}
+            elif args.command == "probe":
+                from workshop.hardware_probe import observe
+                result = store.record_hardware(args.id, observe())
             else:
                 result = store.summary()
         print(json.dumps(result,sort_keys=True) if isinstance(result,dict) else result)
