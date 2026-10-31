@@ -77,3 +77,22 @@ def test_refuses_symlinks_and_untrusted_existing_file(tmp_path):
     symlink.symlink_to(path)
     with pytest.raises(ValueError):
         LocalRegistry(symlink)
+
+
+def test_hardware_probe_only_collects_non_identifying_details(tmp_path):
+    from workshop.hardware_probe import observe
+    snapshot = observe()
+    assert set(snapshot) == {
+        "schema_version","os_family","logical_cpus","memory_gib_estimate","gpu","scope"
+    }
+    encoded = str(snapshot).lower()
+    assert not any(key in encoded for key in ("hostname", "serial", "username", "ip_address", "mac_address"))
+    with LocalRegistry(tmp_path / "private" / "nodes.sqlite3") as r:
+        computer = r.enroll("computer")
+        human = r.enroll("human")
+        assert r.record_hardware(computer,snapshot)["snapshot_recorded"] is True
+        assert r.db.execute("SELECT COUNT(*) FROM machine_snapshots").fetchone()[0] == 1
+        with pytest.raises(ValueError):
+            r.record_hardware(human,snapshot)
+        with pytest.raises(ValueError):
+            r.record_hardware(computer,{**snapshot,"hostname":"unsafe"})
