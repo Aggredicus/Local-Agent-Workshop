@@ -47,3 +47,29 @@ jobs:
           assert p['host_credentials'] == 'deny'
           assert p['workspace_write'] == 'deny-until-trusted-runner'
           PY
+      - name: Exercise LAW agent-version reassessment using the canonical CAW skills
+        run: |
+          cd local-agent-workshop
+          python - <<'PY'
+          import json
+          import tempfile
+          from pathlib import Path
+          from workshop.local_registry import LocalRegistry
+          taxonomy = json.loads(Path('../codex-agent-workshop/skill-inventory/taxonomy.json').read_text())
+          known = {item['id'] for item in taxonomy['categories']}
+          assert 'agent-orchestration' in known
+          with tempfile.TemporaryDirectory() as temp:
+              with LocalRegistry(Path(temp) / 'private' / 'nodes.sqlite3') as store:
+                  human = store.enroll('human')
+                  computer = store.enroll('computer')
+                  agent = store.enroll('agent', operator_id=human,computer_id=computer,
+                      source='codex',version='v1',digest='sha256:' + 'a' * 64)
+                  store.capabilities(agent,['agent-orchestration'],known=known)
+                  store.propose(agent,'agent-orchestration','pr.propose',known=known)
+                  assert store.summary()['outstanding_proposals'] == 1
+                  changed = store.upgrade(agent, source='codex',version='v2',
+                                          digest='sha256:'+'b'*64)
+                  assert changed['reassessment_required'] is True
+                  assert store.summary()['outstanding_proposals'] == 0
+                  assert store.authorize(agent, 'pr.merge') is False
+          PY
