@@ -50,7 +50,7 @@ jobs:
       - name: Exercise LAW agent-version reassessment using the canonical CAW skills
         run: |
           cd local-agent-workshop
-          python - <<'PY'
+          PYTHONPATH=src python - <<'PY'
           import json
           import tempfile
           from pathlib import Path
