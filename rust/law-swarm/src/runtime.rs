@@ -14,6 +14,8 @@ use std::path::{Path, PathBuf};
 const MAX_JOURNAL_BYTES: usize = 32 * 1024 * 1024;
 const MAX_ATTEMPTS: u8 = 3;
 
+pub type Receipt = (String, Result<String, String>);
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Record {
     Accepted(WorkOrder),
@@ -169,7 +171,7 @@ impl Workbench {
         writeln!(lock, "pid={}", std::process::id()).map_err(|e| e.to_string())?;
         let sentinel = FileSentinel(lock_path);
         let path = dir.join("events.lawlog");
-        let mut file = OpenOptions::new().read(true).write(true).create(true).open(path).map_err(|e| e.to_string())?;
+        let mut file = OpenOptions::new().read(true).write(true).create(true).truncate(false).open(path).map_err(|e| e.to_string())?;
         let size = file.metadata().map_err(|e| e.to_string())?.len();
         if size > MAX_JOURNAL_BYTES as u64 { return Err("journal exceeds configured size limit".into()); }
         let mut data = Vec::new();
@@ -220,7 +222,7 @@ impl Workbench {
 
     /// Run bounded, independent slices. Each tool dispatch happens only after
     /// a durable Started record; its eventual completion is another event.
-    pub fn drive(&mut self, parallel: usize, budget: usize) -> Result<Vec<(String, Result<String, String>)>, String> {
+    pub fn drive(&mut self, parallel: usize, budget: usize) -> Result<Vec<Receipt>, String> {
         if !(1..=16).contains(&parallel) || !(1..=100).contains(&budget) {
             return Err("parallel must be 1..16 and budget 1..100".into());
         }

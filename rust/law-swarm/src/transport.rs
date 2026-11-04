@@ -83,10 +83,10 @@ fn execute_over_ssh(order: &WorkOrder, host: &str, timeout: Duration) -> Result<
     // The child has exited, so these bounded reads cannot block waiting for EOF.
     let mut stdout = String::new();
     let mut stderr = String::new();
-    if let Some(mut out) = child.stdout.take() {
+    if let Some(out) = child.stdout.take() {
         out.take((MAX_WIRE + 1) as u64).read_to_string(&mut stdout).map_err(|_| "non-UTF-8 SSH response")?;
     }
-    if let Some(mut err) = child.stderr.take() {
+    if let Some(err) = child.stderr.take() {
         err.take(4096).read_to_string(&mut stderr).map_err(|_| "non-UTF-8 SSH error")?;
     }
     if !status.success() {

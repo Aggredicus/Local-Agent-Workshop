@@ -44,6 +44,6 @@ fn rejects_unauthorized_execution_and_host_options() {
     let d = dir.to_string_lossy().into_owned();
     let result = command(&["submit", "--state", &d, "--id", "t", "--thread", "test", "--target", "ssh:-oProxyCommand=bad", "--tool", "uppercase", "--input", "abc"]);
     assert!(!result.status.success());
-    assert!(command(&["submit", "--state", &d, "--id", "t", "--thread", "test", "--target", "local", "--tool", "bash", "--input", "echo bad"]).status.success() == false);
+    assert!(!command(&["submit", "--state", &d, "--id", "t", "--thread", "test", "--target", "local", "--tool", "bash", "--input", "echo bad"]).status.success());
     fs::remove_dir_all(dir).expect("remove test state");
 }

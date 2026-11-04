@@ -110,6 +110,8 @@ pub fn hex_encode(bytes: &[u8]) -> String {
     out
 }
 
+// Retain Rust 1.80 compatibility: newer integer and slice helpers are optional.
+#[allow(clippy::manual_is_multiple_of, clippy::chunks_exact_to_as_chunks)]
 pub fn hex_decode(s: &str) -> Result<Vec<u8>, String> {
     if s.len() % 2 != 0 { return Err("odd hex string length".into()); }
     let mut out = Vec::with_capacity(s.len() / 2);
