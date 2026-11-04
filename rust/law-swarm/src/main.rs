@@ -17,6 +17,8 @@ fn usage() -> &'static str {
      SSH requires an already-trusted host key and noninteractive authentication."
 }
 
+// Keep compatibility with the documented minimum Rust version.
+#[allow(clippy::manual_is_multiple_of, clippy::chunks_exact_to_as_chunks)]
 fn options(args: &[String]) -> Result<BTreeMap<String, String>, String> {
     if args.len() % 2 != 0 { return Err("flags need values".into()); }
     let mut opts = BTreeMap::new();
