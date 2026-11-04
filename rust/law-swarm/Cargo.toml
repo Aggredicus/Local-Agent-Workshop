@@ -1,0 +1,9 @@
+[package]
+name = "law-swarm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Original, dependency-free local-first job coordination for Local Agent Workshop"
+publish = false
+
+[dependencies]
