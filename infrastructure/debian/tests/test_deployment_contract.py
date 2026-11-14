@@ -50,6 +50,12 @@ class DebianDeployContractTests(unittest.TestCase):
         self.assertIn("docker-compose-plugin", text)
         self.assertIn("community.docker.docker_compose_v2", text)
 
+    def test_python_cli_is_pinned_and_controller_only(self):
+        plays = load_yaml("law-cli.yml")
+        self.assertEqual(plays[0]["hosts"], "law-a")
+        self.assertIn("law_cli_commit", plays[0]["vars"])
+        self.assertEqual(len(plays[0]["vars"]["law_cli_commit"]), 40)
+
     def test_rust_prototype_has_review_gate_and_pinned_sha(self):
         text = (ROOT / "rust-swarm.yml").read_text()
         self.assertIn("rust_prototype_review_approved", text)
@@ -67,7 +73,7 @@ class DebianDeployContractTests(unittest.TestCase):
         self.assertNotIn("pull_request:", content)
         self.assertFalse((ROOT.parent.parent / ".github/workflows/deploy.yml").exists())
 
-    def test_html_guide_is_standalone_and_has_twelve_steps(self):
+    def test_html_guide_is_standalone_and_has_thirteen_steps(self):
         html = (ROOT / "INSTALL_GUIDE.html").read_text()
         self.assertTrue(html.lstrip().lower().startswith("<!doctype html>"))
         self.assertEqual(len(re.findall(r'data-step="\d+"', html)), 13)

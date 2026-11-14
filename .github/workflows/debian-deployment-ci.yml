@@ -41,5 +41,6 @@ jobs:
           ansible-playbook -i inventory.ini.example site.yml --syntax-check
           ansible-playbook -i inventory.ini.example verify.yml --syntax-check
           ansible-playbook -i inventory.ini.example rust-swarm.yml --syntax-check
+          ansible-playbook -i inventory.ini.example law-cli.yml --syntax-check
       - name: Validate Docker Compose syntax only
         run: docker compose -f infrastructure/debian/files/compose.yaml config --quiet
