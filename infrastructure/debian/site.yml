@@ -1,0 +1,150 @@
+---
+- name: Provision two Debian 13 LAW Docker hosts
+  hosts: law_nodes
+  gather_facts: true
+  become: true
+  strategy: free
+  tasks:
+    - name: Enforce native Debian 13 amd64 baseline
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['distribution_major_version'] == law_expected_debian_major
+          - ansible_facts['architecture'] == 'x86_64'
+        fail_msg: "This installation is deliberately limited to Debian 13 on x86_64 Lenovo ThinkCentres."
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - openssh-client
+          - python3
+        state: present
+
+    - name: Inspect installed packages for Docker conflicts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Reject conflicting older Docker packages rather than uninstalling them silently
+      ansible.builtin.assert:
+        that:
+          - "'docker.io' not in ansible_facts.packages"
+          - "'docker-compose' not in ansible_facts.packages"
+          - "'podman-docker' not in ansible_facts.packages"
+        fail_msg: "Docker conflicts found. Review Docker's official Debian uninstall guidance before removing anything."
+
+    - name: Detect Debian package architecture
+      ansible.builtin.command: dpkg --print-architecture
+      register: docker_arch
+      changed_when: false
+
+    - name: Ensure Docker APT keyring directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download Docker's official repository signing key over HTTPS
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Set official Docker Debian deb822 repository
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/docker.sources
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          Types: deb
+          URIs: https://download.docker.com/linux/debian
+          Suites: {{ ansible_facts['distribution_release'] }}
+          Components: stable
+          Architectures: {{ docker_arch.stdout }}
+          Signed-By: /etc/apt/keyrings/docker.asc
+
+    - name: Install official Docker Engine and Compose plugin
+      ansible.builtin.apt:
+        update_cache: true
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable Docker daemon
+      ansible.builtin.systemd_service:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Create LAW root directory
+      ansible.builtin.file:
+        path: "{{ law_root_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create read-only web directory
+      ansible.builtin.file:
+        path: "{{ law_root_dir }}/web"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when: law_install_sentinel | bool
+
+    - name: Copy safe Compose smoke-test definition
+      ansible.builtin.copy:
+        src: files/compose.yaml
+        dest: "{{ law_root_dir }}/compose.yaml"
+        owner: root
+        group: root
+        mode: "0644"
+      when: law_install_sentinel | bool
+
+    - name: Copy read-only local test page
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: "{{ law_root_dir }}/web/index.html"
+        owner: root
+        group: root
+        mode: "0644"
+      when: law_install_sentinel | bool
+
+    - name: Start localhost-only verification container
+      community.docker.docker_compose_v2:
+        project_src: "{{ law_root_dir }}"
+        state: present
+        pull: missing
+      when: law_install_sentinel | bool
+
+    - name: Confirm container's localhost HTTP endpoint
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8088/
+        method: GET
+        status_code: 200
+      register: law_sentinel_health
+      retries: 5
+      delay: 2
+      until: law_sentinel_health.status == 200
+      when: law_install_sentinel | bool
+
+    - name: Confirm Docker engine
+      ansible.builtin.command: docker version --format '{{ "{{.Server.Version}}" }}'
+      changed_when: false
+      register: law_docker_version
+
+    - name: Print per-machine verified deployment summary
+      ansible.builtin.debug:
+        msg: "Docker {{ law_docker_version.stdout }} ready on {{ inventory_hostname }}; smoke service bound to 127.0.0.1 only."

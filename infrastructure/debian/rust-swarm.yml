@@ -1,0 +1,44 @@
+---
+# Optional review-gated prototype. Not included by site.yml.
+# Uses an immutable commit from draft PR #193, NOT a moving branch.
+- name: Build reviewed Rust swarm v0 prototype from pinned source
+  hosts: law_nodes
+  become: true
+  gather_facts: true
+  strategy: free
+  vars:
+    rust_swarm_commit: "138700f11185a8aff3cabc77f1fd1f105bd2506f"
+    law_rust_source: /opt/law/rust-source
+  tasks:
+    - name: Require explicit human opt-in
+      ansible.builtin.assert:
+        that:
+          - rust_prototype_review_approved | default(false) | bool
+        fail_msg: "Optional Rust draft PR #193 requires explicit independent code/security review before installation. Pass -e rust_prototype_review_approved=true only after review."
+    - name: Install build tools for std-only Rust prototype
+      ansible.builtin.apt:
+        update_cache: true
+        name: [rustc, cargo, git]
+        state: present
+    - name: Check out immutable Rust prototype commit from LAW
+      ansible.builtin.git:
+        repo: https://github.com/Aggredicus/Local-Agent-Workshop.git
+        dest: "{{ law_rust_source }}"
+        version: "{{ rust_swarm_commit }}"
+        update: true
+    - name: Compile Rust prototype without network crates
+      ansible.builtin.command:
+        cmd: cargo build --release --offline --manifest-path rust/law-swarm/Cargo.toml
+        chdir: "{{ law_rust_source }}"
+        creates: "{{ law_rust_source }}/rust/law-swarm/target/release/law-swarm"
+    - name: Install the fixed-operation worker on the system PATH
+      ansible.builtin.copy:
+        src: "{{ law_rust_source }}/rust/law-swarm/target/release/law-swarm"
+        dest: /usr/local/bin/law-swarm
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Verify executable is installed
+      ansible.builtin.command: law-swarm --help
+      changed_when: false

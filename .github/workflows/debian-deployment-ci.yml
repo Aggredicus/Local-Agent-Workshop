@@ -1,0 +1,46 @@
+name: Debian deployment kit CI (no LAN access)
+on:
+  pull_request:
+    paths:
+      - 'infrastructure/debian/**'
+      - '.github/workflows/debian-deployment-ci.yml'
+  push:
+    branches:
+      - main
+      - 'agent/**'
+    paths:
+      - 'infrastructure/debian/**'
+      - '.github/workflows/debian-deployment-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install validation dependencies
+        run: |
+          python -m pip install 'ansible-core>=2.17,<2.23'
+          ansible-galaxy collection install -r infrastructure/debian/requirements.yml
+      - name: Validate deployment content and isolation rules
+        run: python -m unittest discover -s infrastructure/debian/tests -v
+      - name: Validate shell scripts
+        run: |
+          bash -n infrastructure/debian/scripts/bootstrap-controller.sh
+          bash -n infrastructure/debian/scripts/law-rust-smoke.sh
+      - name: Validate playbook syntax without touching actual hosts
+        working-directory: infrastructure/debian
+        run: |
+          ansible-playbook -i inventory.ini.example preflight.yml --syntax-check
+          ansible-playbook -i inventory.ini.example site.yml --syntax-check
+          ansible-playbook -i inventory.ini.example verify.yml --syntax-check
+          ansible-playbook -i inventory.ini.example rust-swarm.yml --syntax-check
+          ansible-playbook -i inventory.ini.example law-cli.yml --syntax-check
+      - name: Validate Docker Compose syntax only
+        run: docker compose -f infrastructure/debian/files/compose.yaml config --quiet

@@ -1,0 +1,5 @@
+---
+# Only the safe localhost-only smoke-test container is deployed by default.
+law_install_sentinel: true
+law_root_dir: /opt/law
+law_expected_debian_major: "13"

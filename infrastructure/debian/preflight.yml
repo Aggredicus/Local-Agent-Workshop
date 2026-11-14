@@ -1,0 +1,17 @@
+---
+- name: Read-only Debian 13 host preflight
+  hosts: law_nodes
+  gather_facts: true
+  become: false
+  strategy: free
+  tasks:
+    - name: Confirm exact intended operating system
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['distribution_major_version'] == '13'
+          - ansible_facts['architecture'] == 'x86_64'
+        fail_msg: "STOP: expected native Debian 13 x86_64; confirm OS and inventory before installing anything."
+    - name: Record safe non-identifying checks
+      ansible.builtin.debug:
+        msg: "Debian 13 preflight PASS on {{ inventory_hostname }} (architecture {{ ansible_facts['architecture'] }})"
