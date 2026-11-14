@@ -70,7 +70,7 @@ class DebianDeployContractTests(unittest.TestCase):
     def test_html_guide_is_standalone_and_has_twelve_steps(self):
         html = (ROOT / "INSTALL_GUIDE.html").read_text()
         self.assertTrue(html.lstrip().lower().startswith("<!doctype html>"))
-        self.assertEqual(len(re.findall(r'data-step="\d+"', html)), 12)
+        self.assertEqual(len(re.findall(r'data-step="\d+"', html)), 13)
         self.assertNotIn("<script src=", html)
         self.assertNotIn("<link rel=\"stylesheet\"", html)
         self.assertIn("Debian 13", html)

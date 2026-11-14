@@ -1,0 +1,39 @@
+---
+# Optional only: a reviewed Python CLI checkout on ThinkCentre A, no agent services.
+- name: Install Local Agent Workshop Python CLI on ThinkCentre A
+  hosts: law-a
+  become: true
+  gather_facts: true
+  vars:
+    law_cli_commit: "22fc0e72f55fa68f98f5f9ffa92127e96c7b9913"
+    law_cli_source: /opt/law/cli-source
+    law_cli_venv: /opt/law/cli-venv
+  tasks:
+    - name: Verify native Debian 13 controller
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['distribution_major_version'] == '13'
+          - ansible_facts['architecture'] == 'x86_64'
+    - name: Install Python and Git prerequisites
+      ansible.builtin.apt:
+        update_cache: true
+        name: [python3, python3-venv, python3-pip, git]
+        state: present
+    - name: Fetch reviewed LAW CLI source commit
+      ansible.builtin.git:
+        repo: https://github.com/Aggredicus/Local-Agent-Workshop.git
+        dest: "{{ law_cli_source }}"
+        version: "{{ law_cli_commit }}"
+        update: true
+    - name: Install LAW CLI and tests in a dedicated virtual environment
+      ansible.builtin.pip:
+        name: "{{ law_cli_source }}[dev]"
+        editable: true
+        virtualenv: "{{ law_cli_venv }}"
+        virtualenv_command: /usr/bin/python3 -m venv
+    - name: Verify CLI repository readiness
+      ansible.builtin.command:
+        cmd: "{{ law_cli_venv }}/bin/workshop doctor --repo {{ law_cli_source }}"
+        chdir: "{{ law_cli_source }}"
+      changed_when: false

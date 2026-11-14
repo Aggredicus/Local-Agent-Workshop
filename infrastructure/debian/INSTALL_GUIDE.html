@@ -34,7 +34,7 @@ footer{padding:24px 0 55px;color:var(--muted);font-size:13px}
 <div class="progress" aria-label="Installation checklist progress"><div class="bar" id="bar"></div></div>
 </header>
 <div class="layout">
-<nav class="nav" aria-label="Guide sections"><a href="#before">01 · Before installing</a><a href="#debian">02 · Debian on both PCs</a><a href="#network">03 · Network and SSH</a><a href="#controller">04 · Ansible controller</a><a href="#deploy">05 · Deploy Docker</a><a href="#verify">06 · Verify and recover</a><a href="#rust">07 · Rust prototype</a><a href="#github">08 · GitHub automation</a><a href="#trouble">Troubleshooting</a></nav>
+<nav class="nav" aria-label="Guide sections"><a href="#before">01 · Before installing</a><a href="#debian">02 · Debian on both PCs</a><a href="#network">03 · Network and SSH</a><a href="#controller">04 · Ansible controller</a><a href="#deploy">05 · Deploy Docker</a><a href="#verify">06 · Verify and recover</a><a href="#python">06b · LAW CLI</a><a href="#rust">07 · Rust prototype</a><a href="#github">08 · GitHub automation</a><a href="#trouble">Troubleshooting</a></nav>
 <main>
 <section id="before" class="panel">
 <div class="stephead"><span class="stepno">01</span><h2>Prepare without losing Windows</h2></div>
@@ -103,6 +103,15 @@ curl -fsS http://127.0.0.1:8088/</pre></div>
 <h3>Rollback the verification container</h3>
 <div class="cmd"><button class="copy" type="button">Copy</button><pre>sudo docker compose -f /opt/law/compose.yaml down</pre></div>
 <p>That stops the test service, but does not uninstall Docker or restore Windows. A full disk-image restoration is the separate fallback for operating-system installation.</p>
+</section>
+<section id="python" class="panel">
+<div class="stephead"><span class="stepno">06B</span><h2>Install LAW's Python CLI on ThinkCentre A</h2></div>
+<p>LAW already has a Python CLI for skills, repository readiness and HyperKanban. A separate playbook installs its <strong>reviewed main-branch snapshot</strong> on the controller. It does not start autonomous agent workers.</p>
+<label class="check"><input type="checkbox" data-step="13"><span>Optional: install LAW's Python CLI and verify the repository doctor on ThinkCentre A.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>ansible-playbook -i inventory.ini law-cli.yml --private-key ~/.ssh/id_ed25519_law --ask-become-pass
+# Check the CLI on ThinkCentre A:
+sudo /opt/law/cli-venv/bin/workshop doctor --repo /opt/law/cli-source</pre></div>
+<p>The Python CLI is not yet a general agent scheduler. Rust worker activation stays independently review-gated.</p>
 </section>
 <section id="rust" class="panel">
 <div class="stephead"><span class="stepno">07</span><h2>Rust swarm: preserve, review, then opt in</h2></div>

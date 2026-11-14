@@ -38,6 +38,17 @@ The primary LAW repository is public. **Do not register a privileged self-hosted
 
 Once configured, the private workflow manually deploys a reviewed **immutable LAW commit SHA** from its private self-hosted LAN controller and uses private inventory and SSH keys. GitHub approval rules and runner permissions remain operator-controlled. ChatGPT's GitHub connector can author and review code; the currently available connector does not provide direct workflow-dispatch access and cannot SSH into your computers.
 
+## Optional LAW Python CLI on ThinkCentre A
+
+After both Docker smoke tests pass, install the existing reviewed LAW Python CLI only on the controller (no general-purpose agent execution):
+
+```bash
+ansible-playbook -i inventory.ini law-cli.yml --private-key ~/.ssh/id_ed25519_law --ask-become-pass
+sudo /opt/law/cli-venv/bin/workshop doctor --repo /opt/law/cli-source
+```
+
+The CLI checkout is pinned to the existing reviewed main-branch commit. It does not create a remote API or grant agent privileges.
+
 ## Optional Rust v0 prototype
 
 Open draft [LAW PR #193](https://github.com/Aggredicus/Local-Agent-Workshop/pull/193). That prototype's native SSH/stdin worker runs only the allowlisted operations `uppercase`, `word-count`, and `sum`. No agent inference, generic shell, live scheduling or Docker isolation exists in it. **Do not mistake it for a production agent swarm.** After independent review, opt in:
