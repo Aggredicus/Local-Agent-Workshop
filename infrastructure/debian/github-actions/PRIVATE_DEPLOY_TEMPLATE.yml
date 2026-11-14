@@ -1,0 +1,65 @@
+# TEMPLATE ONLY: put in .github/workflows/deploy.yml of a separate PRIVATE GitHub repository.
+# NEVER enable this as a workflow in the PUBLIC LAW repo.
+name: LAW two-node Debian deployment
+on:
+  workflow_dispatch:
+    inputs:
+      law_commit:
+        description: "Reviewed immutable 40-character LAW Git commit SHA"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+concurrency:
+  group: law-two-node-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64, law-controller]
+    environment: law-production
+    timeout-minutes: 40
+    steps:
+      - name: Validate immutable commit input
+        env:
+          LAW_SHA: ${{ inputs.law_commit }}
+        shell: bash
+        run: |
+          [[ "$LAW_SHA" =~ ^[a-f0-9]{40}$ ]] || { echo "Require exactly one full commit SHA"; exit 2; }
+
+      - name: Checkout private deployment configuration
+        uses: actions/checkout@v4
+        with:
+          path: private-deploy
+          persist-credentials: false
+
+      - name: Checkout pinned public LAW source
+        uses: actions/checkout@v4
+        with:
+          repository: Aggredicus/Local-Agent-Workshop
+          ref: ${{ inputs.law_commit }}
+          path: law-src
+          persist-credentials: false
+
+      - name: Validate source SHA and inventory
+        env:
+          LAW_SHA: ${{ inputs.law_commit }}
+        shell: bash
+        run: |
+          test "$(git -C law-src rev-parse HEAD)" = "$LAW_SHA"
+          test -s private-deploy/inventory.ini
+
+      - name: Install Ansible collection
+        shell: bash
+        run: ansible-galaxy collection install -r law-src/infrastructure/debian/requirements.yml
+
+      - name: Preflight, provision and verify two nodes
+        shell: bash
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "True"
+          ANSIBLE_VAULT_PASSWORD_FILE: /home/lawrunner/.config/law/vault-pass
+        run: |
+          ansible-playbook -i private-deploy/inventory.ini law-src/infrastructure/debian/preflight.yml --forks 2
+          ansible-playbook -i private-deploy/inventory.ini law-src/infrastructure/debian/site.yml --forks 2
+          ansible-playbook -i private-deploy/inventory.ini law-src/infrastructure/debian/verify.yml --forks 2

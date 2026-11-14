@@ -1,0 +1,28 @@
+---
+- name: Verify Debian and Docker on all LAW nodes
+  hosts: law_nodes
+  gather_facts: true
+  become: true
+  strategy: free
+  tasks:
+    - name: Assert Debian 13
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - ansible_facts['distribution_major_version'] == '13'
+    - name: Check Docker server
+      ansible.builtin.command: docker info --format '{{ "{{.ServerVersion}}" }}'
+      register: docker_info
+      changed_when: false
+    - name: Check Docker Compose plugin
+      ansible.builtin.command: docker compose version
+      register: compose_info
+      changed_when: false
+    - name: Check localhost smoke test
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8088/
+        status_code: 200
+      when: law_install_sentinel | bool
+    - name: Report
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} verified: Docker={{ docker_info.stdout }} Compose={{ compose_info.stdout }}"

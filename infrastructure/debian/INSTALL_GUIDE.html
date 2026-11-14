@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark"><title>LAW | Debian Server Installation</title>
+<style>
+:root{--bg:#08111f;--panel:#101d30;--muted:#9fb0c5;--text:#ecf4ff;--line:#273b51;--cyan:#5ddce8;--mint:#80e6b5;--amber:#ffc977}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 90% 0%,#193751 0,#08111f 42%) fixed;color:var(--text);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--cyan)}a:hover{text-decoration:none}button,input{font:inherit}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.wrap{max-width:1080px;margin:auto;padding:20px}.hero{padding:28px 0 16px}.eyebrow{color:var(--mint);font:700 12px/1.4 ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase}
+h1{font-size:clamp(30px,6vw,57px);line-height:1.06;margin:12px 0;letter-spacing:-.055em}h1 span{color:var(--cyan)}h2{font-size:22px;letter-spacing:-.025em;margin:0 0 11px}h3{font-size:16px;margin:20px 0 7px}
+.lead{font-size:17px;color:#cad8e8;max-width:740px}.pills{display:flex;flex-wrap:wrap;gap:9px}.pill{border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:12px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:24px 0}.metric{background:#12263b;border:1px solid var(--line);border-radius:13px;padding:13px}.metric strong{display:block;color:var(--mint);font-size:19px}.metric small{color:var(--muted)}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px}.nav{position:sticky;top:12px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}.nav a{display:block;padding:6px 7px;color:#bfd1df;text-decoration:none;border-radius:6px;font-size:13px}.nav a:hover{background:#1a3047;color:#fff}
+main{min-width:0}.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#122239,#101b2d);padding:21px;margin-bottom:14px;box-shadow:0 10px 30px #0001}.panel p{margin:10px 0;color:#ccdaeb}.panel li{margin:7px 0}.risk{border-left:4px solid var(--amber);background:#2b2530;padding:14px 17px;border-radius:9px;margin:14px 0;color:#fff}.safe{border-left:4px solid var(--mint);background:#142b2f;padding:14px 17px;border-radius:9px;margin:14px 0}
+.stephead{display:flex;align-items:center;gap:10px}.stepno{font-size:12px;background:#173d4b;border:1px solid #2c8790;color:var(--cyan);border-radius:8px;padding:4px 8px;font-weight:800}
+.check{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--line);border-radius:9px;margin:8px 0;cursor:pointer}.check:hover{background:#20334b}.check input{accent-color:#72eab7;margin-top:4px;transform:scale(1.1)}.check span{flex:1}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;background:#050d18;border:1px solid #29384e;border-radius:9px;padding:15px;margin:8px 0;user-select:text;color:#d3ebff}
+.cmd{position:relative}.copy{float:right;cursor:pointer;border:1px solid #42637d;background:#1e354c;color:#effff9;border-radius:8px;padding:5px 10px;font-size:12px}.copy:hover{background:#294961}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.fields label{font-size:12px;color:var(--muted);display:block}.fields input{width:100%;background:#071526;border:1px solid #486077;color:var(--text);padding:10px;border-radius:8px;margin-top:6px}
+.progress{height:9px;border-radius:100px;background:#29394c;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#5ddce8,#80e6b5);transition:width .2s}.muted{color:var(--muted);font-size:13px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mini{padding:12px;border:1px solid var(--line);border-radius:11px;background:#0b1829}.mini b{display:block;color:#b9f5d1}
+footer{padding:24px 0 55px;color:var(--muted);font-size:13px}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.nav{position:static;display:flex;flex-wrap:wrap;gap:3px}.nav a{display:inline-block}.metrics{grid-template-columns:1fr 1fr}.fields{grid-template-columns:1fr}.cols{grid-template-columns:1fr}.panel{padding:16px}.wrap{padding:13px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bar{transition:none}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="hero">
+<div class="eyebrow">LOCAL AGENT WORKSHOP · DEPLOYMENT GUIDE 01</div>
+<h1>Two ThinkCentres.<br><span>One Debian workshop.</span></h1>
+<p class="lead">A hands-on installation guide for native Debian 13, SSH, Ansible, Docker, and an optional Rust worker smoke test. The machines remain LAN-only. No agent is granted shell access by this kit.</p>
+<div class="pills"><span class="pill">Debian 13 · Trixie</span><span class="pill">Ansible · 2 hosts</span><span class="pill">Docker Engine + Compose</span><span class="pill">Rust prototype · opt-in</span><span class="pill">Local-first</span></div>
+<div class="metrics"><div class="metric"><strong>2</strong><small>ThinkCentre servers</small></div><div class="metric"><strong id="count">0 / 12</strong><small>Checklist completed</small></div><div class="metric"><strong>0</strong><small>Public service ports required</small></div></div>
+<div class="progress" aria-label="Installation checklist progress"><div class="bar" id="bar"></div></div>
+</header>
+<div class="layout">
+<nav class="nav" aria-label="Guide sections"><a href="#before">01 · Before installing</a><a href="#debian">02 · Debian on both PCs</a><a href="#network">03 · Network and SSH</a><a href="#controller">04 · Ansible controller</a><a href="#deploy">05 · Deploy Docker</a><a href="#verify">06 · Verify and recover</a><a href="#rust">07 · Rust prototype</a><a href="#github">08 · GitHub automation</a><a href="#trouble">Troubleshooting</a></nav>
+<main>
+<section id="before" class="panel">
+<div class="stephead"><span class="stepno">01</span><h2>Prepare without losing Windows</h2></div>
+<div class="risk"><strong>Disk warning.</strong> Installing Debian onto a Windows drive may erase Windows 11, applications, BitLocker recovery partitions and personal files. Do not pick "use entire disk" without confirming backups and the intended target. If preserving Windows matters, use a separate SSD or a carefully planned dual boot.</div>
+<label class="check"><input type="checkbox" data-step="1"><span>Back up both Windows installations, verify the backup opens, and record BitLocker recovery keys if applicable.</span></label>
+<label class="check"><input type="checkbox" data-step="2"><span>Identify each Lenovo model, SSD, RAM, wired Ethernet connection, UEFI settings and whether you need Windows retained.</span></label>
+<p>Download the signed Debian 13 amd64 netinst image from <a href="https://www.debian.org/download" target="_blank" rel="noopener noreferrer">Debian's official download page</a>; verify the checksum/signature using Debian's instructions. Write the image to a spare USB drive with a trusted USB-image writer. The USB drive will be overwritten.</p>
+<p class="muted">A direct Debian installation is our target. If you prefer a no-reformat trial, run Debian as a virtual machine first; do not mistake WSL2 for native Debian server installation.</p>
+</section>
+<section id="debian" class="panel">
+<div class="stephead"><span class="stepno">02</span><h2>Install Debian 13 on ThinkCentre A and B</h2></div>
+<label class="check"><input type="checkbox" data-step="3"><span>Boot the Debian USB on ThinkCentre A using the Lenovo boot menu (often F12, model-dependent). Select the intended disk carefully; enable an admin user named <code>lawadmin</code>, wired networking, and the SSH server software task.</span></label>
+<label class="check"><input type="checkbox" data-step="4"><span>Repeat on ThinkCentre B. Use hostnames <code>law-a</code> and <code>law-b</code>. Reboot, remove USB media and check both machines start Debian.</span></label>
+<p>Use Debian's installer to select <strong>SSH server</strong> and <strong>standard system utilities</strong>. Skip the desktop environment if these will be dedicated servers. If installation does not include OpenSSH, on each Debian machine run:</p>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>sudo apt update
+sudo apt install -y openssh-server python3 sudo
+sudo systemctl enable --now ssh
+cat /etc/debian_version
+hostname</pre></div>
+<p class="muted">If the user you created cannot use <code>sudo</code>, use Debian's local root console to add the account to the <code>sudo</code> group according to your installer choices; log out and back in before retesting.</p>
+</section>
+<section id="network" class="panel">
+<div class="stephead"><span class="stepno">03</span><h2>Connect both computers over LAN</h2></div>
+<label class="check"><input type="checkbox" data-step="5"><span>Connect both to the same trusted wired LAN and reserve their DHCP addresses in the router (recommended; better than hand-editing static IPs).</span></label>
+<p>On each server, record the real LAN IPv4 address using:</p><div class="cmd"><button class="copy" type="button">Copy</button><pre>ip -4 -br addr
+hostname -I
+sudo systemctl status ssh --no-pager</pre></div>
+<p>Enter your real addresses here to generate the inventory. These fields run locally in this HTML page; nothing is uploaded.</p>
+<div class="fields"><label>ThinkCentre A IPv4<input id="ipA" inputmode="decimal" value="192.168.1.101" aria-label="ThinkCentre A IP"></label><label>ThinkCentre B IPv4<input id="ipB" inputmode="decimal" value="192.168.1.102" aria-label="ThinkCentre B IP"></label><label>Debian account<input id="user" value="lawadmin" aria-label="Debian account"></label></div>
+<h3>Generated <code>inventory.ini</code></h3>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre id="inventory">Enter real addresses above.</pre></div>
+<div class="risk">The sample 192.168.1.x addresses are placeholders, not detected addresses. Verify each host's SSH fingerprint from its physical console before accepting it from another machine. Never disable SSH host-key checking to bypass warnings.</div>
+<label class="check"><input type="checkbox" data-step="6"><span>From A, generate a dedicated SSH key and use <code>ssh-copy-id</code> to authorize it for your account on both machines; verify the server keys and test passwordless SSH.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre id="sshcmd">Enter the IP addresses and account first.</pre></div>
+</section>
+<section id="controller" class="panel">
+<div class="stephead"><span class="stepno">04</span><h2>Prepare the Ansible controller on A</h2></div>
+<label class="check"><input type="checkbox" data-step="7"><span>Clone the deployment branch on ThinkCentre A, install Ansible, copy the inventory and edit it with your real LAN addresses.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>git clone -b agent/debian-server-deployment https://github.com/Aggredicus/Local-Agent-Workshop.git
+cd Local-Agent-Workshop/infrastructure/debian
+bash scripts/bootstrap-controller.sh
+cp inventory.ini.example inventory.ini
+nano inventory.ini
+ansible-galaxy collection install -r requirements.yml</pre></div>
+<p><strong>Controller location:</strong> ThinkCentre A can manage both A and B through normal SSH, including connecting back to itself using its LAN address. Ansible does not require an agent service on B.</p>
+</section>
+<section id="deploy" class="panel">
+<div class="stephead"><span class="stepno">05</span><h2>Provision both Docker hosts</h2></div>
+<p>Only proceed after SSH and sudo work on both nodes. These commands run from the <code>infrastructure/debian</code> directory on A.</p>
+<label class="check"><input type="checkbox" data-step="8"><span>Run read-only Ansible connectivity and Debian-version preflight on both machines.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>ansible -i inventory.ini law_nodes -m ping --private-key ~/.ssh/id_ed25519_law
+ansible-playbook -i inventory.ini preflight.yml --private-key ~/.ssh/id_ed25519_law --forks 2</pre></div>
+<label class="check"><input type="checkbox" data-step="9"><span>Run the provisioning playbook. Supply the sudo password interactively; the two hosts are processed in parallel.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>ansible-playbook -i inventory.ini site.yml --private-key ~/.ssh/id_ed25519_law --forks 2 --ask-become-pass</pre></div>
+<div class="safe"><strong>What gets installed:</strong> Docker Engine and Compose from Docker's signed Debian APT repository, plus an intentionally limited BusyBox test container. The test HTTP port binds only to <code>127.0.0.1:8088</code> on each server; it is not an AI server and cannot execute agent commands.</div>
+<p><strong>Different sudo passwords?</strong> Use encrypted per-host Ansible Vault credentials rather than sharing a single interactive become password. Never place cleartext credentials in the public repository.</p>
+</section>
+<section id="verify" class="panel">
+<div class="stephead"><span class="stepno">06</span><h2>Verify each server independently</h2></div>
+<label class="check"><input type="checkbox" data-step="10"><span>Verify Docker Engine, Docker Compose and the localhost smoke test on both nodes.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>ansible-playbook -i inventory.ini verify.yml --private-key ~/.ssh/id_ed25519_law --forks 2 --ask-become-pass
+# On EACH server, separately:
+sudo docker ps
+curl -fsS http://127.0.0.1:8088/</pre></div>
+<p>Expected output includes <code>LAW Docker host: healthy</code>. Note that the container is deliberately inaccessible from other LAN computers through port 8088.</p>
+<h3>Rollback the verification container</h3>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>sudo docker compose -f /opt/law/compose.yaml down</pre></div>
+<p>That stops the test service, but does not uninstall Docker or restore Windows. A full disk-image restoration is the separate fallback for operating-system installation.</p>
+</section>
+<section id="rust" class="panel">
+<div class="stephead"><span class="stepno">07</span><h2>Rust swarm: preserve, review, then opt in</h2></div>
+<p>The draft <a href="https://github.com/Aggredicus/Local-Agent-Workshop/pull/193" target="_blank" rel="noopener noreferrer">Rust swarm PR #193</a> already contains a bounded, SSH-based two-node worker. It has durable event journaling and only three side-effect-free operations: uppercase, word count and integer sum. It does <strong>not</strong> provide an AI model, automated agent scheduling or general-purpose command execution.</p>
+<label class="check"><input type="checkbox" data-step="11"><span>Review Rust CI, source and licensing, and explicitly approve prototype-only use before installing the pinned Rust commit.</span></label>
+<div class="cmd"><button class="copy" type="button">Copy</button><pre>ansible-playbook -i inventory.ini rust-swarm.yml --private-key ~/.ssh/id_ed25519_law --forks 2 --ask-become-pass -e rust_prototype_review_approved=true</pre></div>
+<p class="muted">This optional command is <strong>not</strong> part of the default deployment; it must not be used as a shortcut around PR review. Its worker uses verified SSH host keys and a fixed remote executable, not a public API listener.</p>
+</section>
+<section id="github" class="panel">
+<div class="stephead"><span class="stepno">08</span><h2>Future GitHub-triggered deployments</h2></div>
+<div class="risk"><strong>Public repository caution.</strong> Do not attach a privileged self-hosted runner directly to this public LAW repository. A malicious public pull-request workflow can compromise an exposed local runner. GitHub's own security guidance strongly discourages that pattern.</div>
+<p>Use the checked-in <code>github-actions/PRIVATE_DEPLOY_TEMPLATE.yml</code> in a new, restricted <strong>private deployment repository</strong>. Install its runner on ThinkCentre A with a dedicated unprivileged account and verified SSH credentials. Store the real inventory privately, and use encrypted Ansible Vault credentials for unattended sudo.</p>
+<p>The private workflow deploys an <strong>immutable, reviewed LAW commit SHA</strong>, manually triggered from GitHub's Actions page. A private environment approval gate can be added where your GitHub plan supports it.</p>
+<label class="check"><input type="checkbox" data-step="12"><span>Optional: after the local deployment works, create and secure the private GitHub Actions repository and register its LAN controller runner.</span></label>
+<div class="cols"><div class="mini"><b>Automated later</b>Install Docker, deploy approved Compose services, run checks, repeat deployments, track failures.</div><div class="mini"><b>Manual first-time work</b>Backups, Debian installation, disk choices, DHCP reservations, SSH trust, sudo/Vault setup, private runner registration and approvals.</div></div>
+<p class="muted">ChatGPT can prepare GitHub commits and pull requests through its connected integration. It cannot directly access the ThinkCentres from this chat or invoke the private GitHub workflow with the presently exposed actions.</p>
+</section>
+<section id="trouble" class="panel">
+<h2>Troubleshooting</h2>
+<h3>SSH refuses connection</h3><p>Confirm Ethernet/IP, OpenSSH installation, firewalls, the actual username and port 22 accessibility from the controller. Use the local console rather than disabling host-key verification.</p>
+<h3>Ansible prompts for a password or fails sudo</h3><p>Check authorized SSH keys, specify the correct key with <code>--private-key</code>, ensure the account belongs to Debian's sudo group, and use <code>--ask-become-pass</code> only in an interactive terminal.</p>
+<h3>Docker Compose install or container check fails</h3><p>Read the per-host task error, inspect <code>sudo systemctl status docker</code> and <code>sudo docker compose -f /opt/law/compose.yaml logs</code>. APT requires working Internet/DNS and Docker's signed repository.</p>
+<h3>Windows needs to be preserved</h3><p>Stop before disk partitioning and use another SSD, a backup-based migration, or a VM pilot. This guide does not silently erase Windows.</p>
+<h3>Where to go next</h3><p>After the two-host smoke test passes, reconcile the Rust PR, the CAW/LAW registry PR and Proxmox roadmap. Only then add actual model-serving, agent permissions and authenticated remote work execution.</p>
+</section>
+</main></div>
+<footer><p>LAW · two-node Debian installation · Offline-capable, self-contained guide. Progress is stored only in this browser's local storage when available. No tracking or network requests are made by this document itself.</p><p><a href="https://www.debian.org/download">Debian download</a> · <a href="https://docs.docker.com/engine/install/debian/">Official Docker Debian instructions</a> · <a href="https://docs.ansible.com/">Ansible documentation</a> · <a href="https://docs.github.com/en/actions/reference/security/secure-use">GitHub runner security</a></p></footer>
+</div>
+<script>
+(function(){
+const boxes=[...document.querySelectorAll('[data-step]')],key='law-debian-deploy-checks-v1';
+let checked={};try{checked=JSON.parse(localStorage.getItem(key)||'{}')}catch(e){}
+function update(){let n=0;boxes.forEach(b=>{if(b.checked)n++});document.getElementById('count').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%'}
+boxes.forEach(b=>{b.checked=!!checked[b.dataset.step];b.addEventListener('change',()=>{checked[b.dataset.step]=b.checked;try{localStorage.setItem(key,JSON.stringify(checked))}catch(e){}update()})});update();
+const a=document.getElementById('ipA'),b=document.getElementById('ipB'),u=document.getElementById('user'),inventory=document.getElementById('inventory'),ssh=document.getElementById('sshcmd');
+function validIP(s){const parts=s.split('.');return parts.length===4&&parts.every(x=>/^\d{1,3}$/.test(x)&&Number(x)<=255)&&!s.startsWith('0.')}
+function render(){const av=a.value.trim(),bv=b.value.trim(),uv=u.value.trim();if(!validIP(av)||!validIP(bv)||!/^[a-z_][a-z0-9_-]{0,31}$/.test(uv)){inventory.textContent='Enter valid LAN IPv4 addresses and a lowercase Debian username.';ssh.textContent='Enter valid LAN addresses and user first.';return}
+inventory.textContent='[law_nodes]\nlaw-a ansible_host='+av+'\nlaw-b ansible_host='+bv+'\n\n[law_nodes:vars]\nansible_user='+uv+'\nansible_python_interpreter=/usr/bin/python3';
+ssh.textContent='ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_law\nssh-copy-id -i ~/.ssh/id_ed25519_law.pub '+uv+'@'+av+'\nssh-copy-id -i ~/.ssh/id_ed25519_law.pub '+uv+'@'+bv+'\n# Verify host fingerprints on the physical machines before accepting.\nssh -i ~/.ssh/id_ed25519_law '+uv+'@'+bv+' "cat /etc/debian_version"';
+}
+[a,b,u].forEach(x=>x.addEventListener('input',render));render();
+document.querySelectorAll('.copy').forEach(btn=>btn.addEventListener('click',async()=>{const value=btn.nextElementSibling.textContent;try{await navigator.clipboard.writeText(value);btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1200)}catch(e){btn.textContent='Select code';setTimeout(()=>btn.textContent='Copy',1800)}}));
+})();
+</script></body></html>

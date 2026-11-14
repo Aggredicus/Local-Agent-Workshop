@@ -1,0 +1,10 @@
+# Copy to inventory.ini (gitignored by your own checkout rules).
+# Replace BOTH example IP addresses with DHCP reservations from your router.
+# lawadmin is the Debian user you created manually during installation.
+[law_nodes]
+law-a ansible_host=192.168.1.101
+law-b ansible_host=192.168.1.102
+
+[law_nodes:vars]
+ansible_user=lawadmin
+ansible_python_interpreter=/usr/bin/python3
