@@ -12,7 +12,7 @@ gpg --batch --dearmor --output /output/docker.gpg /output/docker.asc
 printf 'deb [arch=amd64 signed-by=/output/docker.gpg] https://download.docker.com/linux/debian trixie stable\n' > /etc/apt/sources.list.d/docker.list
 apt-get update
 mkdir -p /output/downloads
-mapfile -t roots < <(PYTHONPATH=/source/src python3 -c 'from workshop.iso.profile import ROOTS; print("\n".join(ROOTS))')
+mapfile -t roots < <(PYTHONPATH=/source/src python3 -c 'from workshop.iso.profile import BUILD_ROOTS; print("\n".join(BUILD_ROOTS))')
 apt-get -o Dir::State::status=/dev/null -o Dir::Cache::archives=/output/downloads --download-only -y --no-install-recommends install "${roots[@]}"
 PYTHONPATH=/source/src python3 -m workshop.iso.repository /output
 rm -f /output/downloads/lock
