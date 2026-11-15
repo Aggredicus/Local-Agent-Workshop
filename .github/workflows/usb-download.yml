@@ -67,6 +67,8 @@ jobs:
           cat > "$RUNNER_TEMP/download/release-notes.md" <<NOTES
           One ZIP containing Windows LAW tools and verified Debian 12/13 amd64 offline recovery packages.
 
+          Menu actions return on success/failure; option 2 downloads the separately tested custom offline Debian + LAW ISO, and option 3 copies it with the LAW folder to an operator-prepared Ventoy USB. See setup/iso/README.md in the ZIP.
+
           Source: $GITHUB_SHA
           Verification: native Windows PowerShell 5.1 startup and synthetic encrypted credential round trip, source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
 

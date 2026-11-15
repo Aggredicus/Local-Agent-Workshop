@@ -27,6 +27,11 @@ def pack(repo: Path, packages: Path, age_archive: Path, output: Path) -> dict:
             if path.is_file() and path.suffix in extensions:
                 contents[path.relative_to(repo).as_posix()] = path.read_bytes()
     contents['README.md'] = (repo / 'setup/usb/README.md').read_bytes()
+    for name in ('README.md', 'FIRST-BOOT.txt'):
+        path = repo / 'setup/iso' / name
+        if path.is_symlink() or not path.is_file():
+            raise USBError('The offline ISO installation guide is missing or linked.')
+        contents['setup/iso/' + name] = path.read_bytes()
     with zipfile.ZipFile(age_archive) as archive:
         executable = archive.read('age/age.exe')
         if hashlib.sha256(executable).hexdigest() != AGE_EXE_SHA256:
@@ -46,7 +51,7 @@ def pack(repo: Path, packages: Path, age_archive: Path, output: Path) -> dict:
                 contents[f'packages/debian{version}-amd64/' + path.relative_to(bundle).as_posix()] = path.read_bytes()
     manifest = {'format': 1, 'files': [{'path': name, 'sha256': hashlib.sha256(data).hexdigest()} for name, data in sorted(contents.items())],
                 'includes_installer_iso': False, 'bootable_by_itself': False,
-                'requires': 'An independently verified official Debian ISO and operator-installed Ventoy for booting.'}
+                'requires': 'The verified LAW offline Debian ISO (menu option 2) and operator-installed Ventoy for booting.'}
     contents['USB-PAYLOAD.json'] = (json.dumps(manifest, indent=2) + '\n').encode()
     output.parent.mkdir(parents=True, exist_ok=True)
     # CreateNew preserves data even if another process creates the path concurrently.
