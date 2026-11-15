@@ -1,0 +1,84 @@
+{
+  "meaning": "Confirmed defects, not successful product acceptance tests",
+  "baseline": "22fc0e72f55fa68f98f5f9ffa92127e96c7b9913",
+  "results": [
+    {
+      "probe": "validator-disagreement-coordinates",
+      "finding": "R04",
+      "result": "reproduced",
+      "observed": "Runtime accepts a coordinate rejected by the CI validator."
+    },
+    {
+      "probe": "validator-disagreement-cycle",
+      "finding": "R04",
+      "result": "reproduced",
+      "observed": "Runtime accepts a self-dependency rejected by CI."
+    },
+    {
+      "probe": "validator-disagreement-evidence",
+      "finding": "R04",
+      "result": "reproduced",
+      "observed": "CI accepts done-without-evidence; runtime rejects it."
+    },
+    {
+      "probe": "nonexistent-completion-evidence",
+      "finding": "R05",
+      "result": "reproduced",
+      "observed": "A nonexistent path satisfies the completion gate."
+    },
+    {
+      "probe": "partial-state-commit",
+      "finding": "R06",
+      "result": "reproduced",
+      "observed": "An injected packet-write failure leaves state committed and packet stale."
+    },
+    {
+      "probe": "stale-generated-helper",
+      "finding": "R03",
+      "result": "reproduced",
+      "observed": "A deleted canonical helper remains discoverable after sync."
+    },
+    {
+      "probe": "sync-destination-symlink",
+      "finding": "R02",
+      "result": "reproduced",
+      "observed": "Sync writes to a directory outside the target through a symlink."
+    },
+    {
+      "probe": "sync-source-symlink",
+      "finding": "R02",
+      "result": "reproduced",
+      "observed": "Sync dereferences a source symlink and copies external file contents into the agent cache."
+    },
+    {
+      "probe": "doctor-count-only-cache-check",
+      "finding": "R03",
+      "result": "reproduced",
+      "observed": "Doctor reports PASS for an invalid generated skill with the same inventory count."
+    },
+    {
+      "probe": "inline-toml-dependencies",
+      "finding": "R07",
+      "result": "reproduced",
+      "observed": "Valid inline pyproject dependencies produce dependency_count=0 and verdict=pass."
+    },
+    {
+      "probe": "powershell-omitted",
+      "finding": "R08",
+      "result": "reproduced",
+      "observed": "A PowerShell payload is silently excluded; scanner reports pass."
+    },
+    {
+      "probe": "env-report-redaction",
+      "finding": "R01",
+      "result": "reproduced",
+      "observed": "A synthetic credential in a malformed key appears in report JSON."
+    },
+    {
+      "probe": "unparsed-schema-file",
+      "finding": "R09",
+      "result": "reproduced",
+      "observed": "Registry validation accepts a referenced schema file containing invalid JSON."
+    }
+  ]
+}

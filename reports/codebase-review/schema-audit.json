@@ -1,0 +1,48 @@
+[
+  {
+    "schema": "dashboard_projection.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "design-first-report.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "registry.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "hyperkanban-axis.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "repository_dependency_graph.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "hyperkanban-card.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "hyperkanban-state.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "powerful-tier-manifest.schema.json",
+    "valid_schema": true
+  },
+  {
+    "schema": "skill-report.schema.json",
+    "valid_schema": true
+  },
+  {
+    "artifact": "schemas/schema-registry.json",
+    "schema": "registry.schema.json",
+    "errors": []
+  },
+  {
+    "artifact": "orchestration/hyperkanban/state.json",
+    "schema": "hyperkanban-state.schema.json",
+    "errors": []
+  }
+]

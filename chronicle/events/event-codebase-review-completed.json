@@ -1,0 +1,12 @@
+{
+  "event_id": "event-codebase-review-completed",
+  "event_type": "quality_analysis.completed",
+  "run_id": "codebase-review-2026-11-15",
+  "branch": "agent/debian-deployment",
+  "baseline_commit": "22fc0e72f55fa68f98f5f9ffa92127e96c7b9913",
+  "summary": "User paused deployment for a systematic baseline review. Recommended selective reuse after repairs; no live deployment or policy changes.",
+  "report_path": "reports/codebase-review/REVIEW.md",
+  "evidence_paths": ["reports/codebase-review/reproductions.json", "reports/codebase-review/schema-audit.json", "reports/codebase-review/dependency-audit.json", "reports/codebase-review/toolchain-audit.json"],
+  "risk_level": "high",
+  "status": "review_ready_not_deployment_ready"
+}

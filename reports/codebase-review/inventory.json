@@ -1,0 +1,35 @@
+{
+  "src": 8,
+  "scripts": 14,
+  "tests": 25,
+  "skills": 30,
+  "docs": 29,
+  "schemas": 10,
+  "examples": 10,
+  "tracked_files": 163,
+  "python_source_lines": 2606,
+  "test_lines": 739,
+  "source_archives": [
+    {
+      "path": "local-agent-workshop-design-first-pack.zip",
+      "bytes": 12402,
+      "members": 12
+    },
+    {
+      "path": "local-agent-workshop-design-first-starting-point.zip",
+      "bytes": 38522,
+      "members": 36
+    },
+    {
+      "path": "local-agent-workshop-starter.zip",
+      "bytes": 49936,
+      "members": 221
+    }
+  ],
+  "production_cli_commands": [
+    "doctor",
+    "skills",
+    "hk"
+  ],
+  "tracked_application_files_modified": []
+}

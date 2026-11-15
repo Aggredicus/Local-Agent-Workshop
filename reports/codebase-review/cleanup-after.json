@@ -1,0 +1,41 @@
+{
+  "phase": "after",
+  "summary": {
+    "blockers": 0,
+    "warnings": 1,
+    "info": 4,
+    "total": 5
+  },
+  "findings": [
+    {
+      "severity": "INFO",
+      "message": "cleanup phase: after",
+      "hint": "",
+      "category": "run"
+    },
+    {
+      "severity": "WARN",
+      "message": "working tree has uncommitted changes",
+      "hint": "commit, stash, or intentionally document them before closeout",
+      "category": "git"
+    },
+    {
+      "severity": "INFO",
+      "message": "current branch: agent/debian-deployment",
+      "hint": "",
+      "category": "git"
+    },
+    {
+      "severity": "INFO",
+      "message": "HyperKanban validation passed",
+      "hint": "",
+      "category": "hyperkanban"
+    },
+    {
+      "severity": "INFO",
+      "message": "plan/STATUS.md contains cleanup/in-progress language",
+      "hint": "confirm this still reflects the current repository state",
+      "category": "docs"
+    }
+  ]
+}
