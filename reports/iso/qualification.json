@@ -1,0 +1,23 @@
+{
+  "qualified_source_commit": "c12df34fa886fde550cb2fca2d0eeabec27ec547",
+  "source_checks": {
+    "pytest": 215,
+    "contracts_and_schemas": "passed",
+    "ruff": "passed",
+    "native_windows_powershell_5_1": "passed"
+  },
+  "build_run": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43759560790",
+  "ci_run": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43759560792",
+  "requested_base": "debian-13.7.0-amd64-netinst.iso",
+  "upstream_signature": "pinned Debian CD key + signed SHA512 passed",
+  "signed_packages": 187,
+  "offline_apt_install_and_tamper_rejection": "passed in network-disabled containers",
+  "bios_fresh_install": "passed in a VM with no NIC",
+  "installed_disk_rootless_docker_container_compose_buildx_law": "passed",
+  "root_ownership_and_rootful_daemon_ssh_masks": "passed",
+  "uefi_grub_boot": "passed under OVMF with no NIC; Secure Boot off",
+  "qualified_branch_iso_sha256": "707fdec94fdb939084de2fbe03bf400bb2690faa1a63b9c104cfa192bc802854",
+  "qualified_branch_iso_bytes": 1091436544,
+  "physical_hardware_tested": false,
+  "publication": "awaiting main rebuild and public download verification"
+}

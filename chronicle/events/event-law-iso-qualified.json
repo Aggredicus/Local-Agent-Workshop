@@ -1,0 +1,10 @@
+{
+  "event_id": "event-law-iso-qualified",
+  "event_type": "deployment.iso.qualified",
+  "source_commit": "c12df34fa886fde550cb2fca2d0eeabec27ec547",
+  "summary": "Qualified the fresh offline Debian + LAW installer and persistent Windows menu. BIOS install, first boot with rootless Docker container, Compose/Buildx/LAW, root-owned runtime and disabled rootful services, and UEFI GRUB boot all passed in disconnected VMs.",
+  "evidence_path": "reports/iso/qualification.json",
+  "authorization": "User requested this fresh offline ISO and previously explicitly authorized changing main and publishing the USB work.",
+  "real_server_modified": false,
+  "physical_hardware_qualified": false
+}

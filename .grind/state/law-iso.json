@@ -1,1 +1,16 @@
-{"run_id":"law-iso","branch":"agent/iso-debian13","status":"implementing","current_task":"Persistent menu and authenticated offline ISO builder","confirmed_requirements":["fresh Debian + LAW","confirm installation target disk","offline target installation"],"evidence":"reports/iso","review_card":"reviews/pending/law-iso.md","next_safe_action":"Verify requested upstream image through build runner; implement/test menu and offline image assembly","real_server_modified":false}
+{
+  "run_id": "law-iso",
+  "branch": "agent/iso-debian13",
+  "status": "qualified-awaiting-main-delivery",
+  "current_task": "Publish the qualified ISO and revised USB tools from authorized main; verify public downloads and native Windows ISO download",
+  "confirmed_requirements": [
+    "fresh Debian + LAW",
+    "confirm installation target disk",
+    "offline target installation"
+  ],
+  "evidence": "reports/iso",
+  "review_card": "reviews/pending/law-iso.md",
+  "next_safe_action": "Commit review/evidence metadata, fast-forward main, await gated release workflows, download and verify public assets",
+  "real_server_modified": false,
+  "last_source_commit": "c12df34fa886fde550cb2fca2d0eeabec27ec547"
+}
