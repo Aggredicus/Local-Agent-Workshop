@@ -1,0 +1,19 @@
+name: Check VM accelerator
+on:
+  push:
+    branches: ['agent/iso-*']
+    paths: ['.github/workflows/iso-diagnostic.yml']
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Report disposable-runner virtualization support
+        shell: bash
+        run: |
+          if [[ -c /dev/kvm ]]; then
+            echo "::notice::KVM present: $(stat -c '%a %U %G' /dev/kvm); user=$(id -un)"
+          else
+            echo '::notice::KVM device absent; software emulation required'
+          fi
+          echo "::notice::CPU virtualization flags: $(lscpu | sed -n '/Virtualization:/p')"
