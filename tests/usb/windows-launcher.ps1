@@ -88,11 +88,13 @@ try {
     Assert-True (Has-Zone (Join-Path $approved 'setup\usb\Unrelated.ps1')) 'Unrelated script was unblocked.'
 
     $incomplete = New-Fixture 'incomplete'
+    Assert-True (Has-Zone (Join-Path $incomplete 'setup\usb\Prepare-USB.ps1')) 'Incomplete fixture lacks its initial zone marker.'
     Remove-Item -LiteralPath (Join-Path $incomplete 'setup\usb\Wifi-Capsule.ps1')
+    Assert-True (Has-Zone (Join-Path $incomplete 'setup\usb\Prepare-USB.ps1')) 'Removing the other fixture file changed the zone marker.'
     $result = Invoke-Launcher $incomplete 'Y'
     Assert-True ($result.code -ne 0) 'Incomplete extraction falsely returned success.'
     Assert-True (-not (Test-Path -LiteralPath (Join-Path $incomplete 'setup\usb\ran.json'))) 'Incomplete extraction executed the menu.'
-    Assert-True (Has-Zone (Join-Path $incomplete 'setup\usb\Prepare-USB.ps1')) 'Script changed before all required files were validated.'
+    Assert-True (Has-Zone (Join-Path $incomplete 'setup\usb\Prepare-USB.ps1')) ('Script changed before all required files were validated. ' + $result.output)
     Assert-True ((Get-ExecutionPolicy -List | ConvertTo-Json -Compress) -eq $originalPolicies) 'Parent policies changed.'
     Write-Host 'PASS: decline, restricted-policy launch, special-character paths, scoped unblocking, missing-file failure, unchanged saved policies.'
 } finally {
