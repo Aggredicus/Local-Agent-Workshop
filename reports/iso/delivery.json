@@ -1,0 +1,33 @@
+{
+  "release_source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+  "zip": {
+    "artifact": "LAW-USB-Tools.zip",
+    "source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+    "url": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip",
+    "sha256": "f84584aa07dd2372fc845d4f13829abcd21cd33e94a0c2bb0ecfb37b52353dd3",
+    "bytes": 89523118,
+    "zip_integrity_and_payload_hashes": "passed",
+    "critical_source_matches_release_commit": "passed",
+    "zip_entries": 230
+  },
+  "iso": {
+    "artifact": "LAW-Debian-13.7.0-amd64.iso",
+    "url": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso",
+    "source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+    "sha256": "360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844",
+    "bytes": 1091436544,
+    "anonymous_public_download": "passed",
+    "matches_tested_build_and_vm_evidence": true,
+    "physical_hardware_tested": false
+  },
+  "main_ci": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43760383021",
+  "zip_workflow": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43760383007",
+  "iso_workflow": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43760383002",
+  "windows_download": {
+    "result": "passed: real native Windows menu downloaded and verified the public ISO, then returned to menu",
+    "job": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43760383002/job/132955333019",
+    "sha256": "360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844"
+  },
+  "branch_cleanup": "Fully merged agent/iso-debian13 removed with exact saved-head lease; commits retained on main and release tags",
+  "physical_hardware_tested": false
+}

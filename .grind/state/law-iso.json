@@ -1,16 +1,18 @@
 {
   "run_id": "law-iso",
-  "branch": "agent/iso-debian13",
-  "status": "qualified-awaiting-main-delivery",
-  "current_task": "Publish the qualified ISO and revised USB tools from authorized main; verify public downloads and native Windows ISO download",
+  "branch": "main",
+  "status": "published-operator-test-candidate",
+  "current_task": "Completed: qualified ISO and USB tools published and public-download verified",
   "confirmed_requirements": [
     "fresh Debian + LAW",
     "confirm installation target disk",
     "offline target installation"
   ],
-  "evidence": "reports/iso",
+  "evidence": "reports/iso/delivery.json",
   "review_card": "reviews/pending/law-iso.md",
-  "next_safe_action": "Commit review/evidence metadata, fast-forward main, await gated release workflows, download and verify public assets",
+  "next_safe_action": "Download ZIP and ISO to Windows; prepare the Ventoy USB, boot ThinkCentre2 and confirm the target disk; create fresh encrypted Wi-Fi pairing locally",
   "real_server_modified": false,
-  "last_source_commit": "c12df34fa886fde550cb2fca2d0eeabec27ec547"
+  "last_source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso",
+  "windows_tools": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip"
 }

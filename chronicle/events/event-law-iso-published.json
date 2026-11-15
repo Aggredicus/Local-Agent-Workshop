@@ -1,0 +1,10 @@
+{
+  "event_id": "event-law-iso-published",
+  "event_type": "release.published",
+  "source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+  "summary": "Published the qualified fresh offline Debian + LAW ISO and persistent-menu USB ZIP from authorized main. Both public downloads passed SHA256; ZIP payload/source integrity and the real native Windows ISO-download menu passed. Fully merged task branch retired with exact-head guard.",
+  "evidence_path": "reports/iso/delivery.json",
+  "authorization": "Explicit user instruction to publish this work to GitHub and change main; fresh offline installation with physical target-disk confirmation.",
+  "real_server_modified": false,
+  "physical_hardware_qualified": false
+}

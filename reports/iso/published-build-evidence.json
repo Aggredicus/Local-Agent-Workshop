@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
+  "base": {
+    "filename": "debian-13.7.0-amd64-netinst.iso",
+    "url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.7.0-amd64-netinst.iso",
+    "sha512": "ef04d0276850d70e4aaec0b55003628660e9631b26e35215a70ab3c8c707294a4b12731bc73c75a932902f703a7c278310ca99df28d6b36fb06d5618d8d0f678",
+    "cd_primary_fingerprint": "DF9B9C49EAA9298432589D76DA87E80D6294BE9B"
+  },
+  "profile": {
+    "format": 1,
+    "debian_version": "13.7.0",
+    "architecture": "amd64",
+    "hostname": "thinkcentre2",
+    "locale": "en_US.UTF-8",
+    "keyboard": "us",
+    "timezone": "America/New_York",
+    "ssh_public_key": ""
+  },
+  "builder_image": "debian:13-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2",
+  "packages": 187,
+  "iso": "LAW-Debian-13.7.0-amd64.iso",
+  "sha256": "360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844",
+  "bytes": 1091436544,
+  "offline_apt_install": "passed with Docker --network none",
+  "offline_apt_tamper_rejection": "passed; real APT rejected changed package bytes",
+  "physical_usb_and_wifi_tested": false,
+  "disk_partitioning_preseeded": false
+}

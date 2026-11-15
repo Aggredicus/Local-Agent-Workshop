@@ -1,0 +1,14 @@
+{
+  "network": "no NIC (-nic none)",
+  "installation": "passed",
+  "rootless_docker_container": "passed",
+  "accelerator": "kvm",
+  "bios_boot_and_installed_disk_boot": "passed",
+  "uefi_grub_boot": "passed (OVMF, Secure Boot off)",
+  "compose_buildx_law_cli": "passed",
+  "rootful_docker": "masked",
+  "ssh": "key-only when profile public key is supplied; otherwise masked",
+  "public_iso_disk_answers": "none; QA-only overlay used a disposable /dev/vda",
+  "public_iso_sha256": "360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844",
+  "physical_hardware_tested": false
+}

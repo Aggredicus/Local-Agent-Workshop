@@ -2,12 +2,12 @@
   "run_id": "usb-recovery",
   "branch": "main",
   "status": "published-operator-test-candidate",
-  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-c61153454d53/LAW-USB-Tools.zip",
-  "evidence": "reports/publish/usb-final-download-2026-11-15.json",
-  "next_safe_action": "Extract and run LAW/START-USB.cmd on Windows; power on Debian for pairing and adapter checks; keep credentials out of chat",
+  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip",
+  "evidence": "reports/iso/delivery.json",
+  "next_safe_action": "Extract the updated ZIP and run LAW/START-USB.cmd; actions return to the menu, option 2 downloads the ISO, option 3 copies it and LAW tools to an operator-prepared Ventoy USB",
   "limitations": [
-    "No installer ISO included",
-    "Controlled Windows staging/ACL and synthetic encryption tests pass; real-machine policy and WLAN need testing",
-    "Physical boot, firmware and real network rollback untested"
-  ]
+    "ISO is a separate download; production preseed retains disk/account confirmation",
+    "Native Windows and disconnected BIOS install/rootless Docker/UEFI boot passed; physical USB, Secure Boot and Wi-Fi/firmware still need hardware testing"
+  ],
+  "installer_iso": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso"
 }

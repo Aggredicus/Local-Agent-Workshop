@@ -2,7 +2,7 @@
 
 **Local Agent Workshop** is a local-first, human-governed workspace for agent-assisted software development: reusable Agent Skills, reviewable branches, deterministic project state, evidence-backed verification, and explicit human approval at risk boundaries.
 
-**USB tools:** [download the verified Windows/Debian ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-c61153454d53/LAW-USB-Tools.zip), extract it, open `LAW`, and double-click `START-USB.cmd`. [USB instructions](setup/usb/README.md) cover preparation and Wi-Fi recovery. A Debian installer ISO is obtained separately.
+**USB installer test candidate:** [Windows/Debian tools ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip) · [custom offline Debian + LAW ISO (~1 GB)](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso). Extract the ZIP, open `LAW`, and double-click `START-USB.cmd`. Actions return to the menu; option **2** downloads the ISO and option **3** copies it with the LAW tools onto an already prepared Ventoy USB. [Preparation guide](setup/usb/README.md) · [ISO build/install guide](setup/iso/README.md) · [verified delivery](reports/iso/delivery.json). Confirm the target disk in Debian Installer.
 
 **Start from `main`.** [Current status](plan/STATUS.md) is the compact entrypoint; old work branches are not required for normal use. Agents follow [me.md](me.md), then read the task's relevant linked protocols.
 
