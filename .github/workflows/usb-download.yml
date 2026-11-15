@@ -29,7 +29,12 @@ jobs:
           persist-credentials: false
       - name: Test Windows PowerShell 5.1 launcher from arbitrary extraction paths
         shell: powershell
-        run: '& ./tests/usb/windows-launcher.ps1'
+        run: |
+          try { & ./tests/usb/windows-launcher.ps1 } catch {
+            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Host "::error::$message"
+            throw
+          }
 
   build:
     needs: windows-launcher

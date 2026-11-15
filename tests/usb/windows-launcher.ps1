@@ -68,7 +68,7 @@ function Has-Zone([string]$Path) {
 try {
     $declined = New-Fixture 'declined'
     $result = Invoke-Launcher $declined 'N'
-    Assert-True ($result.code -eq 0) 'Declining should exit successfully.'
+    Assert-True ($result.code -eq 0) ('Declining should exit successfully. ' + $result.output)
     Assert-True (-not (Test-Path -LiteralPath (Join-Path $declined 'setup\usb\ran.json'))) 'Declining executed a script.'
     foreach ($name in @('Start-USB.ps1', 'Prepare-USB.ps1', 'Wifi-Capsule.ps1', 'Unrelated.ps1')) {
         Assert-True (Has-Zone (Join-Path $declined ('setup\usb\' + $name))) 'Declining changed a downloaded-file block.'
@@ -76,7 +76,7 @@ try {
 
     $approved = New-Fixture 'approved'
     $result = Invoke-Launcher $approved 'Y'
-    Assert-True ($result.code -eq 0) 'Approved launcher failed.'
+    Assert-True ($result.code -eq 0) ('Approved launcher failed. ' + $result.output)
     $ran = Get-Content -LiteralPath (Join-Path $approved 'setup\usb\ran.json') -Raw | ConvertFrom-Json
     Assert-True ($ran.process -eq 'RemoteSigned') 'Child did not use process-only RemoteSigned.'
     Assert-True ($ran.user -eq [string](Get-ExecutionPolicy -Scope CurrentUser)) 'CurrentUser policy changed.'
