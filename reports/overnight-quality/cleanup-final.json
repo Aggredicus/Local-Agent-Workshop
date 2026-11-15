@@ -1,0 +1,29 @@
+{
+  "phase": "after",
+  "summary": {
+    "blockers": 0,
+    "warnings": 1,
+    "info": 2,
+    "total": 3
+  },
+  "findings": [
+    {
+      "severity": "INFO",
+      "message": "cleanup phase: after",
+      "hint": "",
+      "category": "run"
+    },
+    {
+      "severity": "WARN",
+      "message": "current branch is protected/integration branch: main",
+      "hint": "use an agent/* branch for implementation work",
+      "category": "git"
+    },
+    {
+      "severity": "INFO",
+      "message": "HyperKanban validation passed",
+      "hint": "",
+      "category": "hyperkanban"
+    }
+  ]
+}
