@@ -135,3 +135,18 @@ def test_cyclic_schema_evaluation_returns_error_instead_of_traceback(project, ca
     (project / 'schemas/demo.json').write_text('{"$ref":"#"}')
     code, report, _ = run(project, capsys)
     assert code == 1 and report['summary']['errors']
+
+
+@pytest.mark.parametrize('literal', ['NaN', 'Infinity', '-Infinity'])
+def test_nonfinite_literals_are_invalid_json_even_for_number_schema(project, capsys, literal):
+    (project / 'schemas/demo.json').write_text('{"type":"number"}')
+    (project / 'examples/demo.json').write_text(literal)
+    code, report, _ = run(project, capsys)
+    assert code == 1 and report['summary']['errors']
+
+
+@pytest.mark.parametrize('schema', [{'$schema': []}, {'$schema': {}}, {'$ref': []}, {'$id': []}, {'properties': []}, {'$id': 'http://['}])
+def test_malformed_schema_metadata_returns_report_without_traceback(project, capsys, schema):
+    (project / 'schemas/demo.json').write_text(json.dumps(schema))
+    code, report, _ = run(project, capsys)
+    assert code == 1 and report['summary']['errors']

@@ -1,0 +1,16 @@
+Synchronized 11 skill(s) to .agents/skills
+Doctor: 6 passed, 0 warnings, 0 failures
+Running Local Agent Workshop verification
+HyperKanban validation passed: orchestration/hyperkanban/state.json
+Repository contract validation
+
+SUMMARY: 0 errors, 0 warnings, 9 info
+schema_registry: schemas/schema-registry.json
+schema content: 3 schemas, 1 examples
+
+All checks passed!
+........................................................................ [ 38%]
+........................................................................ [ 76%]
+............................................                             [100%]
+188 passed in 2.92s
+No broken requirements found.

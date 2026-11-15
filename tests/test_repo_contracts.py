@@ -104,6 +104,12 @@ def test_valid_draft_registry_passes(tmp_path, registry, capsys):
     assert code == 0 and report['summary']['errors'] == 0
 
 
+def test_nonfinite_literal_is_not_accepted_as_valid_json(tmp_path, registry, capsys):
+    registry['extra'] = float('nan')
+    code, report = run_registry(tmp_path, registry, capsys)
+    assert code == 1 and report['summary']['errors']
+
+
 def test_example_path_cannot_escape_repository(tmp_path, registry, capsys):
     registry['schemas'][0]['example_paths'] = ['../private.json']
     code, report = run_registry(tmp_path, registry, capsys)

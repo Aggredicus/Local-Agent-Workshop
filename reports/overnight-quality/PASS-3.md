@@ -9,3 +9,11 @@ Evidence: **188 local tests pass**, including new extension acceptance cases and
 The corrected USB candidate from source 849445738b19663e30bc6dbae0d4d6fae98f73ae was published by run 43716290683 after shared native Windows startup/compilation/synthetic crypto, source and Debian offline gates passed. Downloaded the public ZIP and verified its SHA256, CRC, all 223 manifest entries, every one of its 30 packaged source files against that exact commit, and the pinned age.exe digest. Delivery evidence: ../publish/usb-overnight-download-2026-11-15.json. Existing releases were preserved.
 
 Hardware limits remain: real Wi-Fi/firmware, restricted Windows ACLs, USB/Secure Boot and physical network rollback need powered-on machines. Existing staged Windows tools can be preserved and restaged using the guide's upgrade instructions. No real credentials or device configuration were used in these checks.
+
+Closeout hardening adds explicit failure for malformed legacy skill indexes,
+non-finite JSON literals, malformed schema metadata and invalid resource IDs.
+Legacy reports now name the JSON index files actually checked. Source CI has a
+15-minute timeout. The final local suite is **202 passing tests**; the prior
+188-test source passed CI 43718034591 and a fresh no-Git ZIP installation in a
+folder containing spaces, an apostrophe and brackets. Compact fresh-install
+evidence is in clean-zip-install.json and clean-zip-verify.txt.

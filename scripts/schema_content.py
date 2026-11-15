@@ -9,6 +9,14 @@ import json
 from pathlib import Path
 
 
+def _reject_constant(value):
+    raise ValueError('Non-finite literals are not valid JSON')
+
+
+def load_document(path: Path):
+    return json.loads(path.read_text(encoding='utf-8'), parse_constant=_reject_constant)
+
+
 def check_content(root: Path, registry: dict) -> tuple[dict, list[str]]:
     coverage = {'schemas_checked': 0, 'examples_checked': 0, 'references_checked': 0, 'network_retrieval': False, 'available': False}
     errors: list[str] = []
@@ -35,7 +43,7 @@ def check_content(root: Path, registry: dict) -> tuple[dict, list[str]]:
         path = (root / record['path']).resolve()
         coverage['schemas_checked'] += 1
         try:
-            schema = json.loads(path.read_text(encoding='utf-8'))
+            schema = load_document(path)
             cls = validators.validator_for(schema, default=None) if isinstance(schema, dict) and '$schema' in schema else Draft202012Validator
             if cls is None:
                 errors.append(f'{label}: unsupported declared JSON Schema dialect')
@@ -51,13 +59,17 @@ def check_content(root: Path, registry: dict) -> tuple[dict, list[str]]:
                 resources = resources.with_resource(schema_id, resource)
             resources = resources.with_resource(path.as_uri(), resource)
             schemas.append((record, path, cls, resource))
-        except (OSError, UnicodeError, ValueError, SchemaError, RecursionError):
+        except (OSError, UnicodeError, ValueError, TypeError, SchemaError, RecursionError):
             errors.append(f'{label}: schema is unreadable JSON or an invalid JSON Schema')
 
-    resources = resources.crawl()
+    try:
+        resources = resources.crawl()
+    except Exception:
+        errors.append('Registered schema resource identifiers could not be resolved offline')
+        return coverage, errors
     for record, path, cls, resource in schemas:
-        pending = [(resource, resources.resolver(path.as_uri()).in_subresource(resource))]
         try:
+            pending = [(resource, resources.resolver(path.as_uri()).in_subresource(resource))]
             while pending:
                 current, resolver = pending.pop()
                 if isinstance(current.contents, dict):
@@ -76,7 +88,7 @@ def check_content(root: Path, registry: dict) -> tuple[dict, list[str]]:
             coverage['examples_checked'] += 1
             label = record['schema_id']
             try:
-                instance = json.loads((root / example).read_text(encoding='utf-8'))
+                instance = load_document(root / example)
             except (OSError, UnicodeError, ValueError, RecursionError):
                 errors.append(f'{label}: example is unreadable JSON')
                 continue

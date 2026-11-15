@@ -103,3 +103,18 @@ def test_legacy_helpers_share_read_safety_and_never_print_linked_data(tmp_path, 
     assert 'PRIVATE_LEGACY_CANARY' not in result.stdout + result.stderr
     report = json.loads(result.stdout)
     assert report['error'] and not report['new_skill_needed']
+
+
+@pytest.mark.parametrize('script', ['list_available_skills.py', 'select_skill.py'])
+@pytest.mark.parametrize('index', ['{', '42'])
+def test_legacy_helpers_do_not_report_a_broken_index_as_no_drift(tmp_path, script, index):
+    doc = tmp_path / 'skills/demo/SKILL.md'
+    doc.parent.mkdir(parents=True)
+    doc.write_text('---\nname: demo\ndescription: Demonstration skill\n---\n')
+    (tmp_path / 'skills/registry.json').write_text(index)
+    path = Path(__file__).resolve().parents[1] / 'scripts/skills' / script
+    args = [sys.executable, str(path), str(tmp_path), '--json']
+    args += ['--task', 'demonstration'] if script.startswith('select') else ['--validate-registry']
+    result = subprocess.run(args, text=True, capture_output=True, timeout=3)
+    assert result.returncode == 1
+    assert json.loads(result.stdout)['error']

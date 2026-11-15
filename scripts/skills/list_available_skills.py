@@ -112,9 +112,13 @@ def read_registry(root: Path) -> dict[str, Any] | None:
         if path.exists():
             try:
                 _safe_tree(path.parent)
-                return {"path": rel, "data": json.loads(path.read_text(encoding="utf-8"))}
-            except json.JSONDecodeError as exc:
-                return {"path": rel, "error": str(exc), "data": None}
+                data = json.loads(path.read_text(encoding="utf-8"))
+                entries = data.get('skills') if isinstance(data, dict) else data
+                if not isinstance(entries, list):
+                    raise ValueError('Unsupported skill registry shape')
+                return {"path": rel, "data": data}
+            except json.JSONDecodeError:
+                raise ValueError('Invalid skill registry JSON') from None
     return None
 
 
@@ -186,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.validate_registry:
         payload["registry_validation"] = registry_validation
         payload["sources_checked"].extend(
-            ["skills/registry.json", "skills/INDEX.md", "docs/skills/SKILL_INDEX.md"]
+            ["skills/registry.json", "skills/INDEX.json", "docs/skills/SKILL_INDEX.json"]
         )
 
     print(json.dumps(payload, indent=2, sort_keys=True))

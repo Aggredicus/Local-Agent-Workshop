@@ -14,6 +14,8 @@ from dataclasses import dataclass, asdict
 from pathlib import Path, PureWindowsPath
 from typing import Any
 
+from schema_content import load_document
+
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 SCHEMA_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_\-.]*$")
 VALID_STATUSES = {"planned", "draft", "active", "deprecated", "retired"}
@@ -53,7 +55,7 @@ class Finding:
 
 def load_json(path: Path) -> tuple[Any | None, list[Finding]]:
     try:
-        return json.loads(path.read_text(encoding="utf-8")), []
+        return load_document(path), []
     except FileNotFoundError:
         return None, [Finding("ERROR", "registry", f"missing JSON file: {path}", "Pass an existing repository-relative --schema-registry path.")]
     except json.JSONDecodeError as exc:
@@ -62,6 +64,8 @@ def load_json(path: Path) -> tuple[Any | None, list[Finding]]:
         return None, [Finding("ERROR", "registry", f"cannot read UTF-8 JSON file: {path}", "Check file type, permissions and encoding.")]
     except RecursionError:
         return None, [Finding('ERROR', 'registry', 'JSON nesting exceeds the supported parser depth')]
+    except ValueError:
+        return None, [Finding('ERROR', 'registry', 'Non-finite literals are not valid JSON')]
 
 
 def repository_file(root: Path, value: Any, label: str, findings: list[Finding]) -> Path | None:

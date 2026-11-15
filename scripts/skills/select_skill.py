@@ -105,8 +105,8 @@ def select_skills(root: Path, task: str, named_skill: str | None = None) -> dict
         "skill_sources_checked": [
             "skills/*/SKILL.md",
             "skills/registry.json if present",
-            "skills/INDEX.md if present",
-            "docs/skills/SKILL_INDEX.md if present",
+            "skills/INDEX.json if present",
+            "docs/skills/SKILL_INDEX.json if present",
             "direct skill path when named",
         ],
         "direct_lookup": direct_lookup,
