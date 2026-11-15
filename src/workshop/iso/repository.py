@@ -8,7 +8,7 @@ import re
 import shutil
 import subprocess
 
-from .profile import ISOError, ROOTS
+from .profile import ISOError, ROOTS, BUILD_ROOTS
 
 
 def digest(path: Path, algorithm='sha256') -> str:
@@ -89,9 +89,11 @@ def collect(output: Path, lists: Path = Path('/var/lib/apt/lists')) -> dict:
         shutil.copyfile(source, target)
         packages.append({'name': record['Package'], 'version': record['Version'],
                          'vendor': vendor, 'path': str(target.relative_to(output)), 'sha256': checksum})
-    if set(ROOTS) - {p['name'] for p in packages}:
+    if set(BUILD_ROOTS) - {p['name'] for p in packages}:
         raise ISOError('Required LAW/Docker packages missing from the offline closure.')
-    manifest = {'format': 1, 'architecture': 'amd64', 'roots': list(ROOTS), 'repositories': suites, 'packages': packages}
+    manifest = {'format': 1, 'architecture': 'amd64', 'roots': list(ROOTS),
+                'build_and_virtual_test_extras': sorted(set(BUILD_ROOTS) - set(ROOTS)),
+                'repositories': suites, 'packages': packages}
     (output / 'packages.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return manifest
 

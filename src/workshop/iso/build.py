@@ -163,6 +163,7 @@ def build(repo: Path, output: Path, profile_path: Path, keyring: Path) -> dict:
     run('docker', 'save', '-o', law / 'smoke.tar', 'law-offline-smoke:1')
     run('docker', 'run', '--rm', '--network', 'none', '--mount', f'type=bind,source={law.resolve()},target=/output',
         IMAGE, 'chown', '-R', f'{os.getuid()}:{os.getgid()}', '/output')
+    (law / 'smoke.tar').chmod(0o644)
     shutil.rmtree(law / 'downloads')
     (law / 'docker.asc').unlink()
     # Verify install against real APT while the container has NO network device.

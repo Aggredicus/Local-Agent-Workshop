@@ -15,7 +15,7 @@ ROOTS = ('python3', 'git', 'sudo', 'age', 'wpasupplicant', 'ifupdown',
          'slirp4netns', 'fuse-overlayfs', 'gpgv',
          'docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-buildx-plugin',
          'docker-compose-plugin', 'docker-ce-rootless-extras')
-BUILD_ROOTS = ROOTS + ('busybox-static',)
+BUILD_ROOTS = ROOTS + ('busybox-static', 'qemu-guest-agent')
 DOCKER_FINGERPRINT = '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
 CD_FINGERPRINT = 'DF9B9C49EAA9298432589D76DA87E80D6294BE9B'
 
