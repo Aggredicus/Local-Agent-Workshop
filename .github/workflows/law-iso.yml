@@ -33,10 +33,16 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m workshop.iso.build --output "$RUNNER_TEMP/law-iso" 2>&1 | tee "$RUNNER_TEMP/iso-build.log"
-      - name: Install and run rootless Docker in a disconnected disposable VM
+      - name: Prepare disposable QA images and report accelerator
+        run: python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" --phase prepare
+      - name: Install fresh Debian and LAW in a disconnected BIOS VM
         run: |
           set -euo pipefail
-          python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" 2>&1 | tee "$RUNNER_TEMP/iso-vm.log"
+          python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" --phase install 2>&1 | tee "$RUNNER_TEMP/iso-vm.log"
+      - name: Boot the installed disk and test rootless Docker offline
+        run: python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" --phase boot
+      - name: Verify UEFI GRUB boot without networking
+        run: python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" --phase uefi
       - name: Prepare verified public download files
         run: |
           set -euo pipefail

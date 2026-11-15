@@ -36,8 +36,14 @@ PROOF = '''#!/bin/bash
 set -euxo pipefail
 trap 'echo LAW_VM_QA_FAILED > /dev/ttyS0; journalctl --no-pager -n 80; poweroff' ERR
 test -f /etc/law-install-complete
+test -z "$(find /opt/local-agent-workshop /opt/law-offline -not -user root -print -quit)"
 test "$(systemctl is-enabled docker.service || true)" = masked
-test "$(systemctl is-enabled ssh.service || true)" = masked
+if python3 -c 'import json,sys; sys.exit(not bool(json.load(open("/opt/law-offline/profile.json"))["ssh_public_key"]))'; then
+    test "$(systemctl is-enabled ssh.service)" = enabled
+    /usr/sbin/sshd -T | grep -x 'passwordauthentication no'
+else
+    test "$(systemctl is-enabled ssh.service || true)" = masked
+fi
 ! id -nG lawtest | tr ' ' '\\n' | grep -qx docker
 uid=$(id -u lawtest)
 for i in $(seq 1 120); do
@@ -91,11 +97,7 @@ def vm(command, log, timeout, marker=None, stop_on_marker=False):
         raise RuntimeError('Missing VM acceptance marker: ' + marker)
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('build', type=Path)
-    args = parser.parse_args()
-    build = args.build.resolve()
+def prepare(build):
     scratch = build / 'qa-private-do-not-upload'
     scratch.mkdir()
     tree = scratch / 'tree'
@@ -144,16 +146,42 @@ label lawqa
     run(*cmd, '-boot_image', 'any', 'replay', '-commit')
     disk = scratch / 'disposable.qcow2'
     run('qemu-img', 'create', '-f', 'qcow2', disk, '16G')
+    _, accel = machine(build)
+    print('::notice::QA images ready; VM accelerator=' + accel)
+
+
+def machine(build):
+    scratch = build / 'qa-private-do-not-upload'
+    disk = scratch / 'disposable.qcow2'
     accel = 'kvm' if os.access('/dev/kvm', os.R_OK | os.W_OK) else 'tcg,thread=multi'
     base = ['qemu-system-x86_64', '-accel', accel, '-cpu', 'host' if accel == 'kvm' else 'max', '-smp', '2', '-m', '3072',
             '-nic', 'none', '-display', 'none', '-monitor', 'none', '-serial', 'stdio', '-no-reboot',
             '-drive', f'file={disk},if=virtio,format=qcow2']
+    return base, accel
+
+
+def install(build):
+    scratch = build / 'qa-private-do-not-upload'
+    qa_iso = scratch / 'QA-ONLY.iso'
+    base, _ = machine(build)
     # Exercise the remastered BIOS boot image, not a direct kernel shortcut.
     vm(base + ['-boot', 'order=d', '-cdrom', str(qa_iso)],
        scratch / 'install.log', 1800, 'LAW_OFFLINE_INSTALL_OK')
     if 'LAW_BIOS_BOOT_OK' not in (scratch / 'install.log').read_text(errors='replace'):
         raise RuntimeError('BIOS bootloader acceptance marker missing.')
+    print('::notice::LAW_BIOS_INSTALL_OK: fresh installation completed and powered off with no NIC.')
+
+
+def boot(build):
+    scratch = build / 'qa-private-do-not-upload'
+    base, _ = machine(build)
     vm(base, scratch / 'first-boot.log', 600, 'LAW_VM_OFFLINE_ROOTLESS_OK')
+    print('::notice::LAW_FIRST_BOOT_OK: rootless Docker, offline container, Compose, Buildx and LAW CLI passed.')
+
+
+def uefi(build):
+    scratch = build / 'qa-private-do-not-upload'
+    _, accel = machine(build)
     # Exercise the inherited EFI image and Debian GRUB, without Secure Boot.
     efi = scratch / 'efi.cfg'
     efi.write_text('''serial --unit=0 --speed=115200
@@ -179,12 +207,24 @@ menuentry 'LAW EFI boot test' {
     evidence = {'network': 'no NIC (-nic none)', 'installation': 'passed', 'rootless_docker_container': 'passed',
                 'accelerator': accel,
                 'bios_boot_and_installed_disk_boot': 'passed', 'uefi_grub_boot': 'passed (OVMF, Secure Boot off)',
-                'compose_buildx_law_cli': 'passed', 'rootful_docker_and_ssh': 'masked',
+                'compose_buildx_law_cli': 'passed', 'rootful_docker': 'masked',
+                'ssh': 'key-only when profile public key is supplied; otherwise masked',
                 'public_iso_disk_answers': 'none; QA-only overlay used a disposable /dev/vda',
                 'public_iso_sha256': hashlib.file_digest((build / OUTPUT).open('rb'), 'sha256').hexdigest(),
                 'physical_hardware_tested': False}
     (build / 'vm-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')
     print('::notice::LAW_VM_OFFLINE_ROOTLESS_OK: no NIC; real Debian install, rootless Docker smoke, Compose, Buildx and LAW CLI passed.')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('build', type=Path)
+    parser.add_argument('--phase', choices=['all', 'prepare', 'install', 'boot', 'uefi'], default='all')
+    args = parser.parse_args()
+    build = args.build.resolve()
+    for name, action in [('prepare', prepare), ('install', install), ('boot', boot), ('uefi', uefi)]:
+        if args.phase in ('all', name):
+            action(build)
 
 
 if __name__ == '__main__':
