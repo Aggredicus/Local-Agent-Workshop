@@ -6,8 +6,8 @@ $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $temp = Join-Path ([IO.Path]::GetTempPath()) ("LAW staging O'Brien [test] " + [guid]::NewGuid().ToString('N'))
 $source = Join-Path $temp 'source'
-$profile = Join-Path $temp 'isolated-appdata'
-$target = Join-Path $profile 'LocalAgentWorkshop\USBTools'
+$stagingProfileRoot = Join-Path $temp 'isolated-appdata'
+$target = Join-Path $stagingProfileRoot 'LocalAgentWorkshop\USBTools'
 
 function Invoke-Preparation([string]$Script, [bool]$Stage) {
     $process = New-Object Diagnostics.Process
@@ -19,7 +19,7 @@ function Invoke-Preparation([string]$Script, [bool]$Stage) {
     $process.StartInfo.RedirectStandardOutput = $true
     $process.StartInfo.RedirectStandardError = $true
     # Only the disposable child gets this path; the user's profile is untouched.
-    $process.StartInfo.EnvironmentVariables['LOCALAPPDATA'] = $profile
+    $process.StartInfo.EnvironmentVariables['LOCALAPPDATA'] = $stagingProfileRoot
     try {
         $process.Start() | Out-Null
         $stdout = $process.StandardOutput.ReadToEndAsync()
