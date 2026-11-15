@@ -36,6 +36,14 @@ jobs:
             Write-Host "::error::$message"
             throw
           }
+      - name: Test native Windows encryption with disposable synthetic data
+        shell: powershell
+        run: |
+          try { & ./tests/usb/windows-crypto.ps1 } catch {
+            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Host "::error::$message"
+            throw
+          }
 
   test:
     runs-on: ubuntu-24.04
