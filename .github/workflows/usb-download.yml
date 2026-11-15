@@ -2,8 +2,13 @@ name: Build USB download
 
 on:
   push:
-    branches: ['main']
-    paths: ['.github/workflows/usb-download.yml']
+    branches: ['main', 'agent/usb-*']
+    paths:
+      - '.github/workflows/usb-download.yml'
+      - 'START-USB.cmd'
+      - 'setup/usb/**'
+      - 'src/workshop/usb/**'
+      - 'tests/usb/**'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +19,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  windows-launcher:
+    if: github.repository == 'Aggredicus/Local-Agent-Workshop'
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test Windows PowerShell 5.1 launcher from arbitrary extraction paths
+        shell: powershell
+        run: '& ./tests/usb/windows-launcher.ps1'
+
   build:
+    needs: windows-launcher
     if: github.repository == 'Aggredicus/Local-Agent-Workshop' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -57,7 +75,7 @@ jobs:
           One ZIP containing Windows LAW tools and verified Debian 12/13 amd64 offline recovery packages.
 
           Source: $GITHUB_SHA
-          Verification: source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
+          Verification: native Windows PowerShell 5.1 launcher tests, source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
 
           **Test candidate, not a production release.** Native Windows Wi-Fi, physical USB boot, Secure Boot, firmware and real network rollback remain unqualified. No Debian ISO is included; the ZIP is data for an operator-prepared USB, not bootable media by itself. Package signature metadata has expiry checks; rebuild when it expires. No private keys or operator credentials are included.
 

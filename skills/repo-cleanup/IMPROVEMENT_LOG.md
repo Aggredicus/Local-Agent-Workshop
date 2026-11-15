@@ -21,3 +21,12 @@ Outcome: log-only update
 Observation: Intentional review artifacts were preserved, canonical state validation was shared, and source changes stayed on agent/qc-baseline.
 Decision: Record evidence without changing skill behavior; policy refresh remains a separate review.
 Links: reports/qc-baseline/RESULTS.md; reports/qc-baseline/SKILL-ISSUES.md
+
+## 2026-11-15 — USB launcher update
+
+Skill used: /repo-cleanup
+Used for: launcher preflight/closeout
+Outcome: log-only update
+Observation: Main integration was explicitly authorized; use an implementation branch to validate Windows behavior before integrating.
+Decision: No skill behavior change. GitHub issue creation remains blocked; local audit draft records the follow-up.
+Links: reports/usb-recovery/launcher-validation.md; reviews/pending/usb-launcher.md

@@ -18,16 +18,20 @@ function Stage-Tools {
     Set-Acl -LiteralPath $local -AclObject $acl
     $destination = Join-Path $local 'setup\usb'
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
-    foreach ($name in @('Wifi-Capsule.ps1','Wifi-Capsule.cs','Prepare-USB.ps1','README.md')) {
+    foreach ($name in @('Wifi-Capsule.ps1','Wifi-Capsule.cs','Prepare-USB.ps1','Start-USB.ps1','README.md')) {
         $file = Join-Path $PSScriptRoot $name
         if ((Get-Item -LiteralPath $file).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Linked source file rejected.' }
         Copy-Item -LiteralPath $file -Destination (Join-Path $destination $name)
     }
+    $launcher = Join-Path $source 'START-USB.cmd'
+    if ((Get-Item -LiteralPath $launcher).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Linked launcher rejected.' }
+    Copy-Item -LiteralPath $launcher -Destination (Join-Path $local 'START-USB.cmd')
     $tool = Join-Path $PSScriptRoot 'tools\age.exe'
     if ((Get-FileHash -LiteralPath $tool -Algorithm SHA256).Hash -ine '2821a4ed191da07372acd302e5f6feae7a7985e285e1417765ebe74025af45f0') { throw 'Missing or changed age.exe. Use the verified complete tools package.' }
     New-Item -ItemType Directory -Path (Join-Path $destination 'tools') -Force | Out-Null
     Copy-Item -LiteralPath $tool -Destination (Join-Path $destination 'tools\age.exe')
     Write-Host ('Windows tools staged at: ' + $local)
+    Write-Host 'For later Wi-Fi entry, run START-USB.cmd in that local folder and choose 4.'
 }
 try {
     if ($StageWindowsTools) { Stage-Tools; exit 0 }

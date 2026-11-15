@@ -21,3 +21,12 @@ Outcome: log-only update
 Observation: Acceptance used failing regression cases, fault injection and independent review. Missing security/release qualification now reports unavailable.
 Decision: Record evidence without changing skill behavior; policy refresh remains a separate review.
 Links: reports/qc-baseline/RESULTS.md; reports/qc-baseline/SKILL-ISSUES.md
+
+## 2026-11-15 — USB launcher update
+
+Skill used: /quality-analysis
+Used for: launcher baseline/final review
+Outcome: log-only update
+Observation: Execution-policy and downloaded-file handling need native Windows evidence, beyond Linux syntax parsing.
+Decision: No skill behavior change. The Windows startup test gates the ZIP; local issue draft preserves the blocked API follow-up.
+Links: reports/usb-recovery/launcher-validation.md; reviews/pending/usb-launcher.md

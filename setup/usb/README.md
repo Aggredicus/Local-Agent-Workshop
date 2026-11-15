@@ -14,8 +14,9 @@ This tools ZIP **is not bootable by itself and contains no Debian installer ISO*
    ```
 
    A checksum file on the same untrusted USB is not an independent trust anchor. Keep the verified extracted folder on Windows; returning USB files must never replace this trusted code.
-2. Open `LAW-USB-Tools\LAW` and run `START-USB.cmd`. Choose **1** to stage the credential-entry tools into `%LOCALAPPDATA%\LocalAgentWorkshop\USBTools`. The new per-user folder has restricted ACLs. The age executable is additionally checked against a pinned SHA256 before any credentials are requested.
-3. If PowerShell blocks a downloaded script, stop and inspect it. No launcher changes execution policy or bypasses it. After checking the ZIP and reviewing the script, you can explicitly unblock the extracted scripts with `Unblock-File` from PowerShell. If no organisation policy applies and you explicitly choose to allow the reviewed scripts for the current PowerShell window only, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`, then launch the script from that window. Do not override organisation policy or use `Bypass`. Native Windows PowerShell 5.1 is the supported target, but native testing remains outstanding in this cloud environment.
+2. Extract the ZIP **anywhere you can write**, open its `LAW` folder, and double-click `START-USB.cmd`. After verifying the ZIP and reviewing the scripts, press **Y** at its approval prompt. The launcher locates scripts relative to itself; it does not assume Downloads or depend on your terminal's current folder. No commands need to be pasted into PowerShell.
+3. Approval starts Windows PowerShell with **RemoteSigned for that process only** and removes the downloaded-file block from exactly `Start-USB.ps1`, `Prepare-USB.ps1` and `Wifi-Capsule.ps1`. The file unblock persists for those files, but your saved execution policies are not changed. Closing the process ends its temporary policy. Declining starts no scripts and changes no files. Administrator-enforced policy still applies; contact your administrator if it requires signed scripts or prohibits them. No `Bypass` or administrator elevation is used.
+4. Choose **1** to stage the credential-entry tools and launcher into `%LOCALAPPDATA%\LocalAgentWorkshop\USBTools`. The new per-user folder has restricted ACLs. The age executable is additionally checked against a pinned SHA256 before any credentials are requested. Keep this local installation for later USB round trips. Existing staged installations are preserved; review/preserve them before an upgrade. Windows PowerShell 5.1 is the supported target; the launcher's automated Windows tests do not qualify real Wi-Fi or hardware behavior.
 
 ## 2. Make the same USB boot Debian
 
@@ -64,10 +65,10 @@ The controller requires a root physical virtual console (`/dev/tty1`, `/dev/tty2
 
 ## 5. Enter and optionally test credentials on Windows
 
-Return the USB to Windows. **Use the trusted locally staged script**, not executables or scripts on the returning USB:
+Return the USB to Windows. Open `%LOCALAPPDATA%\LocalAgentWorkshop\USBTools`, run its **locally staged** `START-USB.cmd`, approve startup, then choose **4**. Use this trusted local installation for every round trip. You can also open that launcher from PowerShell:
 
 ```powershell
-& "$env:LOCALAPPDATA\LocalAgentWorkshop\USBTools\setup\usb\Wifi-Capsule.ps1"
+& "$env:LOCALAPPDATA\LocalAgentWorkshop\USBTools\START-USB.cmd"
 ```
 
 Select the public `debian-request.json`, enter the fingerprint displayed by Debian, and choose an encrypted-output directory on the USB. Enter the SSID and WPA2-Personal password in hidden local prompts; never paste them into ChatGPT. No password is accepted as a command argument, written to a plaintext USB file, or placed in a PowerShell function parameter/log by this implementation. The plaintext is processed in memory; compromised endpoints, debuggers and memory/pagefile capture are outside this guarantee.
