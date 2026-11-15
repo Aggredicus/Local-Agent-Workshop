@@ -54,7 +54,7 @@ jobs:
           for name in ('iso-build.log','iso-vm.log','law-iso/qa-private-do-not-upload/install.log','law-iso/qa-private-do-not-upload/first-boot.log'):
               p=root/name
               if p.exists():
-                  text=p.read_text(errors='replace')[-13000:]
+                  text=p.read_text(errors='replace')[-6000:]
                   text=text.replace('%','%25').replace('\r','%0D').replace('\n','%0A')
                   print('::error::'+name+': '+text)
           PY
