@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 try {
     # No credential-bearing PowerShell function parameters or command-line arguments.
     if ($PSVersionTable.PSVersion.Major -ge 6) { Add-Type -Path (Join-Path $PSScriptRoot 'Wifi-Capsule.cs') }
-    else { Add-Type -Path (Join-Path $PSScriptRoot 'Wifi-Capsule.cs') -ReferencedAssemblies System.Runtime.Serialization }
+    else { Add-Type -Path (Join-Path $PSScriptRoot 'Wifi-Capsule.cs') -ReferencedAssemblies @('System.dll', 'System.Core.dll', 'System.Runtime.Serialization.dll', 'System.Xml.dll') }
     if ($CompileOnly) { Write-Host 'C# helper compiled. Native Windows Wi-Fi was not tested.'; exit 0 }
     $trustedRoot = Join-Path $env:LOCALAPPDATA 'LocalAgentWorkshop\USBTools\setup\usb'
     if ([IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\') -ine [IO.Path]::GetFullPath($trustedRoot).TrimEnd('\')) { throw 'Run the locally staged Windows tools, not scripts on the returning USB.' }
@@ -43,6 +43,8 @@ try {
     Write-Host ('Return this file to Debian: ' + $output)
     Write-Host ('Ciphertext SHA256 (compare at Debian console): ' + (Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash.ToLowerInvariant())
 } catch {
+    # CompileOnly exits before any credential input, so compiler diagnostics are safe.
+    if ($CompileOnly) { throw }
     # Error text is deliberately generic: do not serialize exception objects/credential-bearing locals.
     Write-Error 'Wi-Fi export did not complete. Check the public pairing fingerprint, verified age tool, supported WPA2 input, adapter availability and USB path. No plaintext diagnostic bundle was written.'
     exit 1
