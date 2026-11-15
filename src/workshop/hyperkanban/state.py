@@ -6,9 +6,16 @@ next unblocked card, emit a compact packet, and complete a card with evidence.
 """
 from __future__ import annotations
 
+import copy
+import hashlib
 import json
+import os
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
+
+from workshop.hyperkanban.validation import HyperKanbanError, validate_data
 
 DEFAULT_STATE_PATH = Path("orchestration/hyperkanban/state.json")
 READY = 1 << 0
@@ -32,89 +39,124 @@ FLAG_NAMES = [
 ]
 
 
-class HyperKanbanError(ValueError):
-    """Raised when HyperKanban state is invalid or a card is missing."""
+class _LoadedState(dict):
+    """In-memory revision metadata is never serialized into project state."""
+    revision: str
+    source: Path
 
 
 def load_state(path: Path = DEFAULT_STATE_PATH) -> dict[str, Any]:
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise HyperKanbanError(f"missing state file: {path}") from exc
-    except json.JSONDecodeError as exc:
-        raise HyperKanbanError(f"invalid JSON in {path}: {exc}") from exc
-    if not isinstance(data, dict):
-        raise HyperKanbanError("state root must be an object")
+        raw = path.read_bytes()
+        data = json.loads(raw)
+    except OSError as exc:
+        raise HyperKanbanError(f"missing or unreadable state file: {path}") from exc
+    except (json.JSONDecodeError, UnicodeError) as exc:
+        raise HyperKanbanError("invalid JSON in state file") from exc
     validate_state(data)
-    return data
+    loaded = _LoadedState(data)
+    loaded.revision = hashlib.sha256(raw).hexdigest()
+    loaded.source = path.resolve()
+    return loaded
+
+
+def validate_packet(state: dict[str, Any], state_path: Path) -> None:
+    packet = state_path.parent / "packet.txt"
+    if packet.exists() and packet.read_text(encoding="utf-8") != build_packet(state):
+        raise HyperKanbanError(f"packet out of sync: {packet}")
+
+
+def validate_state_file(path: Path) -> dict[str, Any]:
+    state = load_state(path)
+    validate_packet(state, path)
+    return state
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    if path.is_symlink():
+        raise HyperKanbanError("refusing symlink state or packet")
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as output:
+            output.write(content)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def _packet_path(path: Path) -> Path:
+    packet = path.parent / "packet.txt"
+    if (path.resolve() == packet.resolve()
+            or (path.exists() and packet.exists() and os.path.samefile(path, packet))):
+        raise HyperKanbanError("canonical state cannot alias its derived packet")
+    if packet.is_symlink():
+        raise HyperKanbanError("refusing symlink packet")
+    return packet
+
+
+@contextmanager
+def _state_lock(path: Path):
+    _packet_path(path)  # Check aliases before any canonical write.
+    if path.is_symlink():
+        raise HyperKanbanError("refusing symlink state")
+    lock = path.with_name(f".{path.name}.lock")
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError:
+        raise HyperKanbanError("state is locked; check active writers before removing a stale lock") from None
+    try:
+        os.close(fd)
+        yield
+    finally:
+        lock.unlink()
+
+
+def _check_revision(path: Path, state: dict[str, Any]) -> None:
+    if isinstance(state, _LoadedState):
+        if (not path.exists() or state.source != path.resolve()
+                or hashlib.sha256(path.read_bytes()).hexdigest() != state.revision):
+            raise HyperKanbanError("state changed or was removed; reload before saving")
+    elif path.exists():
+        raise HyperKanbanError("state changed or was not loaded with a revision; reload before saving")
+
+
+def _commit(path: Path, state: dict[str, Any]) -> None:
+    validate_state(state)
+    _check_revision(path, state)
+    content = json.dumps(state, indent=2) + "\n"
+    _atomic_write(path, content)
+    if isinstance(state, _LoadedState):
+        state.revision = hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
 def save_state(path: Path, state: dict[str, Any]) -> None:
-    validate_state(state)
-    path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
+    with _state_lock(path):
+        _commit(path, state)
 
 
 def save_packet(state_path: Path, state: dict[str, Any]) -> None:
-    packet_path = state_path.parent / "packet.txt"
-    packet_path.write_text(build_packet(state), encoding="utf-8")
+    with _state_lock(state_path):
+        _check_revision(state_path, state)
+        canonical = load_state(state_path)
+        if state != canonical:
+            raise HyperKanbanError("packet must derive from unchanged canonical state")
+        _atomic_write(_packet_path(state_path), build_packet(canonical))
 
 
 def save_state_and_packet(path: Path, state: dict[str, Any]) -> None:
-    save_state(path, state)
-    save_packet(path, state)
+    with _state_lock(path):
+        _commit(path, state)
+        try:
+            _atomic_write(_packet_path(path), build_packet(state))
+        except OSError as exc:
+            raise HyperKanbanError("state saved; packet refresh failed. Run workshop hk --state PATH repair-packet.") from exc
 
 
 def validate_state(state: dict[str, Any]) -> None:
-    required = {"schema_version", "project", "rank", "axes", "cards"}
-    missing = sorted(required - set(state))
-    if missing:
-        raise HyperKanbanError(f"state missing keys: {', '.join(missing)}")
-    axes = state.get("axes")
-    cards = state.get("cards")
-    if not isinstance(axes, list) or not axes:
-        raise HyperKanbanError("axes must be a non-empty list")
-    if not isinstance(cards, list):
-        raise HyperKanbanError("cards must be a list")
-    axis_keys = [axis.get("key") for axis in axes if isinstance(axis, dict)]
-    if len(axis_keys) != len(axes) or any(not isinstance(key, str) or not key for key in axis_keys):
-        raise HyperKanbanError("every axis needs a non-empty string key")
-    if len(axis_keys) != len(set(axis_keys)):
-        raise HyperKanbanError("axis keys must be unique")
-    rank = state.get("rank")
-    if not isinstance(rank, int) or rank < 1 or rank > len(axis_keys):
-        raise HyperKanbanError("rank must be a positive integer no larger than axis count")
-    card_ids: set[str] = set()
-    for card in cards:
-        if not isinstance(card, dict):
-            raise HyperKanbanError("each card must be an object")
-        card_id = card.get("id")
-        if not isinstance(card_id, str) or not card_id:
-            raise HyperKanbanError("each card needs a non-empty string id")
-        if card_id in card_ids:
-            raise HyperKanbanError(f"duplicate card id: {card_id}")
-        card_ids.add(card_id)
-        if not isinstance(card.get("byte"), int) or not 0 <= card["byte"] <= 255:
-            raise HyperKanbanError(f"card {card_id} byte must be an integer from 0 to 255")
-        if not isinstance(card.get("deps"), list):
-            raise HyperKanbanError(f"card {card_id} deps must be a list")
-        coords = card.get("coords")
-        if not isinstance(coords, dict):
-            raise HyperKanbanError(f"card {card_id} coords must be an object")
-        if set(coords) != set(axis_keys):
-            raise HyperKanbanError(f"card {card_id} coords must match registered axes")
-        for field in ("evidence_paths", "open_exceptions", "validation_commands", "generated_reports", "changed_docs"):
-            if field in card and not isinstance(card[field], list):
-                raise HyperKanbanError(f"card {card_id} {field} must be a list")
-        for field in ("test_contract", "doc_contract"):
-            if field in card and not isinstance(card[field], dict):
-                raise HyperKanbanError(f"card {card_id} {field} must be an object")
-    for card in cards:
-        card_id = card["id"]
-        for dep in card["deps"]:
-            if dep not in card_ids:
-                raise HyperKanbanError(f"card {card_id} depends on missing card {dep}")
-        if is_done(card):
-            validate_completion_evidence(card)
+    validate_data(state)
 
 
 def validate_completion_evidence(card: dict[str, Any]) -> None:
@@ -166,7 +208,7 @@ def find_card(state: dict[str, Any], card_id: str) -> dict[str, Any]:
 def dependency_done(state: dict[str, Any], card: dict[str, Any]) -> bool:
     by_id = {item["id"]: item for item in state["cards"]}
     for dep in card.get("deps", []):
-        if not (by_id[dep]["byte"] & DONE):
+        if not is_done(by_id[dep]):
             return False
     return True
 
@@ -195,24 +237,41 @@ def next_card(state: dict[str, Any]) -> dict[str, Any] | None:
     )[0]
 
 
-def complete_card(state: dict[str, Any], card_id: str, evidence: list[str] | None = None, exception: str | None = None) -> dict[str, Any]:
-    card = find_card(state, card_id)
+def complete_card(state: dict[str, Any], card_id: str, evidence: list[str] | None = None,
+                  exception: str | None = None, *, evidence_root: Path | None = None) -> dict[str, Any]:
+    """Record completion evidence; this projection never grants authorization.
+
+    Exceptions remain legacy, unverified annotations. File existence and a hash
+    identify an artifact, not proof that it contains passing results.
+    """
+    card = copy.deepcopy(find_card(state, card_id))
     if is_blocked(state, card):
         raise HyperKanbanError(f"card {card_id} is blocked and cannot be completed")
     if evidence:
         paths = card.setdefault("evidence_paths", [])
-        for item in evidence:
-            if item not in paths:
-                paths.append(item)
+        paths.extend(item for item in evidence if item not in paths)
+    root = (evidence_root or Path.cwd()).resolve()
+    for item in card.get("evidence_paths", []):
+        if not isinstance(item, str) or Path(item).is_absolute() or ".." in Path(item).parts:
+            raise HyperKanbanError("evidence must name contained relative artifact files")
+        path = (root / item).resolve()
+        if not path.is_relative_to(root) or not path.is_file():
+            raise HyperKanbanError("evidence file is missing or escapes the evidence root")
+        card.setdefault("evidence_sha256", {})[item] = hashlib.sha256(path.read_bytes()).hexdigest()
     if exception:
+        if not exception.strip():
+            raise HyperKanbanError("exception annotation cannot be empty")
         exceptions = card.setdefault("open_exceptions", [])
         if exception not in exceptions:
             exceptions.append(exception)
     if completion_requires_evidence(card) and not completion_has_evidence_or_exception(card):
         raise HyperKanbanError(f"card {card_id} requires evidence or review-card exception before completion")
     card["byte"] = (card["byte"] | DONE) & ~(READY | ACTIVE | BLOCKED)
-    card.setdefault("coords", {})["state"] = "done"
-    validate_state(state)
+    card["coords"]["state"] = "done"
+    candidate = dict(state)
+    candidate["cards"] = [card if item["id"] == card_id else item for item in state["cards"]]
+    validate_state(candidate)
+    state["cards"] = candidate["cards"]
     return card
 
 

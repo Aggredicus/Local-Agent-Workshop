@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-echo "Full tests placeholder"
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+exec bash "$root/scripts/verify.sh"

@@ -112,7 +112,7 @@ def parse_env_file(path: Path, root: Path) -> tuple[list[EnvEntry], list[Finding
         key = key.strip()
         value = value.strip().strip("'").strip('"')
         if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", key):
-            findings.append(Finding("medium", f"Invalid env key syntax `{key}`.", rel, line_no, "syntax", "Use shell-compatible env key names."))
+            findings.append(Finding("medium", "Invalid env key syntax (input omitted for redaction).", rel, line_no, "syntax", "Use shell-compatible env key names."))
             continue
         if key in seen:
             findings.append(Finding("medium", f"Duplicate env key `{key}` found.", rel, line_no, "drift", "Keep only one value per key."))

@@ -6,8 +6,8 @@ from pathlib import Path
 import shutil
 import sys
 
-from workshop.hyperkanban.state import HyperKanbanError, load_state
-from workshop.skills import discover_skills, validate_skills
+from workshop.hyperkanban.state import HyperKanbanError, validate_state_file
+from workshop.skills import cache_is_current, discover_skills, validate_skills
 
 
 @dataclass(frozen=True)
@@ -48,9 +48,8 @@ def run_doctor(repo_root: Path) -> list[Check]:
         checks.append(Check("PASS", "skills", message))
 
     discoverable = repo_root / ".agents" / "skills"
-    synced = discover_skills(discoverable)
-    if skills and len(synced) == len(skills):
-        checks.append(Check("PASS", "skill-discovery", f"{len(synced)} skills available under .agents/skills"))
+    if skills and cache_is_current(skills_root, discoverable):
+        checks.append(Check("PASS", "skill-discovery", f"{len(skills)} skills available under .agents/skills"))
     else:
         checks.append(
             Check(
@@ -62,7 +61,7 @@ def run_doctor(repo_root: Path) -> list[Check]:
 
     state_path = repo_root / "orchestration" / "hyperkanban" / "state.json"
     try:
-        load_state(state_path)
+        validate_state_file(state_path)
     except HyperKanbanError as exc:
         checks.append(Check("FAIL", "hyperkanban", str(exc)))
     else:

@@ -107,3 +107,12 @@ def test_explicit_paths_outside_root_do_not_crash_or_leak_values(tmp_path: Path)
     assert report["input_summary"]["verdict"] == "review"
     assert any(finding["category"] == "drift" for finding in report["findings"])
     assert "outside-local-value" not in result.stdout
+
+
+def test_malformed_keys_never_echo_credential_material(tmp_path: Path) -> None:
+    marker = 'SYNTHETIC-SECRET-CANARY'
+    (tmp_path / '.env').write_text(f'https://user:{marker}@example.invalid/key=value\n', encoding='utf-8')
+    result = subprocess.run([sys.executable, str(SCRIPT), str(tmp_path), '--json', '--strict'], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert marker not in result.stdout + result.stderr
+    assert json.loads(result.stdout)['findings'][0]['category'] == 'syntax'

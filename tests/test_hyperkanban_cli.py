@@ -1,9 +1,5 @@
 import json
-import sys
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
 from workshop.cli import main
 from workshop.hyperkanban.state import build_packet
@@ -90,3 +86,13 @@ def test_hk_complete_allows_review_exception(tmp_path, capsys):
     assert "Completed HK-001" in captured.out
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert "review-card:RC-001" in state["cards"][0]["open_exceptions"]
+
+
+def test_hk_repair_packet_recovers_projection_without_changing_state(tmp_path, capsys):
+    state_path = write_mutable_state(tmp_path)
+    original = state_path.read_bytes()
+    (tmp_path / 'packet.txt').write_text('interrupted old projection')
+    assert main(['hk', '--state', str(state_path), 'validate']) == 1
+    assert main(['hk', '--state', str(state_path), 'repair-packet']) == 0
+    assert main(['hk', '--state', str(state_path), 'validate']) == 0
+    assert state_path.read_bytes() == original

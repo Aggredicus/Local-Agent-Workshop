@@ -17,6 +17,8 @@ from workshop.hyperkanban.state import (
     load_state,
     next_card,
     save_state_and_packet,
+    save_packet,
+    validate_state_file,
 )
 from workshop.skills import discover_skills, select_skills, sync_skills, validate_skills
 
@@ -52,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     hk_subparsers = hk.add_subparsers(dest="hk_command")
 
     hk_subparsers.add_parser("validate", help="Validate HyperKanban state")
+    hk_subparsers.add_parser("repair-packet", help="Regenerate the derived packet from validated canonical state")
     hk_subparsers.add_parser("packet", help="Print compact HyperKanban packet")
     hk_subparsers.add_parser("next", help="Print the next unblocked unfinished card")
     hk_subparsers.add_parser("list", help="List HyperKanban cards")
@@ -65,11 +68,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--evidence",
         action="append",
         default=[],
-        help="Evidence path proving completion; may be supplied multiple times",
+        help="Existing artifact path relative to the current directory; recorded with SHA-256, not proof of passing results",
     )
     complete.add_argument(
         "--exception",
-        help="Review-card exception allowing completion when required evidence is absent",
+        help="Legacy unverified exception annotation; does not establish human approval",
     )
 
     return parser
@@ -143,7 +146,13 @@ def handle_hk(args: argparse.Namespace) -> int:
     state = load_state(args.state)
 
     if args.hk_command == "validate":
+        validate_state_file(args.state)
         print(f"HyperKanban validation passed: {args.state}")
+        return 0
+
+    if args.hk_command == "repair-packet":
+        save_packet(args.state, state)
+        print("Derived HyperKanban packet regenerated; canonical state unchanged.")
         return 0
 
     if args.hk_command == "packet":
@@ -170,6 +179,8 @@ def handle_hk(args: argparse.Namespace) -> int:
     if args.hk_command == "complete":
         completed = complete_card(state, args.card_id, evidence=args.evidence, exception=args.exception)
         save_state_and_packet(args.state, state)
+        if args.exception:
+            print("Warning: exception recorded as unverified metadata; it does not establish human approval.", file=sys.stderr)
         print(f"Completed {completed['id']} with byte=0x{completed['byte']:02X}")
         return 0
 
@@ -189,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "hk":
         try:
             return handle_hk(args)
-        except HyperKanbanError as exc:
+        except (HyperKanbanError, OSError) as exc:
             print(f"workshop hk failed: {exc}", file=sys.stderr)
             return 1
 

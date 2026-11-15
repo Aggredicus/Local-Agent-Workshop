@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import time
@@ -74,14 +75,41 @@ def is_probably_text(path: Path) -> bool:
     return False
 
 
+def inventory_files(root: Path) -> tuple[list[Path], list[dict[str, str]]]:
+    files: list[Path] = []
+    unreviewed: list[dict[str, str]] = []
+    def unreadable(error: OSError) -> None:
+        path = Path(error.filename) if error.filename else root
+        unreviewed.append({"path": str(path.relative_to(root)), "reason": "unreadable directory"})
+    for folder, dirs, names in os.walk(root, followlinks=False, onerror=unreadable):
+        for name in sorted(dirs.copy()):
+            path = Path(folder) / name
+            if path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()):
+                dirs.remove(name)
+                unreviewed.append({"path": str(path.relative_to(root)), "reason": "symlink not followed"})
+        for name in sorted(names):
+            path = Path(folder) / name
+            reason = ""
+            try:
+                if path.is_symlink():
+                    reason = "symlink not followed"
+                elif not path.is_file():
+                    reason = "special file"
+                elif path.stat().st_size > MAX_FILE_BYTES:
+                    reason = "size limit"
+                elif not is_probably_text(path):
+                    reason = "unsupported file type"
+            except OSError:
+                reason = "unreadable file"
+            if reason:
+                unreviewed.append({"path": str(path.relative_to(root)), "reason": reason})
+            else:
+                files.append(path)
+    return sorted(files), sorted(unreviewed, key=lambda item: item["path"])
+
+
 def iter_candidate_files(root: Path) -> Iterable[Path]:
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        if path.stat().st_size > MAX_FILE_BYTES:
-            continue
-        if is_probably_text(path):
-            yield path
+    return iter(inventory_files(root)[0])
 
 
 def read_text(path: Path) -> str:
@@ -119,7 +147,7 @@ def scan_file(path: Path, root: Path) -> list[Finding]:
 
 
 def build_report(root: Path, run_id: str, mode: str, command: list[str]) -> dict:
-    files = list(iter_candidate_files(root))
+    files, unreviewed = inventory_files(root)
     findings: list[Finding] = []
 
     if not (root / "SKILL.md").exists():
@@ -135,7 +163,12 @@ def build_report(root: Path, run_id: str, mode: str, command: list[str]) -> dict
         )
 
     for path in files:
-        findings.extend(scan_file(path, root))
+        try:
+            findings.extend(scan_file(path, root))
+        except OSError:
+            unreviewed.append({"path": str(path.relative_to(root)), "reason": "unreadable file"})
+    if unreviewed:
+        findings.append(Finding("medium", "Review coverage is incomplete; inspect the unreviewed file inventory.", ".", category="coverage"))
 
     verdict = "pass"
     if any(f.severity == "critical" for f in findings):
@@ -149,7 +182,8 @@ def build_report(root: Path, run_id: str, mode: str, command: list[str]) -> dict
         "mode": mode,
         "input_summary": {
             "target_path": str(root),
-            "files_scanned": len(files),
+            "files_scanned": len(files) - sum(1 for item in unreviewed if item["reason"] == "unreadable file"),
+            "coverage_complete": not unreviewed,
             "scanner": "local-read-only",
             "verdict": verdict,
         },
@@ -165,6 +199,7 @@ def build_report(root: Path, run_id: str, mode: str, command: list[str]) -> dict
         ],
         "evidence": {
             "commands_run": [" ".join(command)],
+            "unreviewed_files": unreviewed,
             "skipped_checks": [
                 "No live network lookups were performed.",
                 "No external repository cloning was performed.",
@@ -180,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", dest="json_output", help="Emit JSON to stdout.")
     parser.add_argument("--out", help="Optional output path for JSON report.")
     parser.add_argument("--run-id", default=None, help="Run identifier. Defaults to a timestamp.")
-    parser.add_argument("--strict", action="store_true", help="Return non-zero when high or critical findings exist.")
+    parser.add_argument("--strict", action="store_true", help="Return non-zero for findings requiring review or incomplete coverage.")
     args = parser.parse_args(argv)
 
     root = Path(args.path).resolve()
@@ -200,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json_output or not args.out:
         print(payload)
 
-    has_blocking = any(f["severity"] in {"critical", "high"} for f in report["findings"])
+    has_blocking = report["input_summary"]["verdict"] != "pass"
     if args.strict and has_blocking:
         return 1
     return 0

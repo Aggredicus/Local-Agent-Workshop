@@ -21,6 +21,7 @@ import json
 import re
 import sys
 import time
+import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -75,6 +76,8 @@ def scan_package_json(path: Path, root: Path) -> tuple[list[Dependency], list[Fi
     except json.JSONDecodeError as exc:
         return [], [Finding("high", f"package.json could not be parsed: {exc}", rel, exc.lineno, "manifest", "Fix JSON syntax.")]
 
+    if not isinstance(data, dict):
+        return [], [Finding("high", "package.json root must be an object.", rel, category="manifest")]
     if not data.get("license"):
         findings.append(Finding("medium", "package.json is missing license metadata.", rel, None, "license", "Add a license field or document why it is omitted."))
 
@@ -99,7 +102,7 @@ def scan_requirements(path: Path, root: Path) -> tuple[list[Dependency], list[Fi
         if not line or line.startswith("#"):
             continue
         if line.startswith(("-r ", "--requirement")):
-            findings.append(Finding("info", "Nested requirements file reference found.", rel, line_no, "manifest", "Confirm nested requirement files are included in review."))
+            findings.append(Finding("medium", "Nested requirements file reference is not resolved by this inventory.", rel, line_no, "manifest", "Confirm nested requirement files are included in review."))
             continue
         if line.startswith(("-e ", "git+", "http://", "https://")):
             findings.append(Finding("high", "Non-index or direct source dependency reference found.", rel, line_no, "source", "Review direct source dependencies manually."))
@@ -109,24 +112,68 @@ def scan_requirements(path: Path, root: Path) -> tuple[list[Dependency], list[Fi
             version = (match.group(2) or "").replace(" ", "") or "unpinned"
             deps.append(Dependency(name, version, "python", rel, "requirements"))
             findings.extend(check_version(name, version, rel, "requirements", line_no))
+        else:
+            findings.append(Finding("medium", "Unparsed requirements line requires manual review (input omitted).", rel, line_no, "coverage"))
     return deps, findings
+
+
+def _python_dependency(value: object, rel: str, group: str) -> tuple[list[Dependency], list[Finding]]:
+    if not isinstance(value, str):
+        return [], [Finding("medium", "Unsupported dependency declaration; manual review required.", rel, category="coverage")]
+    match = re.fullmatch(r"([A-Za-z0-9][A-Za-z0-9_.-]*)(?:\[[A-Za-z0-9_, .-]+\])?\s*(.*)", value)
+    if not match:
+        return [], [Finding("medium", "Unparsed dependency declaration; manual review required.", rel, category="coverage")]
+    name, spec = match.groups()
+    if spec.startswith("@"):
+        return [Dependency(name, "<direct-source-redacted>", "python", rel, group)], [
+            Finding("high", "Direct source dependency requires manual provenance review.", rel, category="source")]
+    version = spec.split(";", 1)[0].strip() or "unpinned"
+    if version.startswith('(') and version.endswith(')'):
+        version = version[1:-1].strip()
+    if version != "unpinned" and not re.fullmatch(r"[<>=!~0-9A-Za-z.*+, _-]+", version):
+        return [], [Finding("medium", "Unparsed dependency constraint; manual review required.", rel, category="coverage")]
+    return [Dependency(name, version, "python", rel, group)], check_version(name, version, rel, group)
 
 
 def scan_pyproject(path: Path, root: Path) -> tuple[list[Dependency], list[Finding]]:
     rel = str(path.relative_to(root))
-    text = path.read_text(encoding="utf-8", errors="replace")
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (tomllib.TOMLDecodeError, UnicodeError, OSError):
+        return [], [Finding("high", "pyproject.toml could not be parsed (input omitted).", rel, category="manifest")]
     deps: list[Dependency] = []
     findings: list[Finding] = []
-    if re.search(r"^license\s*=", text, flags=re.MULTILINE) is None:
-        findings.append(Finding("medium", "pyproject.toml has no top-level license field detected.", rel, None, "license", "Document project license metadata if applicable."))
-    for line_no, raw in enumerate(text.splitlines(), start=1):
-        line = raw.strip().strip(",")
-        dep_match = re.match(r'"([A-Za-z0-9_.-]+)([^"/]*)"', line)
-        if dep_match and any(token in line for token in (">=", "==", "~=")):
-            name = dep_match.group(1)
-            version = dep_match.group(2).strip() or "declared"
-            deps.append(Dependency(name, version, "python", rel, "pyproject"))
-            findings.extend(check_version(name, version, rel, "pyproject", line_no))
+    tool = data.get("tool", {})
+    if not isinstance(tool, dict):
+        return [], [Finding("high", "tool must be a table.", rel, category="manifest")]
+    project = data.get("project", {})
+    build = data.get("build-system", {})
+    if not isinstance(project, dict) or not isinstance(build, dict):
+        return [], [Finding("high", "Invalid project or build-system table.", rel, category="manifest")]
+    if not project.get("license"):
+        findings.append(Finding("medium", "pyproject.toml has no project license metadata.", rel, category="license"))
+    groups = {"dependencies": project.get("dependencies", []), "build-system": build.get("requires", [])}
+    optional = project.get("optional-dependencies", {})
+    if isinstance(optional, dict):
+        groups.update({f"optional:{name}": values for name, values in optional.items()})
+    else:
+        findings.append(Finding("high", "optional-dependencies must be a table.", rel, category="manifest"))
+    dynamic = project.get("dynamic", [])
+    if not isinstance(dynamic, list) or any(not isinstance(item, str) for item in dynamic):
+        findings.append(Finding("high", "project.dynamic must be an array of field names.", rel, category="manifest"))
+        dynamic = []
+    if "dependencies" in dynamic or "optional-dependencies" in dynamic:
+        findings.append(Finding("medium", "Dynamic dependencies are not resolved by this manifest inventory.", rel, category="coverage"))
+    if data.get("dependency-groups") or tool.get("poetry"):
+        findings.append(Finding("medium", "Additional dependency format requires ecosystem-specific review.", rel, category="coverage"))
+    for group, values in groups.items():
+        if not isinstance(values, list):
+            findings.append(Finding("high", "Dependency group must be an array.", rel, category="manifest"))
+            continue
+        for value in values:
+            parsed, issues = _python_dependency(value, rel, group)
+            deps.extend(parsed)
+            findings.extend(issues)
     return deps, findings
 
 

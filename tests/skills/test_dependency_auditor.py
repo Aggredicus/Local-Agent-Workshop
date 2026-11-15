@@ -44,3 +44,34 @@ def test_review_project_flags_broad_versions_and_missing_license() -> None:
     assert "version" in categories
     assert "source" in categories
     assert any(finding["severity"] == "high" for finding in report["findings"])
+
+
+def test_inline_toml_and_optional_build_dependencies_are_counted(tmp_path: Path):
+    (tmp_path / 'pyproject.toml').write_text('''[project]
+name="example"
+license="MIT"
+dependencies=["requests", "httpx>=0.27"]
+[project.optional-dependencies]
+dev=["pytest==8.3"]
+[build-system]
+requires=["setuptools>=68"]
+''')
+    result = subprocess.run([sys.executable, str(SCRIPT), str(tmp_path), '--json', '--strict'], capture_output=True, text=True)
+    report = json.loads(result.stdout)
+    assert result.returncode == 1  # unpinned requests requires review
+    assert {d['name'] for d in report['evidence']['dependencies']} == {'requests', 'httpx', 'pytest', 'setuptools'}
+
+
+def test_malformed_toml_is_not_an_empty_passing_audit(tmp_path: Path):
+    (tmp_path / 'pyproject.toml').write_text('[project\ndependencies=["requests"]')
+    result = subprocess.run([sys.executable, str(SCRIPT), str(tmp_path), '--json', '--strict'], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert json.loads(result.stdout)['input_summary']['verdict'] == 'fail'
+
+
+def test_invalid_toml_container_types_return_report_instead_of_traceback(tmp_path: Path):
+    (tmp_path / 'pyproject.toml').write_text('tool=[]\n[project]\nname="example"\nlicense="MIT"\ndynamic=3\n')
+    result = subprocess.run([sys.executable, str(SCRIPT), str(tmp_path), '--json', '--strict'], capture_output=True, text=True)
+    assert result.returncode == 1
+    assert json.loads(result.stdout)['input_summary']['verdict'] == 'fail'
+    assert 'Traceback' not in result.stderr

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Running local CI placeholder"
-bash scripts/verify.sh
+root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
+exec bash "$root/scripts/verify.sh"

@@ -108,3 +108,7 @@ Start with `me.md`. Tool-specific instruction files such as `AGENTS.md`, `CLAUDE
 ## Status
 
 The August 2026 revival work has restored a trustworthy cold start and is now connecting the repository's agent-operability pieces into one usable surface: native project skill discovery, deterministic skill selection, repository health checks, explicit Python packaging, multi-version CI, and existing HyperKanban operations. Larger orchestration/dashboard/runtime work remains separate from this recovery layer.
+
+For the rebuilt CLI's acceptance checks, generated-cache migration, state recovery,
+and explicit limits of security/release checks, see
+[Baseline QA and recovery](docs/operations/BASELINE_QA.md).
