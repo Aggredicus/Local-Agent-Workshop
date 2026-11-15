@@ -1,0 +1,30 @@
+{
+  "original_remote_branches": 56,
+  "obsolete_merged_branches_removed": 42,
+  "temporary_overnight_branch_removed": true,
+  "remaining_remote_branches": 14,
+  "retained_unique_work_branches": 11,
+  "protected_long_lived_branches": [
+    "main",
+    "develop",
+    "experimental"
+  ],
+  "restorable_task_head": "c61153454d53f2d53f17fbfe649f5810b0cd08e8",
+  "saved_original_heads": "branches-before.json",
+  "all_remaining_heads": {
+    "agent/0001-normalize-repo-structure": "b3c749be60172d9686893caff63f33b15b8949b3",
+    "agent/0003-pre-ci-repo-status-cleanup": "6a9ef8aa73efd42a68693aa7064f499a5ca19a70",
+    "agent/0042-quality-handoff-clarification": "805f89acee313d9add957ff905a4f3af185da161",
+    "agent/0048-inbox-foundation": "1f4ec059e5398f6882309c5d361b7e01b557c0aa",
+    "agent/0137-dashboard-schemas": "7b3de4e46ebaf27a516e79edc31f812b4e00d5e0",
+    "agent/caw-law-runtime-split-v01": "d0c52d5bca570beb81f9039a878a475487012114",
+    "agent/debian-server-deployment": "84351a308a9b019e8f3ee29bd9f3115ff28695a3",
+    "agent/dependency-auditor-skill": "672f7b1b9a9479b709900649456de60ff0c67a02",
+    "agent/powerful-tier-skills-scaffold": "40b8620de80eac7143449889b2be2bdc2b18770c",
+    "agent/recursive-user-qa": "95b6aacd3287100c4e095112b2e0ec6eb65e50be",
+    "agent/rust-swarm-original-v0": "138700f11185a8aff3cabc77f1fd1f105bd2506f",
+    "develop": "429753320520bb96907a3b6a887f333c9648c5ec",
+    "experimental": "0a730eb713dd6c4b5802c3d7214d7c862132b22b",
+    "main": "c61153454d53f2d53f17fbfe649f5810b0cd08e8"
+  }
+}

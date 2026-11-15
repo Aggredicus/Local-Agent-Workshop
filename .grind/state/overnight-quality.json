@@ -1,16 +1,16 @@
 {
   "run_id": "overnight-quality-2026-11-15",
-  "branch": "agent/overnight-quality",
+  "branch": "main",
   "worktree": "/workspace/Local-Agent-Workshop",
   "baseline_commit": "87872c602bc5c662be2760cc384a7f844f459d11",
-  "status": "running",
-  "current_task": "Security/resilience fixes and native Windows encrypted capsule round trip",
-  "verification": "Pass 1 CI 43713648712 passed on Python 3.11-3.14; 174 current local tests pass; native C# framework reference fix passed in CI 43714792930",
+  "status": "completed",
+  "current_task": "Completed authorized overnight refinement and final USB delivery",
+  "verification": "206 tests and Python 3.11-3.14 source CI 43746969700 pass; native Windows staging/ACL/crypto and offline Debian build 43746969701 pass; public final ZIP fully checked",
   "review_card": "reviews/pending/overnight-quality.md",
   "evidence_directory": "reports/overnight-quality",
   "pending_decisions": [],
-  "next_safe_action": "Commit the read guards and graph fixes; finish Windows synthetic crypto test; verify all gates before authorized main integration",
-  "resume_command": "git switch agent/overnight-quality; cat .grind/state/overnight-quality.json; PATH=\"$PWD/.venv/bin:$PATH\" bash scripts/verify.sh",
+  "next_safe_action": "Follow setup/usb/README.md on Windows; power on Debian for pairing and physical adapter/boot tests",
+  "resume_command": "git switch main && cat reports/overnight-quality/MORNING-REPORT.md",
   "files_changed": [
     "src/workshop/skills.py",
     "src/workshop/hyperkanban/state.py",
@@ -20,5 +20,9 @@
     "tests/test_skill_read_safety.py",
     "tests/test_state_resilience.py",
     "tests/usb/windows-crypto.ps1"
-  ]
+  ],
+  "source_code_commit": "c61153454d53f2d53f17fbfe649f5810b0cd08e8",
+  "morning_report": "reports/overnight-quality/MORNING-REPORT.md",
+  "delivery_report": "reports/publish/usb-final-download-2026-11-15.json",
+  "remote_branches_remaining": 14
 }

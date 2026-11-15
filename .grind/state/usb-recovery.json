@@ -2,13 +2,12 @@
   "run_id": "usb-recovery",
   "branch": "main",
   "status": "published-operator-test-candidate",
-  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-849445738b19/LAW-USB-Tools.zip",
-  "evidence": "reports/publish/usb-overnight-download-2026-11-15.json",
+  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-c61153454d53/LAW-USB-Tools.zip",
+  "evidence": "reports/publish/usb-final-download-2026-11-15.json",
   "next_safe_action": "Extract and run LAW/START-USB.cmd on Windows; power on Debian for pairing and adapter checks; keep credentials out of chat",
   "limitations": [
-    "no ISO included",
-    "Native Windows startup, C# compilation and synthetic encryption tested; WLAN and ACL qualification outstanding",
-    "physical Wi-Fi/boot untested",
-    "independent final re-review incomplete due usage limit"
+    "No installer ISO included",
+    "Controlled Windows staging/ACL and synthetic encryption tests pass; real-machine policy and WLAN need testing",
+    "Physical boot, firmware and real network rollback untested"
   ]
 }

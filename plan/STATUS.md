@@ -2,7 +2,7 @@
 
 Use **main** for the accepted code and normal downloads. Work happens on one short-lived task branch and returns to main after its authorized checks. `develop` is retained historical state; `experimental` is the sandbox.
 
-- **USB download:** [LAW-USB-Tools.zip](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-849445738b19/LAW-USB-Tools.zip). Extract, open `LAW`, double-click `START-USB.cmd`, approve startup. Works relative to its folder without manual policy commands. [Guide](../setup/usb/README.md) · [verified delivery](../reports/publish/usb-overnight-download-2026-11-15.json).
+- **USB download:** [LAW-USB-Tools.zip](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-c61153454d53/LAW-USB-Tools.zip). Extract, open `LAW`, double-click `START-USB.cmd`, approve startup. Works relative to its folder without manual policy commands. [Guide](../setup/usb/README.md) · [verified delivery](../reports/publish/usb-final-download-2026-11-15.json).
 - **Accepted tools:** Python 3.11+ CLI, canonical skills and generated client cache, deterministic skill selection, shared HyperKanban validation, recoverable state updates, explicit offline package verification and encrypted Wi-Fi transfer.
 - **Verified:** source tests/CI, native Windows PowerShell 5.1 launcher, signed Debian 12/13 package closure and network-disabled install/repetition. These are distinct test scopes.
 - **Still physical:** USB/Secure Boot, adapter firmware, Windows WLAN/ACLs, Debian networking and timed rollback on the real machines. No installer ISO is included.

@@ -1,0 +1,12 @@
+{
+  "event_id": "event-overnight-quality-completed",
+  "event_type": "work.completed",
+  "summary": "Completed three quality/security/efficiency passes, published tested main and final USB asset, reduced remote branches from 56 to 14 while preserving unique work, and prepared a compact morning handoff.",
+  "source_code_commit": "c61153454d53f2d53f17fbfe649f5810b0cd08e8",
+  "source_ci_run": "43746969700",
+  "usb_build_run": "43746969701",
+  "tests_passed": 206,
+  "evidence_path": "reports/overnight-quality/MORNING-REPORT.md",
+  "physical_devices_modified": false,
+  "live_credentials_used": false
+}

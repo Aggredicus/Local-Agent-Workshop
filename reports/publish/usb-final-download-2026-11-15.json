@@ -1,0 +1,24 @@
+{
+  "source_commit": "c61153454d53f2d53f17fbfe649f5810b0cd08e8",
+  "tag": "usb-recovery-c61153454d53",
+  "download_url": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-c61153454d53/LAW-USB-Tools.zip",
+  "sha256": "dd1b93c1897662d5f460365632edb1cef2d84b8c663d2d3fc541fd708c8a0cf3",
+  "bytes": 89508939,
+  "github_source_ci_run": "43746969700",
+  "github_build_publish_run": "43746969701",
+  "python_tests": 206,
+  "python_matrix": [
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14"
+  ],
+  "native_windows_51_startup_staging_private_acl_preservation_compilation_synthetic_crypto": "passed",
+  "debian_12_13_offline_install_and_repeat": "passed",
+  "public_download_sha256_and_crc_verified": true,
+  "manifest_files_verified": 223,
+  "packaged_source_files_exactly_match_commit": 30,
+  "pinned_age_executable_verified": true,
+  "physical_boot_wifi_firmware_machine_policy_and_network_rollback": "not yet qualified",
+  "release_class": "operator test candidate"
+}

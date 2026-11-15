@@ -39,3 +39,12 @@ Outcome: log-only update
 Observation: 42 remote work refs were already ancestors of main; exact saved heads and atomic conditional deletion preserved all unique/long-lived refs and open PR work.
 Decision: No skill behavior change. GitHub API issue creation remains blocked; local follow-up draft is in the run report.
 Links: reports/overnight-quality/PASS-1.md; reports/overnight-quality/branches-before.json; reports/overnight-quality/branches-after.json
+
+## 2026-11-15 — overnight closeout snapshot
+
+Skill used: /repo-cleanup
+Used for: completed main handoff
+Outcome: log-only update
+Observation: Cleanup still reparsed invalid state after shared validation; three regressions reproduced crashes. It now consumes the validated snapshot, and completed task refs were removed only after integration.
+Decision: Script correctness improved; no cleanup approval boundary changed. Existing local improvement draft records the API-blocked follow-up.
+Links: reports/overnight-quality/PASS-3.md; reports/overnight-quality/MORNING-REPORT.md

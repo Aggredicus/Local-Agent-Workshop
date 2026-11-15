@@ -1,0 +1,9 @@
+{
+  "source_commit": "c61153454d53f2d53f17fbfe649f5810b0cd08e8",
+  "tests_passed": 206,
+  "normal_characters": 2997,
+  "quiet_characters": 544,
+  "reduction_percent": 81.8,
+  "same_failure_semantics": "validated by failure injection in both modes",
+  "measurement": "characters, not tokenizer tokens"
+}
