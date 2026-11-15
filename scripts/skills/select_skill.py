@@ -18,31 +18,11 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from list_available_skills import discover_skills, direct_skill_lookup, validate_registry  # noqa: E402
+from list_available_skills import MANDATORY_SKILL_RULES, discover_skills, direct_skill_lookup, validate_registry  # noqa: E402
 
 
-MANDATORY_RULES = [
-    {
-        "skill": "/merge-review",
-        "terms": ("merge", "merging", "pull request", "pr review", "approve", "approval", "stacked pr", "retarget"),
-        "reason": "Merge or PR-review tasks must consider /merge-review.",
-    },
-    {
-        "skill": "/skill-security-auditor",
-        "terms": ("external skill", "skill import", "importing skills", "activate skill", "untrusted", "upstream skill", "script review"),
-        "reason": "External skill import or activation must consider /skill-security-auditor.",
-    },
-    {
-        "skill": "/dependency-auditor",
-        "terms": ("dependency", "dependencies", "package.json", "requirements.txt", "license", "version pinning"),
-        "reason": "Dependency review tasks should consider /dependency-auditor.",
-    },
-    {
-        "skill": "/env-secrets-manager",
-        "terms": (".env", "env file", "environment config", "secret", "secrets", "credential", "redaction"),
-        "reason": "Env/config review tasks should consider /env-secrets-manager.",
-    },
-]
+MANDATORY_RULES = [{'skill': '/' + name, 'terms': terms, 'reason': reason}
+                   for name, terms, reason in MANDATORY_SKILL_RULES]
 
 
 def normalize(text: str) -> str:
@@ -163,7 +143,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
-    report = select_skills(root, args.task, args.skill)
+    try:
+        report = select_skills(root, args.task, args.skill)
+    except (OSError, ValueError):
+        print(json.dumps({'error': 'Skill discovery failed; inspect library validation and permissions.', 'new_skill_needed': False}))
+        return 1
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0
 

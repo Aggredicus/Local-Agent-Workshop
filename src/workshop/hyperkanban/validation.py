@@ -74,23 +74,31 @@ def validate_dependencies(cards: dict[str, dict[str, Any]]) -> None:
             if dep not in cards:
                 raise ValueError(f"card {card_id} depends on missing card {dep}")
 
-    visiting: set[str] = set()
     visited: set[str] = set()
-
-    def visit(card_id: str, path: list[str]) -> None:
-        if card_id in visiting:
-            cycle = " -> ".join(path + [card_id])
-            raise ValueError(f"dependency cycle detected: {cycle}")
-        if card_id in visited:
-            return
-        visiting.add(card_id)
-        for dep in cards[card_id]["deps"]:
-            visit(dep, path + [card_id])
-        visiting.remove(card_id)
-        visited.add(card_id)
-
-    for card_id in cards:
-        visit(card_id, [])
+    # Iterative depth-first traversal handles long valid chains without recursion
+    # limits or copying the whole ancestry path for every edge.
+    for root in cards:
+        if root in visited:
+            continue
+        path = [root]
+        active = {root: 0}
+        stack = [iter(cards[root]['deps'])]
+        while stack:
+            dep = next(stack[-1], None)
+            if dep is None:
+                finished = path.pop()
+                visited.add(finished)
+                del active[finished]
+                stack.pop()
+            elif dep in active:
+                cycle = path[active[dep]:] + [dep]
+                preview = cycle if len(cycle) <= 8 else cycle[:4] + ['...'] + cycle[-4:]
+                shown = ' -> '.join(node[:40] for node in preview)
+                raise ValueError(f'dependency cycle detected: {shown}')
+            elif dep not in visited:
+                active[dep] = len(path)
+                path.append(dep)
+                stack.append(iter(cards[dep]['deps']))
 
 
 def validate_coords(cards: dict[str, dict[str, Any]], axes: dict[str, dict[str, Any]]) -> None:

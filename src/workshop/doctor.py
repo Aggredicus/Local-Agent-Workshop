@@ -7,7 +7,7 @@ import shutil
 import sys
 
 from workshop.hyperkanban.state import HyperKanbanError, validate_state_file
-from workshop.skills import cache_is_current, discover_skills, validate_skills
+from workshop.skills import cache_is_current, discover_skills
 
 
 @dataclass(frozen=True)
@@ -35,7 +35,7 @@ def run_doctor(repo_root: Path) -> list[Check]:
 
     skills_root = repo_root / "skills"
     skills = discover_skills(skills_root)
-    invalid = validate_skills(skills_root)
+    invalid = [skill for skill in skills if skill.errors]
     legacy = [skill for skill in skills if skill.legacy]
     if not skills:
         checks.append(Check("FAIL", "skills", "no canonical skills found under skills/*/SKILL.md"))

@@ -9,8 +9,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
+from workshop.skills import MANDATORY_SKILL_RULES, VALID_SKILL_NAME, _safe_tree, inspect_skill  # noqa: E402,F401
 
 GOVERNANCE_KEYWORDS = (
     "merge",
@@ -72,10 +76,13 @@ def first_use_line(body: str) -> str:
 def discover_skills(root: Path) -> list[dict[str, Any]]:
     skills_dir = root / "skills"
     results: list[dict[str, Any]] = []
+    _safe_tree(skills_dir)
     if not skills_dir.exists():
         return results
 
     for skill_file in sorted(skills_dir.glob("*/SKILL.md")):
+        if inspect_skill(skill_file).errors:
+            raise ValueError('Invalid or unreadable skill document')
         rel = skill_file.relative_to(root)
         text = skill_file.read_text(encoding="utf-8", errors="replace")
         metadata, body = strip_frontmatter(text)
@@ -104,6 +111,7 @@ def read_registry(root: Path) -> dict[str, Any] | None:
         path = root / rel
         if path.exists():
             try:
+                _safe_tree(path.parent)
                 return {"path": rel, "data": json.loads(path.read_text(encoding="utf-8"))}
             except json.JSONDecodeError as exc:
                 return {"path": rel, "error": str(exc), "data": None}
@@ -146,6 +154,8 @@ def validate_registry(root: Path, inventory: list[dict[str, Any]]) -> dict[str, 
 def direct_skill_lookup(root: Path, skill_name: str) -> dict[str, Any]:
     normalized = normalize_skill_name(skill_name)
     folder = normalized.lstrip("/")
+    if not VALID_SKILL_NAME.fullmatch(folder):
+        return {'requested': normalized, 'path': 'skills', 'exists': False, 'error': 'Invalid skill name'}
     path = root / "skills" / folder / "SKILL.md"
     return {"requested": normalized, "path": str(path.relative_to(root)), "exists": path.exists()}
 
@@ -159,7 +169,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     root = Path(args.root).resolve()
-    inventory = discover_skills(root)
+    try:
+        inventory = discover_skills(root)
+        registry_validation = validate_registry(root, inventory) if args.validate_registry else None
+    except (OSError, ValueError):
+        print(json.dumps({'error': 'Skill discovery failed; inspect library validation and permissions.', 'new_skill_needed': False}))
+        return 1
     payload: dict[str, Any] = {
         "root": str(root),
         "sources_checked": ["skills/*/SKILL.md"],
@@ -169,7 +184,7 @@ def main(argv: list[str] | None = None) -> int:
         payload["direct_lookup"] = direct_skill_lookup(root, args.skill)
         payload["sources_checked"].insert(0, payload["direct_lookup"]["path"])
     if args.validate_registry:
-        payload["registry_validation"] = validate_registry(root, inventory)
+        payload["registry_validation"] = registry_validation
         payload["sources_checked"].extend(
             ["skills/registry.json", "skills/INDEX.md", "docs/skills/SKILL_INDEX.md"]
         )

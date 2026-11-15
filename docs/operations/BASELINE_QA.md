@@ -54,6 +54,18 @@ The heuristic security scanner inventories unreviewed files, including Windows s
 
 ## Platform evidence
 
+Skill discovery rejects linked roots/documents, junctions and non-regular skill
+files before reading content; unreadable or invalid UTF-8 documents become
+validation findings. Legacy listing/selection helpers reuse the same tree guards
+and mandatory gate rules. Incomplete discovery is an error, not evidence that a
+new skill is needed. These are local filesystem checks, not a sandbox against
+another process with the same OS account changing the checkout during a read.
+
+Canonical state and derived packets must be regular unlinked files. Invalid
+packet encoding is reported as a repairable diagnostic; `hk repair-packet`
+regenerates the packet without changing canonical state. Dependency validation
+uses iterative traversal for long graphs and keeps cycle diagnostics bounded.
+
 The local verification report names exactly what ran. POSIX mode/permission fixtures and simulated reparse-point checks do not qualify native Windows filesystem behavior. Source CI runs Linux Python versions 3.11–3.14. The USB workflow additionally tests startup in Windows PowerShell 5.1 and Debian 12/13 offline installation/repetition in network-disabled containers. Windows WLAN/ACLs, VM firewall/reboot checks and physical Wi-Fi/boot remain separate deployment gates. See the [current USB delivery evidence](../../reports/publish/usb-launcher-download-2026-11-15.json).
 
 `workshop doctor --summary`, `bash scripts/verify.sh --quiet` and cleanup's `--quiet` mode reduce routine output while retaining warnings, failures and exit status. Full diagnostics and JSON reports remain available. Quiet output does not add checks to the explicitly unavailable security/release gates.

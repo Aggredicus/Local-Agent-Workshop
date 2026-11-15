@@ -36,12 +36,15 @@ try {
     & curl.exe --fail --silent --show-error --location --proto '=https' --tlsv1.2 --max-time 90 'https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-windows-amd64.zip' --output $archive
     if ($LASTEXITCODE -ne 0) { throw 'Pinned age test archive could not be downloaded.' }
     if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ine 'f48d8f8f9ebe903ab5027ed067652f2cc1db94bc206976430133b905dcd8e8c7') { throw 'Pinned test archive checksum mismatch.' }
-    Expand-Archive -LiteralPath $archive -DestinationPath $temp
+    # Windows PowerShell 5.1 Expand-Archive treats brackets in DestinationPath as
+    # wildcards; the framework API uses the literal path, matching our launcher.
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::ExtractToDirectory($archive, $temp)
     $age = Join-Path $temp 'age\age.exe'
     if ((Get-FileHash -LiteralPath $age -Algorithm SHA256).Hash -ine '2821a4ed191da07372acd302e5f6feae7a7985e285e1417765ebe74025af45f0') { throw 'age test executable checksum mismatch.' }
     $keygen = Join-Path $temp 'age\age-keygen.exe'
     $identity = Join-Path $temp 'synthetic-identity.txt'
-    Invoke-Native $keygen @('--output', $identity) | Out-Null
+    Invoke-Native $keygen @('-o', $identity) | Out-Null
     $recipient = (Invoke-Native $keygen @('-y', $identity)).Trim()
     if ($recipient -notmatch '^age1[a-z0-9]{58}$') { throw 'Invalid synthetic recipient.' }
 

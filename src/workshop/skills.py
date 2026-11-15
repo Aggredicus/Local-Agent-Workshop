@@ -70,8 +70,13 @@ def _infer_legacy_description(text: str) -> str:
 
 
 def inspect_skill(skill_md: Path, *, allow_legacy: bool = True) -> SkillInfo:
-    text = skill_md.read_text(encoding="utf-8")
     expected_name = skill_md.parent.name
+    try:
+        if _is_link(skill_md) or _is_link(skill_md.parent) or not skill_md.is_file():
+            return SkillInfo(expected_name, '', skill_md, ('SKILL.md must be a regular file inside an unlinked skill directory',))
+        text = skill_md.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return SkillInfo(expected_name, '', skill_md, ('SKILL.md must be readable UTF-8',))
     errors: list[str] = []
     warnings: list[str] = []
     match = FRONTMATTER.match(text)
@@ -101,9 +106,15 @@ def inspect_skill(skill_md: Path, *, allow_legacy: bool = True) -> SkillInfo:
 
 
 def discover_skills(skills_root: Path, *, allow_legacy: bool = True) -> list[SkillInfo]:
-    if not skills_root.exists():
-        return []
-    return [inspect_skill(path, allow_legacy=allow_legacy) for path in sorted(skills_root.glob("*/SKILL.md"))]
+    try:
+        if _is_link(skills_root) or (skills_root.exists() and not skills_root.is_dir()):
+            return [SkillInfo(skills_root.name, '', skills_root, ('Skill library must be an unlinked directory',))]
+        if not skills_root.exists():
+            return []
+        paths = sorted(skills_root.glob("*/SKILL.md"))
+    except OSError:
+        return [SkillInfo(skills_root.name, '', skills_root, ('Skill library is unreadable',))]
+    return [inspect_skill(path, allow_legacy=allow_legacy) for path in paths]
 
 
 def validate_skills(skills_root: Path, *, strict: bool = False) -> list[SkillInfo]:
@@ -126,6 +137,7 @@ def select_skills(skills_root: Path, task: str, named_skill: str | None = None) 
     so cold-start behavior is reproducible and available offline.
     """
     inventory = discover_skills(skills_root)
+    discovery_errors = [{'path': str(skill.path), 'errors': list(skill.errors)} for skill in inventory if skill.errors]
     by_name = {skill.name: skill for skill in inventory if not skill.errors}
     task_lower = re.sub(r"\s+", " ", task.lower()).strip()
     task_tokens = _task_tokens(task)
@@ -181,8 +193,10 @@ def select_skills(skills_root: Path, task: str, named_skill: str | None = None) 
             for skill in inventory
             if not skill.errors and (selected is None or skill.name != selected["name"])
         ],
-        "new_skill_needed": selected is None,
+        "discovery_errors": discovery_errors,
+        "new_skill_needed": selected is None and not discovery_errors,
         "recommended_next_action": (
+            "Resolve skill discovery errors before choosing or creating a skill." if discovery_errors else
             "Read the selected SKILL.md and follow its workflow."
             if selected
             else "Create or improve a skill only after confirming no existing skill overlaps the task."
@@ -299,10 +313,9 @@ def cache_is_current(skills_root: Path, target_root: Path) -> bool:
 
 
 def _skill_contents(source: Path) -> dict[str, bytes]:
-    problems = validate_skills(source)
-    if problems:
-        raise ValueError("refusing to sync invalid skills")
     skills = discover_skills(source)
+    if any(skill.errors for skill in skills):
+        raise ValueError("refusing to sync invalid skills")
     if not skills:
         raise ValueError(f"no skills found under {source}")
     contents: dict[str, bytes] = {}

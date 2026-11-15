@@ -10,6 +10,7 @@ import copy
 import hashlib
 import json
 import os
+import stat
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -45,9 +46,17 @@ class _LoadedState(dict):
     source: Path
 
 
+def _read_regular(path: Path, label: str) -> bytes:
+    info = path.lstat()
+    if (not stat.S_ISREG(info.st_mode)
+            or getattr(info, 'st_file_attributes', 0) & getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0x400)):
+        raise HyperKanbanError(f'{label} must be a regular file, not a link or special file')
+    return path.read_bytes()
+
+
 def load_state(path: Path = DEFAULT_STATE_PATH) -> dict[str, Any]:
     try:
-        raw = path.read_bytes()
+        raw = _read_regular(path, 'state')
         data = json.loads(raw)
     except OSError as exc:
         raise HyperKanbanError(f"missing or unreadable state file: {path}") from exc
@@ -62,7 +71,11 @@ def load_state(path: Path = DEFAULT_STATE_PATH) -> dict[str, Any]:
 
 def validate_packet(state: dict[str, Any], state_path: Path) -> None:
     packet = state_path.parent / "packet.txt"
-    if packet.exists() and packet.read_text(encoding="utf-8") != build_packet(state):
+    try:
+        current = _read_regular(packet, 'packet').decode('utf-8') if packet.exists() or packet.is_symlink() else None
+    except (OSError, UnicodeError) as exc:
+        raise HyperKanbanError('packet is unreadable UTF-8; repair it from canonical state') from exc
+    if current is not None and current != build_packet(state):
         raise HyperKanbanError(f"packet out of sync: {packet}")
 
 

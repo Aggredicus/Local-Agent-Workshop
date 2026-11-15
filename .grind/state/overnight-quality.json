@@ -4,11 +4,21 @@
   "worktree": "/workspace/Local-Agent-Workshop",
   "baseline_commit": "87872c602bc5c662be2760cc384a7f844f459d11",
   "status": "running",
-  "current_task": "Branch inventory, compact diagnostics and current navigation",
-  "verification": "Baseline 109 tests pass; preflight cleanup 0 blockers, 0 warnings",
+  "current_task": "Security/resilience fixes and native Windows encrypted capsule round trip",
+  "verification": "Pass 1 CI 43713648712 passed on Python 3.11-3.14; 174 current local tests pass; native C# framework reference fix passed in CI 43714792930",
   "review_card": "reviews/pending/overnight-quality.md",
   "evidence_directory": "reports/overnight-quality",
   "pending_decisions": [],
-  "next_safe_action": "Preserve branch heads, inspect open PR context, implement and test compact diagnostics",
-  "resume_command": "git switch agent/overnight-quality; cat .grind/state/overnight-quality.json; PATH=\"$PWD/.venv/bin:$PATH\" bash scripts/verify.sh"
+  "next_safe_action": "Commit the read guards and graph fixes; finish Windows synthetic crypto test; verify all gates before authorized main integration",
+  "resume_command": "git switch agent/overnight-quality; cat .grind/state/overnight-quality.json; PATH=\"$PWD/.venv/bin:$PATH\" bash scripts/verify.sh",
+  "files_changed": [
+    "src/workshop/skills.py",
+    "src/workshop/hyperkanban/state.py",
+    "src/workshop/hyperkanban/validation.py",
+    "scripts/skills/list_available_skills.py",
+    "scripts/skills/select_skill.py",
+    "tests/test_skill_read_safety.py",
+    "tests/test_state_resilience.py",
+    "tests/usb/windows-crypto.ps1"
+  ]
 }

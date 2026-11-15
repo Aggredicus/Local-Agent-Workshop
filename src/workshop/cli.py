@@ -20,7 +20,7 @@ from workshop.hyperkanban.state import (
     save_packet,
     validate_state_file,
 )
-from workshop.skills import discover_skills, select_skills, sync_skills, validate_skills
+from workshop.skills import discover_skills, select_skills, sync_skills
 from workshop.usb.cli import add_parser as add_usb_parser, handle as handle_usb
 
 
@@ -99,11 +99,11 @@ def handle_skills(args: argparse.Namespace) -> int:
         return 0
 
     if args.skills_command == "validate":
-        items = discover_skills(args.root)
+        items = discover_skills(args.root, allow_legacy=not args.strict)
         if not items:
             print(f"Skill validation failed: no skills found under {args.root}", file=sys.stderr)
             return 1
-        invalid = validate_skills(args.root, strict=args.strict)
+        invalid = [item for item in items if item.errors]
         if invalid:
             for item in invalid:
                 print(f"INVALID {item.path}: {'; '.join(item.errors)}", file=sys.stderr)
@@ -126,7 +126,10 @@ def handle_skills(args: argparse.Namespace) -> int:
         report = select_skills(args.root, args.task, args.skill)
         if args.json_output:
             print(json.dumps(report, indent=2, sort_keys=True))
-            return 0
+            return 1 if report['discovery_errors'] else 0
+        if report['discovery_errors']:
+            print('Skill discovery is incomplete; inspect the library with `workshop skills validate`.', file=sys.stderr)
+            return 1
         selected = report["selected_primary_skill"]
         if selected is None:
             print("No matching local skill found. Inspect the library before creating a new skill.")
