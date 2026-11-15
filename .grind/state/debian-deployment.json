@@ -1,0 +1,21 @@
+{
+  "run_id": "debian-deployment",
+  "branch": "agent/debian-deployment",
+  "task": "Windows ZIP to headless Debian provisioning",
+  "status": "paused_for_foundation_review",
+  "tests_run": [
+    "47 baseline tests",
+    "doctor",
+    "cleanup before"
+  ],
+  "pending_decisions": [
+    "Baseline repair/rebuild scope before deployment resumes"
+  ],
+  "next_safe_action": "Review findings and select component acceptance scope; do not resume deployment automatically",
+  "resume_command": "Read reports/codebase-review/REVIEW.md and reviews/pending/codebase-review.md",
+  "current_task": "Systematic baseline review completed; remediation scope awaiting user direction",
+  "evidence_paths": [
+    "reports/codebase-review/REVIEW.md",
+    "reports/codebase-review/VALIDATION.md"
+  ]
+}

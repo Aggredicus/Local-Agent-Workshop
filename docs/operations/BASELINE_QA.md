@@ -4,6 +4,10 @@ This branch repairs the existing local CLI. It does not install Debian/Docker or
 
 ## Checks
 
+The tested installer baseline is pip 26.3. Refresh it inside the project virtual
+environment with `python -m pip install --upgrade "pip==26.3"`; this does not
+change the published cloud configuration or constitute a fully locked toolchain.
+
 Activate the repository virtual environment and run:
 
 ```sh

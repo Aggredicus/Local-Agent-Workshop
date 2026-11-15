@@ -12,3 +12,12 @@ Outcome: log-only update
 Observation: The global skill protocol now requires every skill use to update the skill artifact trail.
 Decision: This log provides the durable no-change update target for `/design-first` runs where no behavior patch is needed.
 Links: #160
+
+## 2026-11-15 — selective baseline rebuild
+
+Skill used: /design-first
+Used for: reports/qc-baseline/PLAN.md
+Outcome: log-only update
+Observation: Selective reuse was chosen from concrete baseline defects; the unfinished deployment experiment was preserved outside the active checkout.
+Decision: Record evidence without changing skill behavior; policy refresh remains a separate review.
+Links: reports/qc-baseline/RESULTS.md; reports/qc-baseline/SKILL-ISSUES.md

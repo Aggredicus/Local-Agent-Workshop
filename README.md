@@ -15,6 +15,7 @@ python -m venv .venv
 Activate the virtual environment, then:
 
 ```bash
+python -m pip install --upgrade "pip==26.3"
 python -m pip install -e ".[dev]"
 workshop skills validate
 workshop skills sync

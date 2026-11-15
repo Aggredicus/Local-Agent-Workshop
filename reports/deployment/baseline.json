@@ -1,0 +1,1 @@
+{"run_id":"debian-deployment","branch":"agent/debian-deployment","risk":"high","tests":{"passed":47},"doctor":"passed","cleanup":{"blockers":0,"warnings":0},"decision":"implement and test locally; production and publication remain gated","github_api":"403 Forbidden","acceptance":"verified functionality with explicit unrun platform tests; no claim of full production readiness"}

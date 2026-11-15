@@ -12,3 +12,12 @@ Outcome: log-only update
 Observation: The global skill protocol now requires every skill use to update the skill artifact trail.
 Decision: This log provides the durable no-change update target for `/repo-cleanup` runs where no behavior patch is needed.
 Links: #160
+
+## 2026-11-15 — selective baseline rebuild
+
+Skill used: /repo-cleanup
+Used for: reports/qc-baseline/PLAN.md
+Outcome: log-only update
+Observation: Intentional review artifacts were preserved, canonical state validation was shared, and source changes stayed on agent/qc-baseline.
+Decision: Record evidence without changing skill behavior; policy refresh remains a separate review.
+Links: reports/qc-baseline/RESULTS.md; reports/qc-baseline/SKILL-ISSUES.md
