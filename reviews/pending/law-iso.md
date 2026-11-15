@@ -1,0 +1,9 @@
+# LAW offline ISO and persistent USB menu
+
+User requests an actual custom-ISO builder based on Debian 13.7.0 netinst and menu actions returning instead of closing. Clarified authorization: fresh Debian + LAW installation, explicit target-disk confirmation, all packages included for offline setup. Building/testing/publishing artifacts is authorized by the session; no real disk or server is modified here.
+
+Acceptance: menu persists after successful/failed actions; official image and detached checksum signatures authenticated; complete signed Debian/Docker package closure verified and installed without network; existing CLI and encrypted Wi-Fi helpers included; official Docker Engine/Compose/Buildx configured rootless for the installer-created normal user; no plaintext credentials or private client keys embedded; disk selection/account passwords remain interactive; BIOS/UEFI boot metadata preserved and disposable boot/install tests reported accurately; ready ISO and Windows download tools published with SHA256.
+
+Inputs: current reviewed main, user's deployment mission and explicit fresh-install/offline answers. Work branch agent/iso-debian13. High-risk future installer consequences remain behind the real installer's target-disk confirmation. No partitioning is preseeded. Build pipeline must fail on unavailable/unverified upstream images or missing packages; never present placeholders as a finished ISO. Do not import the paused deployment experiment or expose Docker TCP/rootful sockets.
+
+Evidence and checkpoint: reports/iso/ and .grind/state/law-iso.json. Existing broad service deployment/dashboard requirements are not falsely called implemented by installing the LAW runtime. Wi-Fi secrets remain a separate encrypted pairing workflow and SSH starts only after a public key is supplied.

@@ -1,0 +1,32 @@
+name: Build LAW offline Debian ISO
+
+on:
+  push:
+    branches: ['agent/iso-*', 'main']
+    paths: ['.github/workflows/law-iso.yml', 'setup/iso/**', 'src/workshop/iso/**', 'tests/iso/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: law-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Probe requested official Debian image and signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          for base in https://cdimage.debian.org/debian-cd/current/amd64/iso-cd https://cdimage.debian.org/mirror/cdimage/archive/13.7.0/amd64/iso-cd; do
+            code=$(curl --silent --show-error --location --head --max-time 30 --output /dev/null --write-out '%{http_code}' "$base/debian-13.7.0-amd64-netinst.iso")
+            echo "::notice::Requested Debian ISO: $base -> HTTP $code"
+          done
+          curl --fail --silent --show-error --location --max-time 30 https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ | python3 -c 'import sys,re; text=sys.stdin.read(); print("::notice::Current official filenames: " + ", ".join(sorted(set(re.findall(r"debian-[0-9.]+-amd64-netinst[.]iso",text)))))'
