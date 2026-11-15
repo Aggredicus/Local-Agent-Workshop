@@ -23,7 +23,7 @@ d-i passwd/user-password-again password synthetic-vm-only
 d-i partman-auto/disk string /dev/vda
 d-i partman-auto/method string regular
 d-i partman-auto/choose_recipe select atomic
-d-i partman/confirm_write_new_label boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverwrite boolean true
@@ -34,6 +34,7 @@ d-i debian-installer/exit/poweroff boolean true
 '''
 PROOF = '''#!/bin/bash
 set -euxo pipefail
+trap 'echo LAW_VM_QA_FAILED > /dev/ttyS0; journalctl --no-pager -n 80; poweroff' ERR
 test -f /etc/law-install-complete
 test "$(systemctl is-enabled docker.service || true)" = masked
 test "$(systemctl is-enabled ssh.service || true)" = masked
@@ -143,7 +144,8 @@ label lawqa
     run(*cmd, '-boot_image', 'any', 'replay', '-commit')
     disk = scratch / 'disposable.qcow2'
     run('qemu-img', 'create', '-f', 'qcow2', disk, '16G')
-    base = ['qemu-system-x86_64', '-accel', 'tcg,thread=multi', '-cpu', 'max', '-smp', '2', '-m', '3072',
+    accel = 'kvm' if os.access('/dev/kvm', os.R_OK | os.W_OK) else 'tcg,thread=multi'
+    base = ['qemu-system-x86_64', '-accel', accel, '-cpu', 'max', '-smp', '2', '-m', '3072',
             '-nic', 'none', '-display', 'none', '-monitor', 'none', '-serial', 'stdio', '-no-reboot',
             '-drive', f'file={disk},if=virtio,format=qcow2']
     # Exercise the remastered BIOS boot image, not a direct kernel shortcut.
