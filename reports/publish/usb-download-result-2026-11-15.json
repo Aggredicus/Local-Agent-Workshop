@@ -1,0 +1,15 @@
+{
+  "source_main_commit": "2699aab8049df4d6a6588c29ed45c14ce7378055",
+  "main_integration": "explicitly authorized by user; fast-forward pushed and remote verified",
+  "github_ci": {"run_id": "43709722454", "conclusion": "success"},
+  "delivery_workflow": {"run_id": "43709722478", "conclusion": "success"},
+  "release_tag": "usb-recovery-2699aab8049d",
+  "release_type": "prerelease test candidate",
+  "download_url": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-2699aab8049d/LAW-USB-Tools.zip",
+  "public_download_verified": true,
+  "zip_crc_verified": true,
+  "sha256": "294c5d9dcd960eaaeaa78091964ef500e347caa963e04ac40b2b8496d3f15111",
+  "bytes": 89501565,
+  "environment_recovery_ui_repaired": false,
+  "limitations": ["Native Windows WLAN/ACL behavior unqualified", "Physical USB boot, Secure Boot, firmware and network rollback require operator tests", "No Debian ISO included"]
+}
