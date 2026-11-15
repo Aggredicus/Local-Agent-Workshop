@@ -86,7 +86,7 @@ cat > "$home/.config/systemd/user/docker.service" <<'EOF'
 Description=LAW rootless Docker Engine
 After=network.target
 [Service]
-Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart=/usr/bin/dockerd-rootless.sh
 Restart=on-failure
 RestartSec=3
