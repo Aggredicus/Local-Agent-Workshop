@@ -55,6 +55,8 @@ def copy_source(repo: Path, target: Path):
     files = subprocess.check_output(['git', '-C', str(repo), 'ls-files', '-z']).decode().split('\0')
     for name in filter(None, files):
         path = Path(name)
+        if name == 'scripts/test_law_iso_vm.py':
+            continue  # QA disk/account answers do not belong in the public ISO.
         if not (name in allowed_roots or (path.parts[0] in allowed_dirs and path.suffix in extensions)):
             continue
         origin = repo / path
@@ -103,7 +105,13 @@ def checksums(tree: Path):
 
 
 def remaster(base: Path, tree: Path, output: Path):
-    run('xorriso', '-indev', base, '-outdev', output, '-map', tree, '/', '-boot_image', 'any', 'replay', '-commit')
+    # Keep the original boot-image nodes and their System Area references.
+    # Replacing the root tree loses the original BIOS image's extent identity.
+    command = ['xorriso', '-indev', base, '-outdev', output]
+    for name in ('law', 'isolinux/isolinux.cfg', 'isolinux/law-original.cfg',
+                 'boot/grub/grub.cfg', 'boot/grub/law-original.cfg', 'md5sum.txt'):
+        command += ['-map', tree / name, '/' + name]
+    run(*command, '-boot_image', 'any', 'replay', '-commit')
     report = run('xorriso', '-indev', output, '-report_el_torito', 'plain', stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True).stdout
     if 'BIOS' not in report or 'UEFI' not in report:
         raise ISOError('Remastered image lost BIOS or UEFI boot metadata.')

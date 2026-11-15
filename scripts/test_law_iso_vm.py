@@ -103,6 +103,7 @@ in-target systemctl enable law-qa-proof.service
 After=systemd-user-sessions.service systemd-logind.service
 [Service]
 Type=oneshot
+TimeoutStartSec=360
 ExecStart=/usr/local/sbin/law-qa-proof
 StandardOutput=journal+console
 StandardError=journal+console

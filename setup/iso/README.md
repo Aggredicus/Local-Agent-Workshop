@@ -2,7 +2,7 @@
 
 Builds a custom **Debian 13.7.0 amd64 netinst** ISO, using the user's requested official image. The Linux/GitHub build downloads and authenticates that ISO, downloads the complete signed Debian and official Docker package closure, installs it in a disconnected test container, and remasters both BIOS/UEFI boot entries. No Python, Git, WSL or Docker Desktop is required on Windows to download/use the finished image.
 
-This installs the LAW CLI, editable source workspace, encrypted USB Wi-Fi controller, official Docker Engine, Compose v2 and Buildx. Docker runs rootless for the normal account created in the installer; rootful Docker/containerd services are masked. No containers are pulled at installation time. `/opt/law-offline/smoke.tar` is a tiny authenticated BusyBox test workload: `docker load -i /opt/law-offline/smoke.tar; docker run --rm --network none law-offline-smoke:1`.
+This installs the LAW CLI, editable source workspace, encrypted USB Wi-Fi controller, official Docker Engine, the Compose plugin and Buildx. Docker runs rootless for the normal account created in the installer; rootful Docker/containerd services are masked. No containers are pulled at installation time. `/opt/law-offline/smoke.tar` is a tiny authenticated BusyBox test workload: `docker load -i /opt/law-offline/smoke.tar; docker run --rm --network none law-offline-smoke:1`.
 
 The broader multi-service orchestration/dashboard remains separate unfinished work. This image does not deploy the paused legacy experiment.
 
