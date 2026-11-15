@@ -8,6 +8,7 @@ $ErrorActionPreference = 'Stop'
 $scripts = @('Prepare-USB.ps1', 'Wifi-Capsule.ps1')
 foreach ($name in $scripts) {
     $path = Join-Path $PSScriptRoot $name
+    if (-not [IO.File]::Exists($path)) { throw 'A required USB script is missing. Extract the complete ZIP again.' }
     $file = Get-Item -LiteralPath $path -Force -ErrorAction Stop
     if ($file.PSIsContainer -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
         throw 'Linked or invalid USB script rejected.'
