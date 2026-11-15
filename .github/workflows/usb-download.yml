@@ -1,0 +1,103 @@
+name: Build USB download
+
+on:
+  push:
+    branches: ['main']
+    paths: ['.github/workflows/usb-download.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: usb-download
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'Aggredicus/Local-Agent-Workshop' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Prepare tested Python tools and verify source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/law-venv"
+          echo "$RUNNER_TEMP/law-venv/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/law-venv/bin/python" -m pip install --upgrade pip==26.3
+          "$RUNNER_TEMP/law-venv/bin/python" -m pip install 'pytest==9.2.0' -e '.[dev]'
+          export PATH="$RUNNER_TEMP/law-venv/bin:$PATH"
+          bash scripts/verify.sh
+      - name: Build signed offline package closures
+        shell: bash
+        run: |
+          set -euo pipefail
+          workshop usb bundle --debian 12 --output "$RUNNER_TEMP/law-usb/debian12-amd64"
+          workshop usb bundle --debian 13 --output "$RUNNER_TEMP/law-usb/debian13-amd64"
+      - name: Test both installers without networking
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_usb_offline.py --packages "$RUNNER_TEMP/law-usb" --out "$RUNNER_TEMP/download/offline-tests.json"
+      - name: Package one ZIP with a pinned Windows encryption tool
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 2 \
+            https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-windows-amd64.zip \
+            -o "$RUNNER_TEMP/age.zip"
+          workshop usb pack --packages "$RUNNER_TEMP/law-usb" --age-archive "$RUNNER_TEMP/age.zip" --output "$RUNNER_TEMP/download/LAW-USB-Tools.zip"
+          python -c 'import os,zipfile; p=os.path.join(os.environ["RUNNER_TEMP"],"download","LAW-USB-Tools.zip"); z=zipfile.ZipFile(p); assert z.testzip() is None; z.close()'
+          printf 'Source commit: %s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/download/SOURCE.txt"
+          cat > "$RUNNER_TEMP/download/release-notes.md" <<NOTES
+          One ZIP containing Windows LAW tools and verified Debian 12/13 amd64 offline recovery packages.
+
+          Source: $GITHUB_SHA
+          Verification: source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
+
+          **Test candidate, not a production release.** Native Windows Wi-Fi, physical USB boot, Secure Boot, firmware and real network rollback remain unqualified. No Debian ISO is included; the ZIP is data for an operator-prepared USB, not bootable media by itself. Package signature metadata has expiry checks; rebuild when it expires. No private keys or operator credentials are included.
+
+          Extract LAW-USB-Tools.zip and follow LAW/setup/usb/README.md. The checksum is supplied as LAW-USB-Tools.zip.sha256. Published from explicitly approved main; this download remains a test candidate.
+          NOTES
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verified-usb-download
+          path: ${{ runner.temp }}/download/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: verified-usb-download
+          path: download
+      - name: Upload, download-verify and publish the prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag="usb-recovery-${GITHUB_SHA:0:12}"
+          cd download
+          sha256sum --check LAW-USB-Tools.zip.sha256
+          gh release create "$tag" --draft --prerelease --target "$GITHUB_SHA" \
+            --title "USB recovery test candidate (${GITHUB_SHA:0:12})" --notes-file release-notes.md
+          gh release upload "$tag" LAW-USB-Tools.zip LAW-USB-Tools.zip.sha256 offline-tests.json SOURCE.txt
+          mkdir verify
+          gh release download "$tag" --pattern LAW-USB-Tools.zip --dir verify
+          cp LAW-USB-Tools.zip.sha256 verify/
+          (cd verify && sha256sum --check LAW-USB-Tools.zip.sha256)
+          gh release edit "$tag" --draft=false --prerelease --latest=false
+          printf '## One-file download\nhttps://github.com/%s/releases/download/%s/LAW-USB-Tools.zip\n' "$GH_REPO" "$tag" >> "$GITHUB_STEP_SUMMARY"
