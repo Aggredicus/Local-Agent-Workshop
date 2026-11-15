@@ -10,6 +10,8 @@ Windows test design: execute the real CMD/bootstrap against stub tools in a diff
 
 Follow-up: physical boot, WLAN and restricted ACL behavior remain unqualified. This launcher test is narrower than a complete Windows product acceptance test. Reversal uses a normal commit revert; no releases are overwritten.
 
+Delivery completed: main run 43711912391 passed Windows startup and rebuilt/offline-tested the full ZIP. Downloaded the public asset and checked SHA256, ZIP CRC, all 223 manifest entries and exact launcher/source contents. Result and working URL: reports/publish/usb-launcher-download-2026-11-15.json.
+
 Skill audit: GitHub API access is still unavailable in this running environment, so the following are durable local issue drafts, not remotely created issues. Corresponding no-change improvement logs were appended; no skill behavior changed.
 
 - **Improve /repo-cleanup after USB launcher update.** Skill used for preflight/closeout. Observation: main warning is resolved by an implementation branch with explicitly authorized integration after checks. Action: log-only update. Artifact: skills/repo-cleanup/IMPROVEMENT_LOG.md. Scope: audit documentation, low risk.
