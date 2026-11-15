@@ -84,14 +84,14 @@ mapfile -t users < <(getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 && $7 !~ 
 [[ ${#users[@]} == 1 ]] || { echo 'Expected exactly one installer-created normal user.' >&2; exit 2; }
 user=${users[0]}
 uid=$(id -u "$user")
-home=$(getent passwd "$user" | cut -d: -f6)
-[[ $home == /home/"$user" && -d $home && ! -L $home ]]
+law_home=$(getent passwd "$user" | cut -d: -f6)
+[[ $law_home == /home/"$user" && -d $law_home && ! -L $law_home ]]
 if ! grep -q "^$user:" /etc/subuid; then usermod --add-subuids 100000-165535 "$user"; fi
 if ! grep -q "^$user:" /etc/subgid; then usermod --add-subgids 100000-165535 "$user"; fi
 # Rootless daemon is the only enabled Docker service. No docker-group grant.
-install -d -o "$user" -g "$user" -m 0700 "$home/.config" "$home/.config/docker"
-install -d -o "$user" -g "$user" -m 0755 "$home/.config/systemd/user/default.target.wants"
-cat > "$home/.config/systemd/user/docker.service" <<'EOF'
+install -d -o "$user" -g "$user" -m 0700 "$law_home/.config" "$law_home/.config/docker"
+install -d -o "$user" -g "$user" -m 0755 "$law_home/.config/systemd/user/default.target.wants"
+cat > "$law_home/.config/systemd/user/docker.service" <<'EOF'
 [Unit]
 Description=LAW rootless Docker Engine
 After=network.target
@@ -108,16 +108,16 @@ LimitNPROC=infinity
 [Install]
 WantedBy=default.target
 EOF
-printf '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"3"}}\n' > "$home/.config/docker/daemon.json"
-ln -s ../docker.service "$home/.config/systemd/user/default.target.wants/docker.service"
-chown -R "$user:$user" "$home/.config"
+printf '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"3"}}\n' > "$law_home/.config/docker/daemon.json"
+ln -s ../docker.service "$law_home/.config/systemd/user/default.target.wants/docker.service"
+chown -R "$user:$user" "$law_home/.config"
 install -d -m 0755 /var/lib/systemd/linger
 touch "/var/lib/systemd/linger/$user"
 runuser -u "$user" -- docker context create rootless --docker "host=unix:///run/user/$uid/docker.sock"
 runuser -u "$user" -- docker context use rootless
-cp -a "$source" "$home/Local-Agent-Workshop"
-chown -R "$user:$user" "$home/Local-Agent-Workshop"
-runuser -u "$user" -- git -C "$home/Local-Agent-Workshop" init -b main
+cp -a "$source" "$law_home/Local-Agent-Workshop"
+chown -R "$user:$user" "$law_home/Local-Agent-Workshop"
+runuser -u "$user" -- git -C "$law_home/Local-Agent-Workshop" init -b main
 install -m 0755 "$source/setup/iso/enable-ssh.py" /usr/local/sbin/law-enable-ssh
 key=$(python3 -c 'import json; print(json.load(open("/opt/law-offline/profile.json"))["ssh_public_key"])')
 if [[ -n $key ]]; then
