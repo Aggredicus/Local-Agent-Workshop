@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+import base64
+import binascii
 
 
 class ISOError(ValueError):
@@ -33,6 +35,13 @@ def validate_profile(data: dict) -> dict:
     key = data['ssh_public_key']
     if not isinstance(key, str) or len(key) > 1024 or (key and not re.fullmatch(r'ssh-ed25519 [A-Za-z0-9+/]{40,120}={0,2}(?: [A-Za-z0-9_.@ -]{1,120})?', key)):
         raise ISOError('SSH input must be one Ed25519 PUBLIC key; private keys and authorized_keys options are rejected.')
+    if key:
+        try:
+            raw = base64.b64decode(key.split()[1], validate=True)
+            if len(raw) != 51 or raw[:19] != b'\0\0\0\x0bssh-ed25519\0\0\0\x20':
+                raise ISOError('Malformed Ed25519 public-key encoding.')
+        except binascii.Error as exc:
+            raise ISOError('Malformed Ed25519 public-key encoding.') from exc
     return dict(data)
 
 
@@ -40,6 +49,7 @@ def preseed(profile: dict) -> str:
     p = validate_profile(profile)
     # No partitioning, target-disk, username, password/hash or Wi-Fi answers.
     return f'''# LAW offline installation. Confirm the target disk in Debian Installer.
+d-i debconf/priority string high
 d-i debian-installer/locale string {p['locale']}
 d-i keyboard-configuration/xkb-keymap select {p['keyboard']}
 d-i time/zone string {p['timezone']}

@@ -1,8 +1,8 @@
 # One USB: Windows setup, Debian installation, safe Wi-Fi recovery
 
-Use a **32 GB or larger** USB with Ventoy's exFAT/NTFS data partition. ThinkCentre1 keeps its existing Windows 11 installation. ThinkCentre2 keeps its existing Debian installation for the recovery workflow.
+Use a **32 GB or larger** USB with Ventoy's exFAT/NTFS data partition. ThinkCentre1 keeps its existing Windows 11 installation. The requested fresh-install path installs Debian + LAW on ThinkCentre2 after you confirm the destination disk. The optional recovery path below preserves an existing Debian installation.
 
-This tools ZIP **is not bootable by itself and contains no Debian installer ISO**. It supplies Windows tools plus real offline recovery packages. Booting requires a separately verified official Debian ISO and Ventoy. No program here formats a disk or reinstalls Debian automatically.
+This tools ZIP **is not bootable by itself and contains no Debian installer ISO**. It supplies Windows tools plus real offline recovery packages. Menu option **2** downloads the separately built, verified custom LAW ISO to Desktop; option **3** copies it and the LAW tools to an already prepared Ventoy USB. Installation still requires you to select and confirm the target disk. No Windows tool here formats a disk. Each completed or failed action returns to the menu; **0** exits.
 
 ## 1. Prepare on Windows — no WSL, Git or Python required
 
@@ -23,12 +23,12 @@ This tools ZIP **is not bootable by itself and contains no Debian installer ISO*
 ## 2. Make the same USB boot Debian
 
 1. Obtain Ventoy only through its [official download page](https://www.ventoy.net/en/download.html) and follow its integrity-verification instructions. Run its Windows utility yourself. Select the USB by its capacity/device identity and approve initialization. **Initial installation erases that selected USB.** Back up its existing contents first. This is separate from copying LAW files.
-2. Obtain the current supported Debian **amd64 DVD-1 ISO** from the [official Debian DVD directory](https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/). DVD-1 is preferable to netinst when the target has no internet. Follow [Debian's verification instructions](https://www.debian.org/CD/verify), including authenticated signing-key fingerprints, signature verification of SHA512SUMS, and matching the ISO's SHA512. Gpg4win/GnuPG is an optional Windows prerequisite for OpenPGP verification; do not treat a hash match alone as an upstream signature check.
-3. Copy the verified ISO onto Ventoy's DATA volume. Use exFAT/NTFS because DVD-1 may exceed FAT32's file-size limit.
-4. From the original verified LAW folder on Windows, choose **3** in START-USB. Select the Ventoy DATA drive (for example `E:\`). Only manifest-listed, hash-checked files are copied to a new `LAW` folder; existing data/LAW folders are not overwritten. No private key or plaintext credentials belong on this USB.
-5. Test the USB boot menu on the physical machine. Use its firmware boot menu; do not change internal-disk partitioning. Secure Boot behavior depends on the Ventoy version and firmware; follow the official procedure and review any key-enrollment request. These scripts do not disable Secure Boot or enroll keys.
+2. Choose **2** in START-USB to download **LAW-Debian-13.7.0-amd64.iso** from this repository's newest tested ISO release. Press Enter for Desktop, or enter another existing destination folder. The downloader checks the published SHA256 before completing the file; existing files are preserved. Build/source/package/VM evidence is attached to the release. See [the ISO build/install guide](../iso/README.md) for customization and the exact qualification limits.
+3. Choose **3** from the original verified tools ZIP. Select the Ventoy DATA root (such as `E:\`) and the downloaded ISO (Enter uses Desktop). It checks the ISO and manifest-listed LAW files, copies a new LAW folder plus ISO, then checks the USB copies. Existing LAW/ISO files are preserved. No private key or plaintext credential belongs on USB.
+4. Boot ThinkCentre2 using its firmware boot menu. Select the LAW ISO, then **LAW offline Debian + rootless Docker**. Select the destination disk, confirm partition writes, and create your normal account. Packages are included for offline installation. After reboot, the LAW CLI, Wi-Fi controller and rootless Docker are already installed; skip recovery-package/controller installation below and continue at section 4.
+5. Physical USB boot, Secure Boot and firmware still need testing on your machine. Follow Ventoy's official Secure Boot procedure and review any key-enrollment request. These scripts do not disable Secure Boot or enroll keys.
 
-**Recovery is not installation.** ThinkCentre2 already boots, so boot installed Debian normally to fix its network. Selecting a Debian installer and changing disk partitions is a separate deliberate operator action. Read-only rescue/inspection does not authorize reinstallation.
+**Existing-system recovery:** if you choose to keep the current Debian installation instead, boot it normally and use sections 3–6. Do not launch the fresh installer for that path.
 
 ## 3. Install recovery tools offline on Debian
 
@@ -106,7 +106,7 @@ Recovery restores that transaction's saved files after `ROLLBACK` approval; it c
 
 Debian 12/13 amd64 package signature chains and offline installation/repetition are tested in disposable containers; no-network containers are not hardware/boot tests. Native Windows PowerShell 5.1 tests cover startup, private staging ACLs in a disposable child profile, preservation of existing tools, C# compilation and synthetic UTF-8 credential encryption/decryption using the pinned Windows age executable. The staging test changes no real user profile, and the crypto test invokes no Wi-Fi API. Physical USB boot, Secure Boot, real Wi-Fi adapters/firmware, machine-specific Windows policy/permissions and network rollback require a powered-on test machine.
 
-The cloud currently blocks `cdimage.debian.org`; no ISO is included, claimed verified or claimed boot-tested. Download/verification can be performed on Windows through the official sites. Firmware is not silently guessed or bundled: use the actual adapter IDs and authenticated Debian non-free-firmware packages/media as needed.
+The cloud workspace blocks `cdimage.debian.org`; the GitHub ISO build runner can reach it and authenticates the official netinst before remastering. The ISO is a separate download, not inside the tools ZIP. Included Debian installer firmware follows Debian hardware detection; the real ThinkCentre adapter still needs testing.
 
 Developer commands from a checkout with Docker and the project venv:
 

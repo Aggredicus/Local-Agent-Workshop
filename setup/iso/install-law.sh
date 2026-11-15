@@ -37,6 +37,7 @@ apt-get "${opts[@]}" update
 mapfile -t roots < "$offline/roots.txt"
 [[ ${#roots[@]} -gt 20 ]]
 apt-get "${opts[@]}" --no-remove --no-install-recommends -y install "${roots[@]}"
+cp /etc/apt/law.sources.d/offline.sources /etc/apt/sources.list.d/law-offline.sources
 # All future offline updates use the same authenticated file repositories.
 # Their signed expiry is deliberately enforced; rebuild an expired image.
 systemctl mask docker.service docker.socket containerd.service ssh.service ssh.socket

@@ -31,6 +31,7 @@ with path.open('x') as stream:
 os.chmod(path, 0o600)
 os.chown(path, user.pw_uid, user.pw_gid)
 Path('/etc/ssh/sshd_config.d/10-law.conf').write_text('PasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin no\nPubkeyAuthentication yes\n')
+Path('/run/sshd').mkdir(mode=0o755, exist_ok=True)
 subprocess.run(['sshd', '-t'], check=True)
 subprocess.run(['systemctl', 'unmask', 'ssh.service'], check=True)
 subprocess.run(['systemctl', 'enable', 'ssh.service'], check=True)

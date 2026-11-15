@@ -15,6 +15,7 @@ from workshop.iso.build import OUTPUT, run
 
 QA = '''
 # QA ONLY: disposable virtual disk; never included in public installer.
+d-i debconf/priority string critical
 d-i passwd/user-fullname string LAW VM Test
 d-i passwd/username string lawtest
 d-i passwd/user-password password synthetic-vm-only

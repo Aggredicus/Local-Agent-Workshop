@@ -81,11 +81,11 @@ timeout 0
 label law
   menu label LAW offline Debian + rootless Docker (confirm disk in installer)
   kernel /install.amd/vmlinuz
-  append initrd=/install.amd/initrd.gz auto=true priority=critical preseed/file=/cdrom/law/preseed.cfg --- quiet
+  append initrd=/install.amd/initrd.gz auto=true priority=high preseed/file=/cdrom/law/preseed.cfg --- quiet
 ''')
     grub.write_text('''set timeout=-1
 menuentry 'LAW offline Debian + rootless Docker (confirm disk in installer)' {
-    linux /install.amd/vmlinuz auto=true priority=critical preseed/file=/cdrom/law/preseed.cfg --- quiet
+    linux /install.amd/vmlinuz auto=true priority=high preseed/file=/cdrom/law/preseed.cfg --- quiet
     initrd /install.amd/initrd.gz
 }
 menuentry 'Original Debian installer menu' {
@@ -158,6 +158,9 @@ def build(repo: Path, output: Path, profile_path: Path, keyring: Path) -> dict:
     run('docker', 'run', '--rm', '--network', 'none',
         '--mount', f'type=bind,source={law.resolve()},target=/law,readonly', IMAGE,
         'bash', '/law/source/setup/iso/test-offline.sh')
+    run('docker', 'run', '--rm', '--network', 'none',
+        '--mount', f'type=bind,source={law.resolve()},target=/law,readonly', IMAGE,
+        'bash', '/law/source/setup/iso/test-offline.sh', '--tamper')
     boot_menus(tree)
     checksums(tree)
     report = remaster(upstream / NAME, tree, output / OUTPUT)
@@ -186,6 +189,7 @@ def main(argv=None):
         print(json.dumps(build(args.repo, args.output, args.profile, args.cd_keyring), indent=2))
         return 0
     except (ISOError, OSError, subprocess.CalledProcessError) as exc:
+        print(f'::error::ISO build stopped: {exc}')
         print(f'ISO build stopped: {exc}. Incomplete output is preserved for diagnosis.')
         return 1
 
