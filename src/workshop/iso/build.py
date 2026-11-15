@@ -136,6 +136,9 @@ def build(repo: Path, output: Path, profile_path: Path, keyring: Path) -> dict:
             path.chmod(path.stat().st_mode | 0o200)
     law = tree / 'law'
     law.mkdir()
+    # apt-cdrom must scan Debian's original CD repository only. These extra
+    # repositories are read directly through authenticated file: sources later.
+    (law / '.aptignr').touch()
     source = law / 'source'
     copy_source(repo, source)
     (law / 'installer').mkdir()

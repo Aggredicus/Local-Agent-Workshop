@@ -15,6 +15,7 @@ from workshop.iso.build import OUTPUT, run
 
 QA = '''
 # QA ONLY: disposable virtual disk; never included in public installer.
+d-i preseed/early_command string /bin/sh -c 'tail -n 0 -f /var/log/syslog > /dev/ttyS0 2>&1 &'
 d-i debconf/priority string critical
 d-i passwd/user-fullname string LAW VM Test
 d-i passwd/username string lawtest
@@ -75,7 +76,7 @@ def vm(command, log, timeout, marker=None, stop_on_marker=False):
                     os.killpg(child.pid, signal.SIGTERM)
                     child.wait(timeout=20)
                     break
-                if 'Failed to run preseeded command' in current or 'Installation step failed' in current:
+                if 'Failed to run preseeded command' in current or 'Installation step failed' in current or '!! ERROR:' in current:
                     print(current[-12000:])
                     raise RuntimeError('Debian Installer reported a failed step: ' + str(log))
                 if time.monotonic() >= next_notice:
