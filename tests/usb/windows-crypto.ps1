@@ -65,6 +65,7 @@ try {
     try { [LawUsb.Capsule]::Export($age, $recipient, $nonce, $fingerprint, $capsule, $ssid, $password, $false) }
     catch { $refused = $true }
     if (-not $refused -or (Get-FileHash -LiteralPath $capsule -Algorithm SHA256).Hash -cne $before) { throw 'Existing ciphertext was overwritten.' }
+    & (Join-Path $PSScriptRoot 'windows-staging.ps1') -AgePath $age
     Write-Host 'PASS: native Windows C# compilation, UTF-8 synthetic credential encryption/decryption, existing-file preservation.'
 } finally {
     if ($ssid) { $ssid.Dispose() }
