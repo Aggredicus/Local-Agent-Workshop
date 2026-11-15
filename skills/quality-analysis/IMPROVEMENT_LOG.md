@@ -30,3 +30,12 @@ Outcome: log-only update
 Observation: Execution-policy and downloaded-file handling need native Windows evidence, beyond Linux syntax parsing.
 Decision: No skill behavior change. The Windows startup test gates the ZIP; local issue draft preserves the blocked API follow-up.
 Links: reports/usb-recovery/launcher-validation.md; reviews/pending/usb-launcher.md
+
+## 2026-11-15 — overnight repository refinement
+
+Skill used: /quality-analysis
+Used for: compact diagnostics, malformed-registry regression checks and CI hardening
+Outcome: log-only update
+Observation: Compact output cut measured characters while preserving failures; 21 failing regression cases exposed false registry acceptance, crashes and path containment gaps.
+Decision: No skill behavior change. Track measured output and explicit metadata-only coverage; local issue draft records the blocked API follow-up.
+Links: reports/overnight-quality/PASS-1.md; reports/overnight-quality/output-size.json

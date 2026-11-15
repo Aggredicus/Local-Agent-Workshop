@@ -90,3 +90,16 @@ def test_main_returns_failure_when_blockers_exist(monkeypatch):
         lambda phase: [repo_cleanup.Finding("BLOCKER", "broken", category="tests")],
     )
     assert repo_cleanup.main(["--phase", "after", "--format", "json"]) == 1
+
+
+def test_quiet_keeps_blockers_warnings_and_failure_status(monkeypatch, capsys):
+    monkeypatch.setattr(repo_cleanup, 'collect_findings', lambda phase: [
+        repo_cleanup.Finding('INFO', 'routine detail'),
+        repo_cleanup.Finding('WARN', 'review needed'),
+        repo_cleanup.Finding('BLOCKER', 'broken state'),
+    ])
+    assert repo_cleanup.main(['--quiet']) == 1
+    out = capsys.readouterr().out
+    assert 'routine detail' not in out
+    assert 'review needed' in out and 'broken state' in out
+    assert '1 blockers, 1 warnings, 1 info' in out

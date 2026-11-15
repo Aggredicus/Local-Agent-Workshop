@@ -27,8 +27,6 @@ README.md
 | Review workflow | `protocols/REVIEW_WORKFLOW.md` | implemented | Review packet expectations. |
 | Grind | `protocols/GRIND_PROTOCOL.md` | implemented | Long-running work protocol. |
 | Checkpoint/resume | `protocols/CHECKPOINT_RESUME_PROTOCOL.md` | implemented | Resumable agent work. |
-| Empty inbox | `protocols/EMPTY_INBOX_PROTOCOL.md` | implemented | Inbox routing protocol. |
-| Self improvement | `protocols/SELF_IMPROVEMENT_PROTOCOL.md` | implemented | Reviewable improvement loop. |
 | Standard execution contract | `protocols/STANDARD_EXECUTION_CONTRACT.md` | implemented | Agent-executable issue grammar; merged via #119. |
 | Schema registry | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | implemented | Schema status and compatibility policy; merged via #122. |
 | Validation gate | `protocols/REPO_VALIDATION_GATE.md` | implemented | Read-only registry validation gate; merged via #123. |
@@ -45,7 +43,7 @@ README.md
 | HyperKanban validator | `../scripts/validate_hyperkanban.py` | implemented | Deterministic state validation. |
 | Repository cleanup | `../scripts/repo_cleanup.py` | implemented | Non-destructive cleanup checks. |
 | Repo contract validator | `../scripts/validate_repo_contracts.py` | implemented | Validates schema registry; merged via #123. |
-| CLI | `../src/workshop/cli.py` | implemented | Current CLI mainly covers HyperKanban. |
+| CLI | `../src/workshop/cli.py` | implemented | Doctor, skills, HyperKanban and USB tools; use summary/quiet modes for compact checks. |
 | Verification script | `../scripts/verify.sh` | implemented | Runs HyperKanban validation, repo contract validation, and pytest. |
 
 ## Planned documentation and runtime areas
@@ -53,6 +51,8 @@ README.md
 | Area | Planned paths | Driving issues | Status |
 |---|---|---|---|
 | Agent arrival | `protocols/AGENT_ARRIVAL_PROTOCOL.md` | #81, #82 | planned |
+| Empty inbox | `protocols/EMPTY_INBOX_PROTOCOL.md` | future work | planned |
+| Self improvement | `protocols/SELF_IMPROVEMENT_PROTOCOL.md` | future work | planned |
 | Agent permission tiers | `governance/AGENT_PERMISSION_TIERS.md` | #83 | planned |
 | Task intake | `schemas/agent_task_intake.schema.json` | #84 | planned |
 | Runtime budgets | `schemas/agent_runtime_budget.schema.json` | #85 | planned |

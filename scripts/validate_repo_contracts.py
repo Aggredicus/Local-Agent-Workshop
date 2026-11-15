@@ -11,7 +11,7 @@ import argparse
 import json
 import re
 from dataclasses import dataclass, asdict
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
@@ -52,26 +52,31 @@ class Finding:
 
 
 def load_json(path: Path) -> tuple[Any | None, list[Finding]]:
-    if not path.exists():
-        return None, [
-            Finding(
-                "ERROR",
-                "registry",
-                f"missing JSON file: {path}",
-                "Create the file or pass the correct --schema-registry path.",
-            )
-        ]
     try:
         return json.loads(path.read_text(encoding="utf-8")), []
+    except FileNotFoundError:
+        return None, [Finding("ERROR", "registry", f"missing JSON file: {path}", "Pass an existing repository-relative --schema-registry path.")]
     except json.JSONDecodeError as exc:
-        return None, [
-            Finding(
-                "ERROR",
-                "registry",
-                f"invalid JSON in {path}: {exc}",
-                "Fix JSON syntax before running semantic validation.",
-            )
-        ]
+        return None, [Finding("ERROR", "registry", f"invalid JSON at line {exc.lineno}, column {exc.colno}", "Fix JSON syntax before semantic validation.")]
+    except (OSError, UnicodeError):
+        return None, [Finding("ERROR", "registry", f"cannot read UTF-8 JSON file: {path}", "Check file type, permissions and encoding.")]
+
+
+def repository_file(root: Path, value: Any, label: str, findings: list[Finding]) -> Path | None:
+    """Resolve a portable relative path without following a link outside root."""
+    try:
+        if (not isinstance(value, str) or not value.strip() or '\x00' in value
+                or value.startswith(('/', '\\')) or PureWindowsPath(value).drive
+                or '..' in PureWindowsPath(value).parts):
+            raise ValueError
+        path = (root / value).resolve()
+        path.relative_to(root)
+        if path.exists() and not path.is_file():
+            raise ValueError
+        return path
+    except (ValueError, OSError, RuntimeError):
+        findings.append(Finding("ERROR", "registry", f"{label} must name a repository-relative file inside the root", "Directories, traversal and escaping links are rejected."))
+        return None
 
 
 def validate_registry_shape(registry: Any) -> list[Finding]:
@@ -89,7 +94,7 @@ def validate_registry_shape(registry: Any) -> list[Finding]:
         )
 
     schema_version = registry.get("schema_version")
-    if not isinstance(schema_version, str) or not SEMVER_RE.match(schema_version):
+    if not isinstance(schema_version, str) or not SEMVER_RE.fullmatch(schema_version):
         findings.append(
             Finding(
                 "ERROR",
@@ -98,6 +103,8 @@ def validate_registry_shape(registry: Any) -> list[Finding]:
             )
         )
 
+    if not isinstance(registry.get('generated_by'), str) or not registry['generated_by'].strip():
+        findings.append(Finding('ERROR', 'registry', 'generated_by must be a non-empty string'))
     schemas = registry.get("schemas")
     if not isinstance(schemas, list) or not schemas:
         findings.append(
@@ -128,7 +135,7 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
             )
 
         schema_id = record.get("schema_id")
-        if not isinstance(schema_id, str) or not SCHEMA_ID_RE.match(schema_id):
+        if not isinstance(schema_id, str) or not SCHEMA_ID_RE.fullmatch(schema_id):
             findings.append(
                 Finding(
                     "ERROR",
@@ -145,7 +152,7 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
             seen_ids.add(schema_id)
 
         version = record.get("version")
-        if not isinstance(version, str) or not SEMVER_RE.match(version):
+        if not isinstance(version, str) or not SEMVER_RE.fullmatch(version):
             findings.append(
                 Finding(
                     "ERROR",
@@ -155,7 +162,7 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
             )
 
         status = record.get("status")
-        if status not in VALID_STATUSES:
+        if not isinstance(status, str) or status not in VALID_STATUSES:
             findings.append(
                 Finding(
                     "ERROR",
@@ -164,15 +171,18 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
                 )
             )
 
-        path_value = record.get("path")
-        if not isinstance(path_value, str) or not path_value.strip():
-            findings.append(
-                Finding("ERROR", "registry", f"{schema_id or label} path is required")
-            )
-            continue
+        for field in ('name', 'owner_protocol', 'validation_command', 'migration_notes'):
+            if not isinstance(record.get(field), str) or not record[field].strip():
+                findings.append(Finding('ERROR', 'registry', f'{label}.{field} must be a non-empty string'))
+        for field in ('compatible_versions', 'example_paths'):
+            values = record.get(field)
+            if (not isinstance(values, list) or not all(isinstance(v, str) for v in values)
+                    or len(values) != len(set(values))):
+                findings.append(Finding('ERROR', 'registry', f'{label}.{field} must be an array of unique strings'))
 
-        artifact_path = root / path_value
-        if status != "planned" and not artifact_path.exists():
+        path_value = record.get("path")
+        artifact_path = repository_file(root, path_value, f'{label}.path', findings)
+        if artifact_path is not None and status != "planned" and not artifact_path.is_file():
             findings.append(
                 Finding(
                     "ERROR",
@@ -181,7 +191,7 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
                     "Only planned schemas may point to missing future paths.",
                 )
             )
-        elif status == "planned" and not artifact_path.exists():
+        elif artifact_path is not None and status == "planned" and not artifact_path.is_file():
             findings.append(
                 Finding(
                     "INFO",
@@ -220,7 +230,8 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
                     )
                 )
                 continue
-            if not (root / example_path).exists():
+            example_file = repository_file(root, example_path, f'{label}.example_paths', findings)
+            if example_file is not None and not example_file.is_file():
                 severity = "WARN" if status == "planned" else "ERROR"
                 findings.append(
                     Finding(
@@ -229,16 +240,6 @@ def validate_schema_records(registry: dict[str, Any], root: Path) -> list[Findin
                         f"{schema_id or label} example path does not exist: {example_path}",
                     )
                 )
-
-        migration_notes = record.get("migration_notes")
-        if not isinstance(migration_notes, str) or not migration_notes.strip():
-            findings.append(
-                Finding(
-                    "ERROR",
-                    "registry",
-                    f"{schema_id or label} migration_notes must be non-empty",
-                )
-            )
 
     return findings
 
@@ -262,7 +263,7 @@ def build_report(registry_path: Path, findings: list[Finding]) -> dict[str, Any]
     }
 
 
-def render_text(report: dict[str, Any]) -> str:
+def render_text(report: dict[str, Any], *, quiet: bool = False) -> str:
     lines = ["Repository contract validation", ""]
     summary = report["summary"]
     lines.append(
@@ -272,7 +273,8 @@ def render_text(report: dict[str, Any]) -> str:
     if report["findings"]:
         lines.append("")
         for finding in report["findings"]:
-            lines.append(Finding(**finding).render())
+            if not quiet or finding["severity"] != "INFO":
+                lines.append(Finding(**finding).render())
     return "\n".join(lines) + "\n"
 
 
@@ -286,9 +288,14 @@ def write_output(content: str, path: Path | None) -> None:
 
 def validate(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     root = Path(args.root).resolve()
-    registry_path = (root / args.schema_registry).resolve()
-    registry, findings = load_json(registry_path)
-    if registry is not None:
+    findings: list[Finding] = []
+    registry_path = repository_file(root, args.schema_registry, 'schema_registry', findings)
+    if registry_path is None:
+        report = build_report(Path(args.schema_registry), findings)
+        return report, 1
+    registry, load_findings = load_json(registry_path)
+    findings.extend(load_findings)
+    if not load_findings:
         findings.extend(validate_registry_shape(registry))
         if isinstance(registry, dict):
             findings.extend(validate_schema_records(registry, root))
@@ -315,13 +322,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Output format.",
     )
     parser.add_argument("--out", help="Optional path to write the rendered report.")
+    parser.add_argument("--quiet", action="store_true", help="Omit informational details; keep warnings, errors and summary")
     args = parser.parse_args(argv)
 
     report, exit_code = validate(args)
     if args.format == "json":
         rendered = json.dumps(report, indent=2) + "\n"
     else:
-        rendered = render_text(report)
+        rendered = render_text(report, quiet=args.quiet)
 
     print(rendered, end="")
     write_output(rendered, Path(args.out) if args.out else None)

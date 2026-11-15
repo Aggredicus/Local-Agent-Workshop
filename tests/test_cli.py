@@ -24,3 +24,10 @@ def test_cli_skills_select_uses_local_gate(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "/merge-review" in captured.out
     assert "must consider /merge-review" in captured.out
+
+
+def test_doctor_summary_retains_failure_exit_and_explanation(tmp_path, capsys):
+    assert cli.main(['doctor', '--repo', str(tmp_path), '--summary']) == 1
+    out = capsys.readouterr().out
+    assert '[FAIL]' in out and 'missing:' in out
+    assert 'Doctor:' in out and '[PASS]' not in out

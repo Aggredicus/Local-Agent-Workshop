@@ -6,6 +6,7 @@ For agent orientation, read files in this order:
 
 1. Repository root `README.md` for project purpose.
 2. Repository root `me.md` for the canonical instruction spine.
+   For a compact current-state view, use `plan/STATUS.md`; historical branch reports are evidence for their recorded commits.
 3. `docs/NAVIGATION_INDEX.md` for the documentation map.
 4. `docs/architecture/REPOSITORY_KNOWLEDGE_MAP.md` for the source-of-truth and projection model.
 
@@ -26,9 +27,9 @@ For agent orientation, read files in this order:
 | Human-facing project overview | `../README.md` | implemented |
 | Documentation navigation | `NAVIGATION_INDEX.md` | implemented |
 | Repository knowledge map | `architecture/REPOSITORY_KNOWLEDGE_MAP.md` | implemented |
-| Standard execution contract | `protocols/STANDARD_EXECUTION_CONTRACT.md` | in active PR #119 |
-| Schema registry policy | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | in active PR #122 |
-| Repository validation gate | `protocols/REPO_VALIDATION_GATE.md` | in active PR #123 |
+| Standard execution contract | `protocols/STANDARD_EXECUTION_CONTRACT.md` | implemented |
+| Schema registry policy | `protocols/SCHEMA_REGISTRY_AND_COMPATIBILITY.md` | implemented |
+| Repository validation gate | `protocols/REPO_VALIDATION_GATE.md` | implemented |
 
 ## Source-of-truth reminder
 

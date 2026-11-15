@@ -54,4 +54,6 @@ The heuristic security scanner inventories unreviewed files, including Windows s
 
 ## Platform evidence
 
-The local verification report names exactly what ran. POSIX mode/permission fixtures do not establish Windows execution-policy behavior; simulated reparse-point checks are not a Windows-native qualification. The existing CI matrix runs Linux Python versions. Windows CI, actual Windows launcher tests, VM firewall/reboot checks, physical Wi-Fi and offline bundle acceptance remain future deployment gates.
+The local verification report names exactly what ran. POSIX mode/permission fixtures and simulated reparse-point checks do not qualify native Windows filesystem behavior. Source CI runs Linux Python versions 3.11–3.14. The USB workflow additionally tests startup in Windows PowerShell 5.1 and Debian 12/13 offline installation/repetition in network-disabled containers. Windows WLAN/ACLs, VM firewall/reboot checks and physical Wi-Fi/boot remain separate deployment gates. See the [current USB delivery evidence](../../reports/publish/usb-launcher-download-2026-11-15.json).
+
+`workshop doctor --summary`, `bash scripts/verify.sh --quiet` and cleanup's `--quiet` mode reduce routine output while retaining warnings, failures and exit status. Full diagnostics and JSON reports remain available. Quiet output does not add checks to the explicitly unavailable security/release gates.

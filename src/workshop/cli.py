@@ -31,6 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     doctor = subparsers.add_parser("doctor", help="Check whether this checkout is ready for local agent work")
     doctor.add_argument("--repo", type=Path, default=Path.cwd(), help="Repository root (default: current directory)")
+    doctor.add_argument("--summary", action="store_true", help="Show counts and all warnings/failures, omitting successful check details")
 
     skills = subparsers.add_parser("skills", help="Inspect, select, and synchronize Agent Skills")
     skills.add_argument("--root", type=Path, default=Path("skills"), help="Canonical skills directory")
@@ -82,7 +83,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def handle_doctor(args: argparse.Namespace) -> int:
     checks = run_doctor(args.repo)
-    print(format_checks(checks))
+    print(format_checks(checks, summary=args.summary))
     return 1 if has_failures(checks) else 0
 
 

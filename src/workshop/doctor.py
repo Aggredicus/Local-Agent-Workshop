@@ -70,8 +70,13 @@ def run_doctor(repo_root: Path) -> list[Check]:
     return checks
 
 
-def format_checks(checks: list[Check]) -> str:
-    return "\n".join(f"[{check.level:<4}] {check.name}: {check.message}" for check in checks)
+def format_checks(checks: list[Check], *, summary: bool = False) -> str:
+    visible = [check for check in checks if not summary or check.level != "PASS"]
+    lines = [f"[{check.level:<4}] {check.name}: {check.message}" for check in visible]
+    if summary:
+        counts = {level: sum(check.level == level for check in checks) for level in ("PASS", "WARN", "FAIL")}
+        lines.append(f"Doctor: {counts['PASS']} passed, {counts['WARN']} warnings, {counts['FAIL']} failures")
+    return "\n".join(lines)
 
 
 def has_failures(checks: list[Check]) -> bool:

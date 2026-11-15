@@ -30,3 +30,12 @@ Outcome: log-only update
 Observation: Main integration was explicitly authorized; use an implementation branch to validate Windows behavior before integrating.
 Decision: No skill behavior change. GitHub issue creation remains blocked; local audit draft records the follow-up.
 Links: reports/usb-recovery/launcher-validation.md; reviews/pending/usb-launcher.md
+
+## 2026-11-15 — overnight repository refinement
+
+Skill used: /repo-cleanup
+Used for: branch inventory, safe obsolete-ref cleanup and closeout
+Outcome: log-only update
+Observation: 42 remote work refs were already ancestors of main; exact saved heads and atomic conditional deletion preserved all unique/long-lived refs and open PR work.
+Decision: No skill behavior change. GitHub API issue creation remains blocked; local follow-up draft is in the run report.
+Links: reports/overnight-quality/PASS-1.md; reports/overnight-quality/branches-before.json; reports/overnight-quality/branches-after.json

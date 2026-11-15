@@ -1,0 +1,13 @@
+{
+  "verification": {
+    "normal_chars": 2700,
+    "quiet_chars": 487,
+    "reduction_percent": 82.0
+  },
+  "doctor": {
+    "normal_chars": 326,
+    "summary_chars": 41,
+    "reduction_percent": 87.4
+  },
+  "note": "Character counts, not tokenizer measurements; both verification modes ran the same suite and all failure-propagation tests pass."
+}

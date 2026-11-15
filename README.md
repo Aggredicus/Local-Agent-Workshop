@@ -2,6 +2,10 @@
 
 **Local Agent Workshop** is a local-first, human-governed workspace for agent-assisted software development: reusable Agent Skills, reviewable branches, deterministic project state, evidence-backed verification, and explicit human approval at risk boundaries.
 
+**USB tools:** [download the verified Windows/Debian ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-f164824e23fd/LAW-USB-Tools.zip), extract it, open `LAW`, and double-click `START-USB.cmd`. [USB instructions](setup/usb/README.md) cover preparation and Wi-Fi recovery. A Debian installer ISO is obtained separately.
+
+**Start from `main`.** [Current status](plan/STATUS.md) is the compact entrypoint; old work branches are not required for normal use. Agents follow [me.md](me.md), then read the task's relevant linked protocols.
+
 ## Get running again
 
 Requirements: Python 3.11+ and Git.
@@ -19,7 +23,7 @@ python -m pip install --upgrade "pip==26.3"
 python -m pip install -e ".[dev]"
 workshop skills validate
 workshop skills sync
-workshop doctor
+workshop doctor --summary
 bash scripts/verify.sh
 ```
 
@@ -91,6 +95,9 @@ python scripts/repo_cleanup.py --phase after
 ```
 
 CI tests supported Python versions and runs the same local verification path.
+For compact logs, use `bash scripts/verify.sh --quiet` and
+`python scripts/repo_cleanup.py --phase after --quiet`. These modes retain
+warnings, failures, counts and exit status; JSON reports remain complete.
 
 ## HyperKanban
 
@@ -108,7 +115,11 @@ Start with `me.md`. Tool-specific instruction files such as `AGENTS.md`, `CLAUDE
 
 ## Status
 
-The August 2026 revival work has restored a trustworthy cold start and is now connecting the repository's agent-operability pieces into one usable surface: native project skill discovery, deterministic skill selection, repository health checks, explicit Python packaging, multi-version CI, and existing HyperKanban operations. Larger orchestration/dashboard/runtime work remains separate from this recovery layer.
+`main` contains the reviewed Python CLI, skill discovery/synchronization,
+HyperKanban validation and recovery, and the Windows/Debian USB test candidate.
+Windows PowerShell 5.1 startup and Debian 12/13 offline installation are tested;
+physical USB boot, firmware, WLAN and network rollback still need hardware tests.
+Unmerged deployment/runtime experiments remain separate from the accepted tools.
 
 For the rebuilt CLI's acceptance checks, generated-cache migration, state recovery,
 and explicit limits of security/release checks, see

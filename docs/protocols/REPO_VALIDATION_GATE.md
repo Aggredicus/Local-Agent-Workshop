@@ -32,6 +32,9 @@ The validator currently checks:
 - active schemas include examples,
 - example paths exist when required,
 - migration notes are present.
+- metadata fields have the required basic string/list types, including unique string lists,
+- registry, schema and example paths stay inside the repository after resolving links; directories, absolute paths and traversal are rejected,
+- malformed JSON, encoding errors and unreadable files return structured errors without a traceback.
 
 ## Required, optional, and warning-only checks
 
@@ -59,6 +62,10 @@ JSON output:
 ```sh
 python scripts/validate_repo_contracts.py --format json --out reports/validation/latest.json
 ```
+
+Use `--quiet` to omit routine informational text while retaining all warnings,
+errors, counts and exit status. JSON output is always complete. `--schema-registry`
+accepts a path relative to `--root`; escaping links and external files are rejected.
 
 The script returns nonzero if errors are found.
 

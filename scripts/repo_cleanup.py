@@ -203,7 +203,13 @@ def build_report(phase: str, findings: list[Finding]) -> dict:
     }
 
 
-def render_text(report: dict) -> str:
+def render_text(report: dict, *, quiet: bool = False) -> str:
+    if quiet:
+        summary = report["summary"]
+        counts = f"{summary['blockers']} blockers, {summary['warnings']} warnings, {summary['info']} info"
+        lines = [f"Cleanup ({report['phase']}): {counts}"]
+        lines.extend(Finding(**item).render() for item in report['findings'] if item['severity'] != 'INFO')
+        return "\n".join(lines) + "\n"
     lines = ["Repository cleanup audit", "========================"]
     findings = [Finding(**item) for item in report["findings"]]
     lines.extend(finding.render() for finding in findings)
@@ -230,6 +236,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run a non-destructive repository cleanup audit.")
     parser.add_argument("--phase", choices=["before", "after"], default="before")
     parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--quiet", action="store_true", help="Omit informational details; keep warnings, blockers and summary")
     parser.add_argument("--out", type=Path, help="Optional path to write the cleanup report")
     args = parser.parse_args(argv)
 
@@ -238,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         rendered = json.dumps(report, indent=2) + "\n"
     else:
-        rendered = render_text(report)
+        rendered = render_text(report, quiet=args.quiet)
     write_output(rendered, args.out)
     return 1 if report["summary"]["blockers"] else 0
 

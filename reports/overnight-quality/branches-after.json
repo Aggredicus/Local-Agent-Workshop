@@ -1,0 +1,25 @@
+{
+  "removed_merged_work_refs": 42,
+  "remote_branches_remaining": 15,
+  "all_unique_and_long_lived_heads_preserved": true,
+  "saved_heads": "branches-before.json",
+  "inventory_commit": "d0f3686",
+  "deletion_guard": "Atomic conditional ref deletion; reject any changed head; no commit history rewritten",
+  "remaining_branches": [
+    "agent/0001-normalize-repo-structure",
+    "agent/0003-pre-ci-repo-status-cleanup",
+    "agent/0042-quality-handoff-clarification",
+    "agent/0048-inbox-foundation",
+    "agent/0137-dashboard-schemas",
+    "agent/caw-law-runtime-split-v01",
+    "agent/debian-server-deployment",
+    "agent/dependency-auditor-skill",
+    "agent/overnight-quality",
+    "agent/powerful-tier-skills-scaffold",
+    "agent/recursive-user-qa",
+    "agent/rust-swarm-original-v0",
+    "develop",
+    "experimental",
+    "main"
+  ]
+}

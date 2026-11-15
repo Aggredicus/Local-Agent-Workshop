@@ -1,0 +1,14 @@
+# Pass 1: branch clarity, compact diagnostics and safer metadata checks
+
+- Removed 42 fully merged work refs using an atomic push guarded by their saved exact heads. No commit history was rewritten. Before/after inventories preserve restoration instructions. All 11 unique work branches and main/develop/experimental were retained; four open PR heads were explicitly checked and preserved. The current work branch makes 15 remote branches during this run.
+- Replaced stale initial-setup status with a main-based entrypoint and the verified USB link. Corrected navigation entries that labeled missing protocols implemented and old merged PRs active. Historical reports and governance remain intact.
+- Added opt-in doctor summary and quiet verification/cleanup/contracts output. Measured verification output fell from 2,700 to 487 characters (82%); healthy doctor from 326 to 41 (87.4%). These are character counts, not tokenizer measurements. Full modes remain available; JSON stays complete. Failure-injection tests verify that both verification modes stop and return the failing validator/test exit code.
+- New contract-validator regression tests initially produced 21 failures/8 passes. JSON null falsely passed; unhashable statuses, encoding and directory inputs crashed; malformed metadata and escaping paths were accepted or unreported. Fixed shape/type checks, contained relative file resolution, directory rejection and structured I/O/JSON errors. Schema/example content semantics remain outside this metadata gate.
+- Pinned checkout/setup-python actions to their upstream v4/v5 commit refs, disabled credential persistence, limited CI to read-only contents, pinned pip/pytest and selected Ubuntu 24.04. The existing Python 3.11–3.14 matrix is retained; superseded branch CI runs can be cancelled. Remote CI must pass before integration.
+
+Verification: **151 tests pass**, selected Ruff checks pass, both full and quiet verification paths pass, doctor reports 6 passes/0 warnings after skill sync, shell/YAML syntax and diff whitespace checks pass. No physical hardware or Wi-Fi was changed. Source review and subsequent security work continue on agent/overnight-quality.
+
+Skill follow-up drafts (not remotely created; API is blocked):
+
+- Improve /repo-cleanup after branch convergence. Observation: exact ancestry plus saved refs distinguishes safe cleanup from discarding unique work. Action: log-only update; existing conservative skill is sufficient. Artifact: skills/repo-cleanup/IMPROVEMENT_LOG.md; low-risk audit entry.
+- Improve /quality-analysis after compact diagnostics. Observation: byte/character measurements and failure-injection tests are better evidence than claims of reduced tokens; metadata-only validation must remain explicit. Action: log-only update; artifact: skills/quality-analysis/IMPROVEMENT_LOG.md; low-risk audit entry.
