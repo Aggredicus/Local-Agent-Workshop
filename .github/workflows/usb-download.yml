@@ -5,6 +5,7 @@ on:
     branches: ['main', 'agent/usb-*']
     paths:
       - '.github/workflows/usb-download.yml'
+      - '.github/workflows/windows-usb-tests.yml'
       - 'START-USB.cmd'
       - 'setup/usb/**'
       - 'src/workshop/usb/**'
@@ -21,20 +22,7 @@ concurrency:
 jobs:
   windows-launcher:
     if: github.repository == 'Aggredicus/Local-Agent-Workshop'
-    runs-on: windows-2022
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Test Windows PowerShell 5.1 launcher from arbitrary extraction paths
-        shell: powershell
-        run: |
-          try { & ./tests/usb/windows-launcher.ps1 } catch {
-            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
-            Write-Host "::error::$message"
-            throw
-          }
+    uses: ./.github/workflows/windows-usb-tests.yml
 
   build:
     needs: windows-launcher
@@ -80,7 +68,7 @@ jobs:
           One ZIP containing Windows LAW tools and verified Debian 12/13 amd64 offline recovery packages.
 
           Source: $GITHUB_SHA
-          Verification: native Windows PowerShell 5.1 launcher tests, source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
+          Verification: native Windows PowerShell 5.1 startup and synthetic encrypted credential round trip, source tests, signed package closure checks, network-disabled installation and repeat installation for both Debian releases, ZIP integrity and SHA256.
 
           **Test candidate, not a production release.** Native Windows Wi-Fi, physical USB boot, Secure Boot, firmware and real network rollback remain unqualified. No Debian ISO is included; the ZIP is data for an operator-prepared USB, not bootable media by itself. Package signature metadata has expiry checks; rebuild when it expires. No private keys or operator credentials are included.
 

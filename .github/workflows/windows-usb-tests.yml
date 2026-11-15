@@ -1,0 +1,27 @@
+name: Test Windows USB tools
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test startup and synthetic credential encryption in Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          try {
+            & ./tests/usb/windows-launcher.ps1
+            & ./tests/usb/windows-crypto.ps1
+          } catch {
+            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Host "::error::$message"
+            throw
+          }

@@ -19,31 +19,7 @@ concurrency:
 
 jobs:
   windows-tools:
-    runs-on: windows-2022
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Check native Windows launcher and credential helper compilation
-        shell: powershell
-        run: |
-          try {
-            & ./tests/usb/windows-launcher.ps1
-            & ./setup/usb/Wifi-Capsule.ps1 -CompileOnly
-          } catch {
-            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
-            Write-Host "::error::$message"
-            throw
-          }
-      - name: Test native Windows encryption with disposable synthetic data
-        shell: powershell
-        run: |
-          try { & ./tests/usb/windows-crypto.ps1 } catch {
-            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
-            Write-Host "::error::$message"
-            throw
-          }
+    uses: ./.github/workflows/windows-usb-tests.yml
 
   test:
     runs-on: ubuntu-24.04

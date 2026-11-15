@@ -31,6 +31,8 @@ function Invoke-Native([string]$Exe, [string[]]$Arguments) {
 }
 
 try {
+    & (Join-Path $repo 'setup\usb\Wifi-Capsule.ps1') -CompileOnly
+    if ($LASTEXITCODE -ne 0) { throw 'Production credential helper did not compile.' }
     [IO.Directory]::CreateDirectory($temp) | Out-Null
     $archive = Join-Path $temp 'age.zip'
     & curl.exe --fail --silent --show-error --location --proto '=https' --tlsv1.2 --max-time 90 'https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-windows-amd64.zip' --output $archive
@@ -48,8 +50,6 @@ try {
     $recipient = (Invoke-Native $keygen @('-y', $identity)).Trim()
     if ($recipient -notmatch '^age1[a-z0-9]{58}$') { throw 'Invalid synthetic recipient.' }
 
-    & (Join-Path $repo 'setup\usb\Wifi-Capsule.ps1') -CompileOnly
-    if ($LASTEXITCODE -ne 0) { throw 'Production credential helper did not compile.' }
     $ssidText = 'Caf' + [char]0x00e9 + ' Test Network'
     $passwordText = 'SYNTHETIC-password-for-tests-only'
     $ssid = ConvertTo-SecureString $ssidText -AsPlainText -Force
