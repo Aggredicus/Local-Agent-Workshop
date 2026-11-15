@@ -56,16 +56,29 @@ poweroff
 '''
 
 
-def vm(command, log, timeout, marker=None):
+def vm(command, log, timeout, marker=None, stop_on_marker=False):
     with log.open('wb') as stream:
         child = subprocess.Popen(command, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
         try:
             deadline = time.monotonic() + timeout
+            next_notice = time.monotonic() + 60
             while child.poll() is None:
+                current = log.read_text(errors='replace')
+                if stop_on_marker and marker in current:
+                    os.killpg(child.pid, signal.SIGTERM)
+                    child.wait(timeout=20)
+                    break
+                if 'Failed to run preseeded command' in current or 'Installation step failed' in current:
+                    print(current[-12000:])
+                    raise RuntimeError('Debian Installer reported a failed step: ' + str(log))
+                if time.monotonic() >= next_notice:
+                    tail = current[-800:].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+                    print(f'::notice::VM progress {log.name}: {tail}', flush=True)
+                    next_notice += 60
                 if time.monotonic() > deadline:
                     raise RuntimeError('VM timed out: ' + str(log))
                 time.sleep(2)
-            if child.returncode:
+            if child.returncode and not (stop_on_marker and marker in log.read_text(errors='replace')):
                 raise RuntimeError('VM failed: ' + str(log))
         finally:
             if child.poll() is None:
@@ -110,6 +123,17 @@ StandardError=journal+console
 [Install]
 WantedBy=multi-user.target
 ''')
+    (tree / 'isolinux').mkdir()
+    (tree / 'isolinux/isolinux.cfg').write_text('''serial 0 115200
+console 0
+say LAW_BIOS_BOOT_OK
+default lawqa
+prompt 0
+timeout 10
+label lawqa
+  kernel /install.amd/vmlinuz
+  append initrd=/install.amd/initrd.gz auto=true priority=critical preseed/file=/cdrom/law/preseed.cfg console=ttyS0,115200n8 DEBIAN_FRONTEND=text --- console=ttyS0,115200n8
+''')
     qa_iso = scratch / 'QA-ONLY.iso'
     # Remap the four QA files without replacing the entire base tree.
     cmd = ['xorriso', '-indev', str(build / OUTPUT), '-outdev', str(qa_iso)]
@@ -122,13 +146,36 @@ WantedBy=multi-user.target
     base = ['qemu-system-x86_64', '-accel', 'tcg,thread=multi', '-cpu', 'max', '-smp', '2', '-m', '3072',
             '-nic', 'none', '-display', 'none', '-monitor', 'none', '-serial', 'stdio', '-no-reboot',
             '-drive', f'file={disk},if=virtio,format=qcow2']
-    # Direct boot of the real installer kernel; serial output is safe (synthetic account only).
-    vm(base + ['-cdrom', str(qa_iso), '-kernel', str(build / 'tree/install.amd/vmlinuz'),
-               '-initrd', str(build / 'tree/install.amd/initrd.gz'), '-append',
-               'auto=true priority=critical preseed/file=/cdrom/law/preseed.cfg console=ttyS0,115200n8 DEBIAN_FRONTEND=text --- console=ttyS0,115200n8'],
+    # Exercise the remastered BIOS boot image, not a direct kernel shortcut.
+    vm(base + ['-boot', 'order=d', '-cdrom', str(qa_iso)],
        scratch / 'install.log', 1800, 'LAW_OFFLINE_INSTALL_OK')
+    if 'LAW_BIOS_BOOT_OK' not in (scratch / 'install.log').read_text(errors='replace'):
+        raise RuntimeError('BIOS bootloader acceptance marker missing.')
     vm(base, scratch / 'first-boot.log', 600, 'LAW_VM_OFFLINE_ROOTLESS_OK')
+    # Exercise the inherited EFI image and Debian GRUB, without Secure Boot.
+    efi = scratch / 'efi.cfg'
+    efi.write_text('''serial --unit=0 --speed=115200
+terminal_input serial
+terminal_output serial
+set timeout=1
+menuentry 'LAW EFI boot test' {
+    echo LAW_UEFI_BOOT_OK
+    halt
+}
+''')
+    efi_iso = scratch / 'QA-EFI-ONLY.iso'
+    run('xorriso', '-indev', build / OUTPUT, '-outdev', efi_iso, '-map', efi,
+        '/boot/grub/grub.cfg', '-boot_image', 'any', 'replay', '-commit')
+    import shutil
+    variables = scratch / 'OVMF_VARS.fd'
+    shutil.copyfile('/usr/share/OVMF/OVMF_VARS_4M.fd', variables)
+    vm(['qemu-system-x86_64', '-accel', 'tcg', '-m', '512', '-nic', 'none',
+        '-display', 'none', '-monitor', 'none', '-serial', 'stdio',
+        '-drive', 'if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd',
+        '-drive', f'if=pflash,format=raw,file={variables}', '-boot', 'order=d', '-cdrom', str(efi_iso)],
+       scratch / 'efi.log', 120, 'LAW_UEFI_BOOT_OK', stop_on_marker=True)
     evidence = {'network': 'no NIC (-nic none)', 'installation': 'passed', 'rootless_docker_container': 'passed',
+                'bios_boot_and_installed_disk_boot': 'passed', 'uefi_grub_boot': 'passed (OVMF, Secure Boot off)',
                 'compose_buildx_law_cli': 'passed', 'rootful_docker_and_ssh': 'masked',
                 'public_iso_disk_answers': 'none; QA-only overlay used a disposable /dev/vda',
                 'public_iso_sha256': hashlib.file_digest((build / OUTPUT).open('rb'), 'sha256').hexdigest(),

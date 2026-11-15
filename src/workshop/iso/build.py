@@ -181,6 +181,7 @@ def build(repo: Path, output: Path, profile_path: Path, keyring: Path) -> dict:
                 'base': provenance, 'profile': profile, 'builder_image': IMAGE, 'packages': len(manifest['packages']),
                 'iso': OUTPUT, 'sha256': sha, 'bytes': (output / OUTPUT).stat().st_size,
                 'offline_apt_install': 'passed with Docker --network none',
+                'offline_apt_tamper_rejection': 'passed; real APT rejected changed package bytes',
                 'physical_usb_and_wifi_tested': False, 'disk_partitioning_preseeded': False}
     (output / 'build-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n')
     return evidence
