@@ -78,6 +78,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     add_usb_parser(subparsers)
+    iso = subparsers.add_parser('iso', help='Build the authenticated offline Debian + LAW installer (Linux/Docker)')
+    iso.add_argument('iso_args', nargs=argparse.REMAINDER, help='Use: build --output NEW_DIRECTORY')
     return parser
 
 
@@ -199,6 +201,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "usb":
         return handle_usb(args)
+
+    if args.command == 'iso':
+        from workshop.iso.build import main as iso_main
+        if not args.iso_args or args.iso_args[0] != 'build':
+            parser.error('Use workshop iso build --output NEW_DIRECTORY')
+        return iso_main(args.iso_args[1:])
 
     if args.command == "doctor":
         return handle_doctor(args)

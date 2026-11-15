@@ -1,0 +1,19 @@
+Local Agent Workshop — offline Debian server
+
+Your normal account owns ~/Local-Agent-Workshop. Run: workshop --help
+Docker Engine, Compose and Buildx run as your user: docker info
+The rootful Docker daemon is disabled. SSH stays disabled until you supply a public key.
+
+Wi-Fi: insert the shared USB, find its mounted directory, then run locally:
+  sudo law-usb pair --output /media/YOUR-USB/debian-request.json
+Use the Windows LAW menu (option 4) to enter/test credentials and encrypt them.
+Follow setup/usb/README.md to verify the capsule and apply it at this console.
+Debian's private pairing key stays on this computer. Never copy it to USB.
+
+SSH: copy your Windows Ed25519 PUBLIC key to USB, then at this console:
+  sudo law-enable-ssh /media/YOUR-USB/id_ed25519.pub
+  sudo systemctl start ssh
+Verify Debian's SSH host-key fingerprint on Windows before trusting the host.
+
+This image installs the LAW CLI and encrypted Wi-Fi helpers, not the unfinished
+multi-service dashboard/deployment experiment. Read setup/iso/README.md.

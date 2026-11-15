@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "debian_version": "13.7.0",
+  "architecture": "amd64",
+  "hostname": "thinkcentre2",
+  "locale": "en_US.UTF-8",
+  "keyboard": "us",
+  "timezone": "America/New_York",
+  "ssh_public_key": ""
+}

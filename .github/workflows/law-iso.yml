@@ -3,7 +3,7 @@ name: Build LAW offline Debian ISO
 on:
   push:
     branches: ['agent/iso-*', 'main']
-    paths: ['.github/workflows/law-iso.yml', 'setup/iso/**', 'src/workshop/iso/**', 'tests/iso/**']
+    paths: ['.github/workflows/law-iso.yml', 'setup/iso/**', 'src/workshop/iso/**', 'scripts/test_law_iso_vm.py', 'tests/iso/**']
   workflow_dispatch:
 
 permissions:
@@ -21,12 +21,82 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Probe requested official Debian image and signatures
-        shell: bash
+      - name: Install build and VM verification tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends debian-keyring xorriso qemu-system-x86 qemu-utils ovmf
+      - name: Authenticate, build and verify the offline ISO
+        env:
+          PYTHONPATH: src
         run: |
           set -euo pipefail
-          for base in https://cdimage.debian.org/debian-cd/current/amd64/iso-cd https://cdimage.debian.org/mirror/cdimage/archive/13.7.0/amd64/iso-cd; do
-            code=$(curl --silent --show-error --location --head --max-time 30 --output /dev/null --write-out '%{http_code}' "$base/debian-13.7.0-amd64-netinst.iso")
-            echo "::notice::Requested Debian ISO: $base -> HTTP $code"
-          done
-          curl --fail --silent --show-error --location --max-time 30 https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ | python3 -c 'import sys,re; text=sys.stdin.read(); print("::notice::Current official filenames: " + ", ".join(sorted(set(re.findall(r"debian-[0-9.]+-amd64-netinst[.]iso",text)))))'
+          python3 -m workshop.iso.build --output "$RUNNER_TEMP/law-iso" 2>&1 | tee "$RUNNER_TEMP/iso-build.log"
+      - name: Install and run rootless Docker in a disconnected disposable VM
+        run: |
+          set -euo pipefail
+          python3 scripts/test_law_iso_vm.py "$RUNNER_TEMP/law-iso" 2>&1 | tee "$RUNNER_TEMP/iso-vm.log"
+      - name: Prepare verified public download files
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/iso-download"
+          cd "$RUNNER_TEMP/law-iso"
+          sha256sum --check LAW-Debian-13.7.0-amd64.iso.sha256
+          cp LAW-Debian-13.7.0-amd64.iso* build-evidence.json vm-evidence.json boot-metadata.txt "$RUNNER_TEMP/iso-download/"
+          cp tree/law/packages.json "$RUNNER_TEMP/iso-download/packages.json"
+          python3 -c 'import json; d=json.load(open("build-evidence.json")); print("::notice::ISO_SHA256=" + d["sha256"] + "; bytes=" + str(d["bytes"]) + "; signed packages=" + str(d["packages"]))'
+      - name: Report diagnostic tail on failure
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          for name in ('iso-build.log','iso-vm.log','law-iso/qa-private-do-not-upload/install.log','law-iso/qa-private-do-not-upload/first-boot.log'):
+              p=root/name
+              if p.exists():
+                  text=p.read_text(errors='replace')[-13000:]
+                  text=text.replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+                  print('::error::'+name+': '+text)
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: law-offline-iso
+          path: ${{ runner.temp }}/iso-download/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.repository == 'Aggredicus/Local-Agent-Workshop'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: law-offline-iso
+          path: download
+      - name: Publish a download-verified test candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag="law-iso-${GITHUB_SHA:0:12}"
+          cd download
+          sha256sum --check LAW-Debian-13.7.0-amd64.iso.sha256
+          cat > notes.md <<'NOTES'
+          Fresh offline Debian 13.7.0 amd64 + LAW CLI/Wi-Fi helpers + official rootless Docker Engine, Compose and Buildx. Select and confirm the target disk in Debian Installer; account/password entry stays local. No private keys or Wi-Fi credentials included.
+
+          Verification: Debian CD signature and signed SHA512; Debian/Docker signed APT indexes and complete package closure; actual installation and rootless Docker container in a VM with no NIC; preserved BIOS/UEFI boot metadata. Hardware USB, Secure Boot and ThinkCentre Wi-Fi still need physical testing. Test candidate, not a production qualification. Source and build/VM/package evidence attached. See setup/iso/README.md in the source repository.
+          NOTES
+          gh release create "$tag" --draft --prerelease --target "$GITHUB_SHA" --title "LAW offline Debian installer (${GITHUB_SHA:0:12})" --notes-file notes.md
+          gh release upload "$tag" LAW-Debian-13.7.0-amd64.iso LAW-Debian-13.7.0-amd64.iso.sha256 build-evidence.json vm-evidence.json packages.json boot-metadata.txt
+          mkdir verify
+          gh release download "$tag" --pattern LAW-Debian-13.7.0-amd64.iso --dir verify
+          cp LAW-Debian-13.7.0-amd64.iso.sha256 verify/
+          (cd verify && sha256sum --check LAW-Debian-13.7.0-amd64.iso.sha256)
+          gh release edit "$tag" --draft=false --prerelease --latest=false
+          echo "https://github.com/$GH_REPO/releases/download/$tag/LAW-Debian-13.7.0-amd64.iso" >> "$GITHUB_STEP_SUMMARY"
