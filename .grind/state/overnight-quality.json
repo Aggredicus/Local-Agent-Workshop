@@ -1,0 +1,14 @@
+{
+  "run_id": "overnight-quality-2026-11-15",
+  "branch": "agent/overnight-quality",
+  "worktree": "/workspace/Local-Agent-Workshop",
+  "baseline_commit": "87872c602bc5c662be2760cc384a7f844f459d11",
+  "status": "running",
+  "current_task": "Branch inventory, compact diagnostics and current navigation",
+  "verification": "Baseline 109 tests pass; preflight cleanup 0 blockers, 0 warnings",
+  "review_card": "reviews/pending/overnight-quality.md",
+  "evidence_directory": "reports/overnight-quality",
+  "pending_decisions": [],
+  "next_safe_action": "Preserve branch heads, inspect open PR context, implement and test compact diagnostics",
+  "resume_command": "git switch agent/overnight-quality; cat .grind/state/overnight-quality.json; PATH=\"$PWD/.venv/bin:$PATH\" bash scripts/verify.sh"
+}

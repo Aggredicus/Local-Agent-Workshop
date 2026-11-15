@@ -1,0 +1,465 @@
+{
+  "artifact_type": "branch_cleanup_inventory",
+  "main_commit": "87872c602bc5c662be2760cc384a7f844f459d11",
+  "remote": "origin",
+  "observed_remote_branches": 56,
+  "obsolete_merged_work_refs": 42,
+  "open_pull_requests_checked": {
+    "agent/debian-server-deployment": 194,
+    "agent/rust-swarm-original-v0": 193,
+    "agent/caw-law-runtime-split-v01": 192,
+    "agent/recursive-user-qa": 190
+  },
+  "policy": "Only fully contained work refs without open PR context; preserve main, develop, experimental, release/rc and every unique commit. Save exact heads before removal; conditional deletion must reject changed refs.",
+  "restore": "For a removed ref, git push origin SAVED_HEAD:refs/heads/SAVED_BRANCH; saved heads are ancestors of main.",
+  "branches": [
+    {
+      "branch": "agent-0092-standard-execution-contract",
+      "head": "c20d001a8ad9c391c273a4b4582d3de7512027bf",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0109-schema-registry",
+      "head": "81c68bc35fb5766a02e3e6596054cf0a0349d32a",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0111-validation-gate",
+      "head": "b24631a2f1cd649bcfc90c2c85181feceaa16085",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0113-issue-taxonomy",
+      "head": "083f54aa6b803cec43182bf712da9cbda53aec7d",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0114-documentation-map",
+      "head": "f1a160c5de8f9cbfebe6fa28a93ba51ed136c69f",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0116-hello-workflow",
+      "head": "ace28a01f49c8ea8af41312a50b14f373f21b6fd",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0120-repo-self-model-roadmap",
+      "head": "c489aa414f235c9ed570467c26b4a43e9a07021b",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0126-merge-review-skill",
+      "head": "698e0e3de0cf666dbe2b729e64a6175d88584daf",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0128-doc-status-refresh",
+      "head": "79061d34baafb948931e7dcb5b24373d731f43b7",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0130-merge-policy",
+      "head": "1020f1e00cb7466f8bf2a338dcebd26f95775b26",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0133-link-project-management-docs",
+      "head": "068328d6bc40c2ea57b636a65fd9185e86b41e7e",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent-0135-dashboard-spec",
+      "head": "b38b434b14793c8cd69c85846777c660e0d71700",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0001-complete-normalization-cleanup",
+      "head": "73cd3388534c4dbd5d6adfffbfbb1c04cecc5876",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0001-normalize-repo-structure",
+      "head": "b3c749be60172d9686893caff63f33b15b8949b3",
+      "contained_in_main": false,
+      "unique_commits": 1,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/0003-pre-ci-repo-status-cleanup",
+      "head": "6a9ef8aa73efd42a68693aa7064f499a5ca19a70",
+      "contained_in_main": false,
+      "unique_commits": 4,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/0023-hyperkanban-state-validator",
+      "head": "703627dec5a2c63e61be748421c5d23c259c8c71",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0024-hyperkanban-readonly-cli",
+      "head": "6d85edb8825d54ccaaaaa00837d7ff5f2282fc5a",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0029-hyperkanban-evidence-gates",
+      "head": "7d6c70b44c215df6c350b9e7d2e73a2c6e890273",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0037-cleanup-tests-json-output",
+      "head": "9fe7604bc5825213a44bbd0ce98b9cf5ca7a60e4",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0042-automation-loop-spine",
+      "head": "7f4a88fd0e5323d5b8294b1afc724c56e839b46b",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0042-quality-handoff-clarification",
+      "head": "805f89acee313d9add957ff905a4f3af185da161",
+      "contained_in_main": false,
+      "unique_commits": 2,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/0044-publish-skill-foundation",
+      "head": "52ae95cff68b186fb4adcc8e93a55046263313eb",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0048-inbox-foundation",
+      "head": "1f4ec059e5398f6882309c5d361b7e01b557c0aa",
+      "contained_in_main": false,
+      "unique_commits": 1,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/0048-qc-agent-arrival-inbox",
+      "head": "429753320520bb96907a3b6a887f333c9648c5ec",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0048-stop-retry",
+      "head": "429753320520bb96907a3b6a887f333c9648c5ec",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0137-dashboard-schemas",
+      "head": "7b3de4e46ebaf27a516e79edc31f812b4e00d5e0",
+      "contained_in_main": false,
+      "unique_commits": 3,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/0137-dashboard-schemas-refresh",
+      "head": "1f75f7afc430b96b9991b61ce734036fdb8b1627",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0139-close-issue-skill",
+      "head": "6772d3895185b2e40e3d312eb51ec9ac6b138fa4",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0141-evidence-fix",
+      "head": "593931462ccaa4e28de277554250fd91e875249c",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0141-improve-close-issue",
+      "head": "1ddb1649bfe65f5bee5f89cd58445a7c667adc70",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0143-satisfaction-matrix",
+      "head": "e921b8fe41d774010d4476838091043a7f60291f",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0147-merge-review-governance",
+      "head": "e936d67acae009284cd9e3565a7f3c3bc7172560",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0148-close-blocked",
+      "head": "7a371dad7fca3de3e36034e70103a7d3262895ca",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0158-close-completion-gate",
+      "head": "bf5e9d858aff68c6134db96b8e6f5a153b31c1ae",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0160-skill-artifact-updates",
+      "head": "93547ae9131879963c734a3c25ccbfda2557e379",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/0167-documentation-upkeep",
+      "head": "4159f2fc47d13b87f9ba26793f67836fc4456c40",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/184-main-trunk-governance",
+      "head": "db5896b40ee0e05286712fbbc7a3d49c6351adb6",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/caw-law-runtime-split-v01",
+      "head": "d0c52d5bca570beb81f9039a878a475487012114",
+      "contained_in_main": false,
+      "unique_commits": 21,
+      "open_pr": 192,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/current-status-ci-cleanup",
+      "head": "0dd76725a28ce54e5dc03ffa8079629f744350be",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/debian-server-deployment",
+      "head": "84351a308a9b019e8f3ee29bd9f3115ff28695a3",
+      "contained_in_main": false,
+      "unique_commits": 4,
+      "open_pr": 194,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/dependency-auditor-skill",
+      "head": "672f7b1b9a9479b709900649456de60ff0c67a02",
+      "contained_in_main": false,
+      "unique_commits": 29,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/design-first-multi-agent-concurrency",
+      "head": "872f0f8f6f658376518e61254fcd110526276cc5",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/env-secrets-manager-skill",
+      "head": "cdde6923092fbdae4da8371fba23be8c7c09bcfd",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/powerful-tier-skills-scaffold",
+      "head": "40b8620de80eac7143449889b2be2bdc2b18770c",
+      "contained_in_main": false,
+      "unique_commits": 19,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/recursive-user-qa",
+      "head": "95b6aacd3287100c4e095112b2e0ec6eb65e50be",
+      "contained_in_main": false,
+      "unique_commits": 10,
+      "open_pr": 190,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/repository-cleanup-protocol",
+      "head": "bbc39adee2d2effd990f61fbd30bfe835508c3d3",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/revival-sprint-2026-08-27",
+      "head": "1163ae5fdd06b946ac9b14a4232273bdd9d78296",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/rust-swarm-original-v0",
+      "head": "138700f11185a8aff3cabc77f1fd1f105bd2506f",
+      "contained_in_main": false,
+      "unique_commits": 3,
+      "open_pr": 193,
+      "action": "preserve"
+    },
+    {
+      "branch": "agent/skill-discovery-gate",
+      "head": "dd71dd4197d9177df5ae6266526faaba5642475d",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/skill-improvement-gate",
+      "head": "f2403d6d1911c7ae9622a59799e9942152a7690c",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/trunk-skill-normalization-2026-08-28",
+      "head": "13b6bd6bb99d5c110cac40f1707311a575676554",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/usb-launcher",
+      "head": "f164824e23fdf57ee152ea1e3a8752fa9e39434d",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "agent/usb-recovery",
+      "head": "4e5cc16f038729fde4acf6dc564b684d644d4413",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "remove-obsolete-ref"
+    },
+    {
+      "branch": "develop",
+      "head": "429753320520bb96907a3b6a887f333c9648c5ec",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "experimental",
+      "head": "0a730eb713dd6c4b5802c3d7214d7c862132b22b",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "preserve"
+    },
+    {
+      "branch": "main",
+      "head": "87872c602bc5c662be2760cc384a7f844f459d11",
+      "contained_in_main": true,
+      "unique_commits": 0,
+      "open_pr": null,
+      "action": "preserve"
+    }
+  ]
+}
