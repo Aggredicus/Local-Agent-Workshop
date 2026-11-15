@@ -17,3 +17,18 @@ Legacy reports now name the JSON index files actually checked. Source CI has a
 188-test source passed CI 43718034591 and a fresh no-Git ZIP installation in a
 folder containing spaces, an apostrophe and brackets. Compact fresh-install
 evidence is in clean-zip-install.json and clean-zip-verify.txt.
+
+Native staging acceptance was extended after those source checks: the real
+Prepare-USB.ps1 stages all seven expected files into an isolated child-process
+profile, sets a protected current-user-only DACL, refuses replacement of an
+existing installation without changing its hashes, and runs the staged menu.
+This passed in Windows CI 43721262702 on 72881f5. The final guide now distinguishes
+that controlled ACL proof from real-machine policy/WLAN/hardware qualification.
+
+Aligned the remaining develop-to-main references in the review/quality protocols
+and quality-analysis skill with the already-adopted reviewed-main Publish
+Protocol. No approval requirement changed. Skill improvement issue draft:
+**Improve /quality-analysis after closeout branch consistency** — stale routing
+created unnecessary context/review churn; action: behavior updated to match the
+canonical policy; artifact: skills/quality-analysis/SKILL.md and its improvement
+log; scope: documentation alignment; GitHub creation remains API-blocked.

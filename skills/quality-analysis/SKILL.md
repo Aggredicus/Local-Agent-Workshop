@@ -173,7 +173,7 @@ Do not treat final review quality findings as same-cycle `/self-improvement` inp
 
 Final review quality analysis is the primary quality gate for `/publish`.
 
-`/publish` should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a `develop` → `main` publish.
+`/publish` should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a release from reviewed `main`, following the canonical Publish Protocol.
 
 Block publish on unresolved `BLOCKER` findings, unresolved `ESCALATE` findings without human decision, failed verification, failed cleanup closeout, undocumented incidents, unapproved high-risk changes, or missing publish packet.
 

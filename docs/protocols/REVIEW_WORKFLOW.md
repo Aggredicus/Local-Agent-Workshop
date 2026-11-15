@@ -20,7 +20,7 @@ Possible actions:
 - split,
 - continue,
 - resume,
-- promote to develop,
+- prepare integration into reviewed main,
 - create release candidate.
 
 Review cards live under `reviews/pending/` until a human decision moves them to an approved, rejected, or modified queue.

@@ -39,3 +39,12 @@ Outcome: log-only update
 Observation: Compact output cut measured characters while preserving failures; 21 failing regression cases exposed false registry acceptance, crashes and path containment gaps.
 Decision: No skill behavior change. Track measured output and explicit metadata-only coverage; local issue draft records the blocked API follow-up.
 Links: reports/overnight-quality/PASS-1.md; reports/overnight-quality/output-size.json
+
+## 2026-11-15 — overnight closeout
+
+Skill used: /quality-analysis
+Used for: final verification and documentation consistency
+Outcome: behavior updated
+Observation: The skill/protocol still described develop-to-main publication despite the canonical policy's existing reviewed-main release flow.
+Decision: Align that stale reference with the already-adopted Publish Protocol; approval requirements are unchanged. Local follow-up draft remains necessary because API issue creation is blocked.
+Links: reports/overnight-quality/PASS-3.md; docs/protocols/PUBLISH_PROTOCOL.md

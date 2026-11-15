@@ -232,7 +232,7 @@ Repeated quality findings should become lessons, skill proposals, test-gap propo
 
 Final review quality analysis is the primary quality gate for `/publish`.
 
-A publish attempt should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a `develop` → `main` publish.
+A publish attempt should consume the final quality-analysis report and compare it against a configurable publish approval profile before preparing or recommending a release from reviewed `main`, following the canonical Publish Protocol.
 
 Publish should be blocked when final quality analysis has unresolved `BLOCKER` findings, unresolved `ESCALATE` findings without a human decision, missing verification evidence, failed cleanup closeout, undocumented incidents, unapproved high-risk changes, or a missing publish packet.
 

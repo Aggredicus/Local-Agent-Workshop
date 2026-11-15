@@ -104,7 +104,7 @@ Recovery restores that transaction's saved files after `ROLLBACK` approval; it c
 
 ## Tested evidence and known limits
 
-Debian 12/13 amd64 package signature chains and offline installation/repetition are tested in disposable containers; no-network containers are not hardware/boot tests. PowerShell/C# compilation and cross-language encryption can be checked on Linux PowerShell; this is **not** native Windows Wi-Fi qualification. Physical USB boot, Secure Boot, real Wi-Fi adapters/firmware and network rollback require a powered-on test machine.
+Debian 12/13 amd64 package signature chains and offline installation/repetition are tested in disposable containers; no-network containers are not hardware/boot tests. Native Windows PowerShell 5.1 tests cover startup, private staging ACLs in a disposable child profile, preservation of existing tools, C# compilation and synthetic UTF-8 credential encryption/decryption using the pinned Windows age executable. The staging test changes no real user profile, and the crypto test invokes no Wi-Fi API. Physical USB boot, Secure Boot, real Wi-Fi adapters/firmware, machine-specific Windows policy/permissions and network rollback require a powered-on test machine.
 
 The cloud currently blocks `cdimage.debian.org`; no ISO is included, claimed verified or claimed boot-tested. Download/verification can be performed on Windows through the official sites. Firmware is not silently guessed or bundled: use the actual adapter IDs and authenticated Debian non-free-firmware packages/media as needed.
 
