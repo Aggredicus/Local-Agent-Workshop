@@ -21,6 +21,7 @@ from workshop.hyperkanban.state import (
     validate_state_file,
 )
 from workshop.skills import discover_skills, select_skills, sync_skills, validate_skills
+from workshop.usb.cli import add_parser as add_usb_parser, handle as handle_usb
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -75,6 +76,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Legacy unverified exception annotation; does not establish human approval",
     )
 
+    add_usb_parser(subparsers)
     return parser
 
 
@@ -190,6 +192,9 @@ def handle_hk(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "usb":
+        return handle_usb(args)
 
     if args.command == "doctor":
         return handle_doctor(args)

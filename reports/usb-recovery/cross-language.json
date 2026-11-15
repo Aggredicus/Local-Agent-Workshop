@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "powershell": "7.6.10 Linux",
+  "age_linux": "1.1.1 signed Debian package",
+  "native_windows_wifi_test": false,
+  "synthetic_credentials_only": true
+}

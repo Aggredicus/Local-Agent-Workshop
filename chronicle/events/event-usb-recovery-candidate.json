@@ -1,0 +1,1 @@
+{"event_id":"event-usb-recovery-candidate","event_type":"verification.completed","branch":"agent/usb-recovery","summary":"Prepared encrypted Wi-Fi USB tools and authenticated offline packages; physical testing remains outstanding.","evidence_paths":["reports/usb-recovery/STATUS.md","reports/usb-recovery/cross-language.json"],"risk_level":"high","production_deployed":false}
