@@ -16,6 +16,9 @@ from pathlib import Path
 from typing import Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+from workshop.hyperkanban.state import HyperKanbanError, validate_state_file  # noqa: E402
+
 HYPERKANBAN_STATE = ROOT / "orchestration" / "hyperkanban" / "state.json"
 HYPERKANBAN_PACKET = ROOT / "orchestration" / "hyperkanban" / "packet.txt"
 VERIFY_SCRIPT = ROOT / "scripts" / "verify.sh"
@@ -93,15 +96,6 @@ def check_expected_files(findings: list[Finding]) -> None:
             findings.append(Finding("BLOCKER", f"expected cleanup file is missing: {path.relative_to(ROOT)}", category="files"))
 
 
-def load_json(path: Path) -> dict | None:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        return None
-    except json.JSONDecodeError:
-        return None
-
-
 def check_hyperkanban(findings: list[Finding]) -> None:
     if not HYPERKANBAN_STATE.exists():
         findings.append(Finding("INFO", "HyperKanban state not found; skipping HyperKanban cleanup checks", category="hyperkanban"))
@@ -109,32 +103,17 @@ def check_hyperkanban(findings: list[Finding]) -> None:
     if not HYPERKANBAN_PACKET.exists():
         findings.append(Finding("BLOCKER", "HyperKanban state exists but packet.txt is missing", category="hyperkanban"))
 
-    validator = ROOT / "scripts" / "validate_hyperkanban.py"
-    if validator.exists():
-        result = run([sys.executable, str(validator.relative_to(ROOT)), str(HYPERKANBAN_STATE.relative_to(ROOT))])
-        if result.returncode != 0:
-            findings.append(
-                Finding(
-                    "BLOCKER",
-                    "HyperKanban validation failed",
-                    (result.stderr or result.stdout).strip(),
-                    category="hyperkanban",
-                )
-            )
-        else:
-            findings.append(Finding("INFO", "HyperKanban validation passed", category="hyperkanban"))
-
-    state = load_json(HYPERKANBAN_STATE)
-    if not state:
-        findings.append(Finding("BLOCKER", "HyperKanban state could not be parsed as JSON", category="hyperkanban"))
+    try:
+        state = validate_state_file(HYPERKANBAN_STATE)
+    except (HyperKanbanError, OSError, UnicodeError) as error:
+        findings.append(Finding('BLOCKER', 'HyperKanban validation failed', str(error), category='hyperkanban'))
         return
+    findings.append(Finding("INFO", "HyperKanban validation passed", category="hyperkanban"))
+    # Inspect only the snapshot returned by the shared validator. Reopening the
+    # file could observe another revision or reparse an already-invalid input.
     for card in state.get("cards", []):
         card_id = card.get("id", "<unknown>")
         coords = card.get("coords", {})
-        contract_required = card.get("test_contract", {}).get("required") or card.get("doc_contract", {}).get("required")
-        if coords.get("state") == "done" and contract_required:
-            if not card.get("evidence_paths") and not card.get("open_exceptions"):
-                findings.append(Finding("BLOCKER", f"done card lacks evidence or exception: {card_id}", category="hyperkanban"))
         if coords.get("state") == "blocked" and not card.get("blocked_reason"):
             findings.append(Finding("WARN", f"blocked card has no blocked_reason: {card_id}", category="hyperkanban"))
 

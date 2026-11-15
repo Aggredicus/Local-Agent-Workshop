@@ -1,4 +1,8 @@
 import json
+import subprocess
+from pathlib import Path
+
+import pytest
 
 import repo_cleanup
 
@@ -103,3 +107,42 @@ def test_quiet_keeps_blockers_warnings_and_failure_status(monkeypatch, capsys):
     assert 'routine detail' not in out
     assert 'review needed' in out and 'broken state' in out
     assert '1 blockers, 1 warnings, 1 info' in out
+
+
+@pytest.mark.parametrize('content', [b'[{}]', b'{"cards":42}', b'\xff'])
+def test_cleanup_reports_invalid_state_instead_of_reparsing_and_crashing(tmp_path, monkeypatch, content):
+    state = tmp_path / 'state.json'
+    packet = tmp_path / 'packet.txt'
+    state.write_bytes(content)
+    packet.write_text('derived packet')
+    (tmp_path / 'scripts').mkdir()
+    (tmp_path / 'scripts/validate_hyperkanban.py').write_text('')
+    monkeypatch.setattr(repo_cleanup, 'ROOT', tmp_path)
+    monkeypatch.setattr(repo_cleanup, 'run', lambda command: subprocess.CompletedProcess(command, 1, 'invalid state', ''))
+    monkeypatch.setattr(repo_cleanup, 'HYPERKANBAN_STATE', state)
+    monkeypatch.setattr(repo_cleanup, 'HYPERKANBAN_PACKET', packet)
+    findings = []
+    repo_cleanup.check_hyperkanban(findings)
+    assert any(f.severity == 'BLOCKER' for f in findings)
+
+
+def test_cleanup_reuses_validated_snapshot_for_blocked_reason_warning(tmp_path, monkeypatch):
+    from workshop.hyperkanban.state import build_packet
+    data = json.loads(Path('orchestration/hyperkanban/state.json').read_text())
+    data['cards'][0]['coords']['state'] = 'blocked'
+    data['cards'][0]['byte'] = 4
+    data['cards'][0].pop('blocked_reason', None)
+    state = tmp_path / 'state.json'
+    packet = tmp_path / 'packet.txt'
+    state.write_text(json.dumps(data))
+    packet.write_text(build_packet(data))
+    (tmp_path / 'scripts').mkdir()
+    (tmp_path / 'scripts/validate_hyperkanban.py').write_text('')
+    monkeypatch.setattr(repo_cleanup, 'ROOT', tmp_path)
+    monkeypatch.setattr(repo_cleanup, 'run', lambda command: subprocess.CompletedProcess(command, 0, 'valid state', ''))
+    monkeypatch.setattr(repo_cleanup, 'HYPERKANBAN_STATE', state)
+    monkeypatch.setattr(repo_cleanup, 'HYPERKANBAN_PACKET', packet)
+    findings = []
+    repo_cleanup.check_hyperkanban(findings)
+    assert not any(f.severity == 'BLOCKER' for f in findings)
+    assert any('blocked_reason' in f.message for f in findings)

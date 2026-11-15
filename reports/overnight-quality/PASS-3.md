@@ -32,3 +32,10 @@ Protocol. No approval requirement changed. Skill improvement issue draft:
 created unnecessary context/review churn; action: behavior updated to match the
 canonical policy; artifact: skills/quality-analysis/SKILL.md and its improvement
 log; scope: documentation alignment; GitHub creation remains API-blocked.
+
+Cleanup closeout exposed one remaining duplicate-validation bug: after a failed
+shared validator, cleanup reparsed invalid state and crashed on list roots,
+non-array cards or invalid UTF-8 (three reproduced failures). Cleanup now uses
+the shared validator's returned snapshot directly, removes duplicate completion
+rules and retains its blocked-reason warning. The final suite includes four
+additional regressions for this path, for **206 passing Python tests**.
