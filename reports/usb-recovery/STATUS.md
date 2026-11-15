@@ -1,6 +1,6 @@
 # USB recovery handoff
 
-Current download: [updated USB tools ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-f164824e23fd/LAW-USB-Tools.zip). Extract the ZIP, open `LAW`, double-click `START-USB.cmd`, and approve startup. The launcher works from the extracted folder without manual PowerShell commands or saved policy changes. Native Windows PowerShell 5.1 launcher checks and the rebuilt Debian offline checks pass. Delivery/hash evidence: [published result](../publish/usb-launcher-download-2026-11-15.json). This supersedes the original workspace artifact below; Wi-Fi/ACL and physical boot qualification remain outstanding.
+Current download: [updated USB tools ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-849445738b19/LAW-USB-Tools.zip). Extract the ZIP, open `LAW`, double-click `START-USB.cmd`, and approve startup. The launcher works from the extracted folder without manual PowerShell commands or saved policy changes. Native Windows PowerShell 5.1 launcher, C# compilation and synthetic encrypted credential round-trip checks and the rebuilt Debian offline checks pass. Delivery/hash evidence: [published result](../publish/usb-overnight-download-2026-11-15.json). This supersedes the original workspace artifact below; Wi-Fi/ACL and physical boot qualification remain outstanding.
 
 ## Original build record
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Read-only repository contract validation for Local Agent Workshop.
 
-This script intentionally uses only the Python standard library so it can run in
-local development, CI, and constrained Proxmox/local-runner environments.
+Metadata checks use only the Python standard library. The --schemas extension
+uses maintained development dependencies for offline schema/example validation.
 """
 
 from __future__ import annotations
@@ -60,6 +60,8 @@ def load_json(path: Path) -> tuple[Any | None, list[Finding]]:
         return None, [Finding("ERROR", "registry", f"invalid JSON at line {exc.lineno}, column {exc.colno}", "Fix JSON syntax before semantic validation.")]
     except (OSError, UnicodeError):
         return None, [Finding("ERROR", "registry", f"cannot read UTF-8 JSON file: {path}", "Check file type, permissions and encoding.")]
+    except RecursionError:
+        return None, [Finding('ERROR', 'registry', 'JSON nesting exceeds the supported parser depth')]
 
 
 def repository_file(root: Path, value: Any, label: str, findings: list[Finding]) -> Path | None:
@@ -270,6 +272,9 @@ def render_text(report: dict[str, Any], *, quiet: bool = False) -> str:
         f"SUMMARY: {summary['errors']} errors, {summary['warnings']} warnings, {summary['info']} info"
     )
     lines.append(f"schema_registry: {report['schema_registry']}")
+    if 'schema_content' in report:
+        coverage = report['schema_content']
+        lines.append(f"schema content: {coverage['schemas_checked']} schemas, {coverage['examples_checked']} examples")
     if report["findings"]:
         lines.append("")
         for finding in report["findings"]:
@@ -299,7 +304,14 @@ def validate(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         findings.extend(validate_registry_shape(registry))
         if isinstance(registry, dict):
             findings.extend(validate_schema_records(registry, root))
+    coverage = None
+    if getattr(args, 'schemas', False) and not summarize(findings)['errors']:
+        from schema_content import check_content
+        coverage, errors = check_content(root, registry)
+        findings.extend(Finding('ERROR', 'schema', error) for error in errors)
     report = build_report(registry_path.relative_to(root), findings)
+    if coverage is not None:
+        report['schema_content'] = coverage
     return report, 1 if report["summary"]["errors"] else 0
 
 
@@ -323,6 +335,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--out", help="Optional path to write the rendered report.")
     parser.add_argument("--quiet", action="store_true", help="Omit informational details; keep warnings, errors and summary")
+    parser.add_argument('--schemas', action='store_true', help='Validate registered schema content/examples offline; requires .[dev]')
     args = parser.parse_args(argv)
 
     report, exit_code = validate(args)

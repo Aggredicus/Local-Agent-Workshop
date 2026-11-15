@@ -2,7 +2,7 @@
 
 **Local Agent Workshop** is a local-first, human-governed workspace for agent-assisted software development: reusable Agent Skills, reviewable branches, deterministic project state, evidence-backed verification, and explicit human approval at risk boundaries.
 
-**USB tools:** [download the verified Windows/Debian ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-f164824e23fd/LAW-USB-Tools.zip), extract it, open `LAW`, and double-click `START-USB.cmd`. [USB instructions](setup/usb/README.md) cover preparation and Wi-Fi recovery. A Debian installer ISO is obtained separately.
+**USB tools:** [download the verified Windows/Debian ZIP](https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-849445738b19/LAW-USB-Tools.zip), extract it, open `LAW`, and double-click `START-USB.cmd`. [USB instructions](setup/usb/README.md) cover preparation and Wi-Fi recovery. A Debian installer ISO is obtained separately.
 
 **Start from `main`.** [Current status](plan/STATUS.md) is the compact entrypoint; old work branches are not required for normal use. Agents follow [me.md](me.md), then read the task's relevant linked protocols.
 
@@ -117,7 +117,7 @@ Start with `me.md`. Tool-specific instruction files such as `AGENTS.md`, `CLAUDE
 
 `main` contains the reviewed Python CLI, skill discovery/synchronization,
 HyperKanban validation and recovery, and the Windows/Debian USB test candidate.
-Windows PowerShell 5.1 startup and Debian 12/13 offline installation are tested;
+Windows PowerShell 5.1 startup, synthetic credential encryption and Debian 12/13 offline installation are tested;
 physical USB boot, firmware, WLAN and network rollback still need hardware tests.
 Unmerged deployment/runtime experiments remain separate from the accepted tools.
 

@@ -18,5 +18,6 @@ fi
 echo "Running Local Agent Workshop verification"
 
 python scripts/validate_hyperkanban.py orchestration/hyperkanban/state.json
-python scripts/validate_repo_contracts.py "${contract_args[@]}"
+python scripts/validate_repo_contracts.py --schemas "${contract_args[@]}"
+python -m ruff check --select E4,E7,E9,F src scripts tests
 python -m pytest "${test_args[@]}"

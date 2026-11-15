@@ -1,0 +1,74 @@
+{
+  "artifact_type": "repo_contract_validation_report",
+  "validator": "scripts/validate_repo_contracts.py",
+  "schema_registry": "schemas/schema-registry.json",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "info": 9,
+    "total": 9
+  },
+  "findings": [
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "local_model_provider planned path not present yet: schemas/local_model_provider.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "agent_task_intake planned path not present yet: schemas/agent_task_intake.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "agent_runtime_budget planned path not present yet: schemas/agent_runtime_budget.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "agent_work_evidence planned path not present yet: schemas/agent_work_evidence.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "agent_handoff_packet planned path not present yet: schemas/agent_handoff_packet.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "workflow_state planned path not present yet: schemas/workflow_state.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "trace_context planned path not present yet: schemas/trace_context.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "workshop_event_envelope planned path not present yet: schemas/workshop_event_envelope.schema.json",
+      "hint": ""
+    },
+    {
+      "severity": "INFO",
+      "category": "registry",
+      "message": "repo_self_model planned path not present yet: schemas/repo_self_model.schema.json",
+      "hint": ""
+    }
+  ],
+  "schema_content": {
+    "schemas_checked": 3,
+    "examples_checked": 1,
+    "references_checked": 29,
+    "network_retrieval": false,
+    "available": true
+  }
+}

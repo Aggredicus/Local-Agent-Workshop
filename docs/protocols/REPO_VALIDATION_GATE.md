@@ -69,22 +69,38 @@ accepts a path relative to `--root`; escaping links and external files are rejec
 
 The script returns nonzero if errors are found.
 
+## Registered schema content and examples
+
+`python scripts/validate_repo_contracts.py --schemas` additionally uses the pinned
+development tools `jsonschema` and `referencing` to check implemented registered
+schema definitions, reference targets and their registered examples. Resources are
+preloaded from validated repository paths; remote and arbitrary file retrieval
+are disabled. Missing development tools fail explicitly. Planned entries remain
+planned; unregistered files are outside this check's coverage. JSON Schema format
+annotations are not additional format assertions.
+
+Errors identify the schema/constraint without serializing example values.
+Reports include actual schema/example/reference counts. Metadata-only invocation
+still uses only the standard library for constrained environments.
+
 ## CI integration
 
 `scripts/verify.sh` should run the validation gate before pytest:
 
 ```sh
-python scripts/validate_repo_contracts.py
+python scripts/validate_repo_contracts.py --schemas
 ```
 
 This keeps schema registry drift visible in local and CI verification.
+The shared verification script also runs pinned Ruff checks for Python correctness
+errors before pytest. Install development dependencies with `pip install -e '.[dev]'`.
 
 ## Non-goals
 
 This gate does not yet:
 
 - validate every schema in the repository,
-- validate all examples against their target schemas,
+- validate unregistered examples against inferred target schemas,
 - check Markdown links,
 - scan for real secrets,
 - generate the deterministic dashboard,
