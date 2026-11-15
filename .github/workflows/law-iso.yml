@@ -25,6 +25,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends debian-keyring xorriso qemu-system-x86 qemu-utils ovmf
+          # Disposable runner only: give this job access to its KVM device.
+          if [[ -c /dev/kvm ]]; then sudo chown "$(id -un)" /dev/kvm; fi
       - name: Authenticate, build and verify the offline ISO
         env:
           PYTHONPATH: src
@@ -100,3 +102,23 @@ jobs:
           (cd verify && sha256sum --check LAW-Debian-13.7.0-amd64.iso.sha256)
           gh release edit "$tag" --draft=false --prerelease --latest=false
           echo "https://github.com/$GH_REPO/releases/download/$tag/LAW-Debian-13.7.0-amd64.iso" >> "$GITHUB_STEP_SUMMARY"
+
+  windows-download:
+    needs: publish
+    if: github.ref == 'refs/heads/main' && github.repository == 'Aggredicus/Local-Agent-Workshop'
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Download and verify the released ISO through the real Windows menu
+        shell: powershell
+        run: |
+          try {
+            & ./tests/usb/windows-download.ps1
+          } catch {
+            $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Host "::error::$message"
+            throw
+          }

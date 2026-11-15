@@ -28,10 +28,20 @@ Components: stable
 Signed-By: /opt/law-offline/docker.gpg 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 EOF
 # Stop maintainer scripts from starting a rootful daemon or SSH during install.
-[[ ! -e /usr/sbin/policy-rc.d ]] || { echo 'Existing service policy preserved; refusing fresh-install bootstrap.' >&2; exit 2; }
-printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
-chmod 0755 /usr/sbin/policy-rc.d
-trap 'rm -f /usr/sbin/policy-rc.d' EXIT
+policy_created=false
+if [[ ! -e /usr/sbin/policy-rc.d ]]; then
+    printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+    chmod 0755 /usr/sbin/policy-rc.d
+    policy_created=true
+fi
+# Debian Installer may already supply this policy via in-target. Preserve it
+# and require it to deny starts; remove only a policy created by this script.
+for service in docker containerd ssh; do
+    status=0
+    /usr/sbin/policy-rc.d "$service" start || status=$?
+    [[ $status == 101 ]] || { echo 'Service-start prevention policy required.' >&2; exit 2; }
+done
+trap 'if $policy_created; then rm -f /usr/sbin/policy-rc.d; fi' EXIT
 opts=(-o Dir::Etc::sourcelist=/dev/null -o Dir::Etc::sourceparts=/etc/apt/law.sources.d -o Acquire::Languages=none)
 apt-get "${opts[@]}" update
 mapfile -t roots < "$offline/roots.txt"

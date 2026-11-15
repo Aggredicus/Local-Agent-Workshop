@@ -145,7 +145,7 @@ label lawqa
     disk = scratch / 'disposable.qcow2'
     run('qemu-img', 'create', '-f', 'qcow2', disk, '16G')
     accel = 'kvm' if os.access('/dev/kvm', os.R_OK | os.W_OK) else 'tcg,thread=multi'
-    base = ['qemu-system-x86_64', '-accel', accel, '-cpu', 'max', '-smp', '2', '-m', '3072',
+    base = ['qemu-system-x86_64', '-accel', accel, '-cpu', 'host' if accel == 'kvm' else 'max', '-smp', '2', '-m', '3072',
             '-nic', 'none', '-display', 'none', '-monitor', 'none', '-serial', 'stdio', '-no-reboot',
             '-drive', f'file={disk},if=virtio,format=qcow2']
     # Exercise the remastered BIOS boot image, not a direct kernel shortcut.
@@ -177,6 +177,7 @@ menuentry 'LAW EFI boot test' {
         '-drive', f'if=pflash,format=raw,file={variables}', '-boot', 'order=d', '-cdrom', str(efi_iso)],
        scratch / 'efi.log', 120, 'LAW_UEFI_BOOT_OK', stop_on_marker=True)
     evidence = {'network': 'no NIC (-nic none)', 'installation': 'passed', 'rootless_docker_container': 'passed',
+                'accelerator': accel,
                 'bios_boot_and_installed_disk_boot': 'passed', 'uefi_grub_boot': 'passed (OVMF, Secure Boot off)',
                 'compose_buildx_law_cli': 'passed', 'rootful_docker_and_ssh': 'masked',
                 'public_iso_disk_answers': 'none; QA-only overlay used a disposable /dev/vda',
