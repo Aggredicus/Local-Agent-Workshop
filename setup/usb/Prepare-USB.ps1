@@ -6,24 +6,79 @@ $source = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $local = Join-Path $env:LOCALAPPDATA 'LocalAgentWorkshop\USBTools'
 $isoName = 'LAW-Debian-13.7.0-amd64.iso'
 $desktopISO = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) $isoName
-function Confirm-ISO([string]$Path) {
-    $hashPath = $Path + '.sha256'
-    foreach ($file in @($Path, $hashPath)) {
-        if (-not [IO.File]::Exists($file) -or ((Get-Item -LiteralPath $file).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'ISO/checksum missing or linked. Download with option 2 first.' }
+$script:lastISOPath = $desktopISO
+# Authenticated, published ISO from law-iso-d2ab3794cf9f. This allows a direct
+# browser download to be checked even when its separate sidecar was not saved.
+$publishedISOHash = '360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844'
+function Convert-DataPath([string]$Path) {
+    $value = $Path.Trim()
+    if ($value.Length -ge 2 -and (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'")))) { $value = $value.Substring(1, $value.Length-2) }
+    if ([string]::IsNullOrWhiteSpace($value)) { throw 'Choose an ISO file or its containing folder.' }
+    return [IO.Path]::GetFullPath($value)
+}
+function Test-DataLink($Item) {
+    # OneDrive cloud placeholders also have ReparsePoint, but are not links.
+    # This exception is for ISO data only; executable source checks stay strict.
+    return $Item.LinkType -in @('SymbolicLink', 'Junction')
+}
+function Resolve-ISOPath([string]$Path) {
+    $resolved = Convert-DataPath $Path
+    if ([IO.Directory]::Exists($resolved)) {
+        if (Test-DataLink (Get-Item -LiteralPath $resolved -Force)) { throw ('ISO folder is a symbolic link or junction: ' + $resolved) }
+        $resolved = Join-Path $resolved $isoName
     }
-    $checksum = [IO.File]::ReadAllText($hashPath).Trim()
-    if ($checksum -notmatch ('^([a-fA-F0-9]{64}) [ *]' + [regex]::Escape($isoName) + '$')) { throw 'Invalid ISO checksum file.' }
-    $expected = $Matches[1]
-    if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -ine $expected) { throw 'ISO checksum mismatch. Preserve it for diagnosis and download again to a new location.' }
+    return $resolved
+}
+function Confirm-ISO([string]$Path) {
+    $Path = Resolve-ISOPath $Path
+    if (-not [IO.File]::Exists($Path)) { throw ('ISO file not found: ' + $Path + '. Select its actual location, or complete option 2 first.') }
+    if ([IO.Path]::GetExtension($Path) -ine '.iso') { throw 'Select the LAW .iso file or its containing folder.' }
+    if (Test-DataLink (Get-Item -LiteralPath $Path -Force)) { throw ('Selected ISO is a symbolic link: ' + $Path) }
+    $hashPath = $Path + '.sha256'
+    if ([IO.File]::Exists($hashPath)) {
+        if (Test-DataLink (Get-Item -LiteralPath $hashPath -Force)) { throw ('Checksum file is a symbolic link: ' + $hashPath) }
+        $checksum = [IO.File]::ReadAllText($hashPath).Trim()
+        if ($checksum -notmatch ('^([a-fA-F0-9]{64}) [ *]' + [regex]::Escape($isoName) + '$')) { throw ('Invalid ISO checksum file: ' + $hashPath) }
+        $expected = $Matches[1]
+    } else {
+        $expected = $publishedISOHash
+        Write-Host 'No separate checksum file found; verifying against the pinned published LAW ISO hash.'
+    }
+    if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -ine $expected) { throw ('ISO SHA256 mismatch: ' + $Path + '. Use the ISO and checksum from the same release, or download through option 2.') }
     return $expected
+}
+function Select-ISOPath {
+    $answer = Read-Host ('LAW ISO file or containing folder [Enter = ' + $script:lastISOPath + '; B = browse]')
+    if ($answer -ieq 'B') {
+        Add-Type -AssemblyName System.Windows.Forms
+        $dialog = New-Object Windows.Forms.OpenFileDialog
+        try {
+            $dialog.Title = 'Select the downloaded LAW Debian ISO'
+            $dialog.Filter = 'ISO images (*.iso)|*.iso'
+            $dialog.CheckFileExists = $true
+            if ($dialog.ShowDialog() -ne [Windows.Forms.DialogResult]::OK) { throw 'ISO selection cancelled.' }
+            $answer = $dialog.FileName
+        } finally { $dialog.Dispose() }
+    }
+    if ([string]::IsNullOrWhiteSpace($answer)) { $answer = $script:lastISOPath }
+    return Resolve-ISOPath $answer
 }
 function Get-LawISO {
     $destination = Read-Host ('ISO destination folder [Enter = Desktop: ' + [IO.Path]::GetDirectoryName($desktopISO) + ']')
     if ([string]::IsNullOrWhiteSpace($destination)) { $destination = [IO.Path]::GetDirectoryName($desktopISO) }
-    $directory = Get-Item -LiteralPath $destination
-    if (-not $directory.PSIsContainer -or ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Choose an existing regular folder.' }
+    $destination = Convert-DataPath $destination
+    $directory = Get-Item -LiteralPath $destination -Force
+    if (-not $directory.PSIsContainer -or (Test-DataLink $directory)) { throw 'Choose an existing folder, rather than a symbolic link or junction.' }
     $target = Join-Path $directory.FullName $isoName
-    if ((Test-Path -LiteralPath $target) -or (Test-Path -LiteralPath ($target+'.sha256'))) { throw 'ISO or checksum already exists; preserve it or choose a different destination.' }
+    if ([IO.File]::Exists($target)) {
+        $hash = Confirm-ISO $target
+        $script:lastISOPath = $target
+        Write-Host ('Existing ISO verified: ' + $target)
+        Write-Host ('SHA256: ' + $hash)
+        Write-Host 'Option 3 will use this location. No new ISO download was needed.'
+        return
+    }
+    if (Test-Path -LiteralPath ($target+'.sha256')) { throw 'Checksum exists without an ISO; preserve it or choose another destination folder.' }
     $oldTLS = [Net.ServicePointManager]::SecurityProtocol
     $scratch = Join-Path $directory.FullName ('.law-download-' + [guid]::NewGuid().ToString('N'))
     try {
@@ -51,6 +106,7 @@ function Get-LawISO {
         # File.Move refuses to overwrite a file created while downloading.
         [IO.File]::Move((Join-Path $scratch ($isoName+'.sha256')), ($target+'.sha256'))
         [IO.File]::Move((Join-Path $scratch $isoName), $target)
+        $script:lastISOPath = $target
         Write-Host ('Downloaded and SHA256 verified: ' + $target)
         Write-Host ('SHA256: ' + $hash)
         Write-Host 'Use option 3 to copy this ISO and LAW tools to an already prepared Ventoy USB.'
@@ -109,11 +165,10 @@ while ($true) {
             if (-not $USBRoot) { $USBRoot = Read-Host 'Ventoy DATA drive root, such as E:\' }
             if ($USBRoot -notmatch '^[D-Zd-z]:\\$' -or $USBRoot.Substring(0,2) -ieq $env:SystemDrive) { throw 'Choose a non-system drive root.' }
             $drive = New-Object IO.DriveInfo($USBRoot)
-            if (-not $drive.IsReady -or $drive.DriveFormat -notin @('exFAT','NTFS')) { throw 'Use the Ventoy exFAT/NTFS DATA volume; DVD-1 may exceed FAT32 limits.' }
+            if (-not $drive.IsReady -or $drive.DriveFormat -notin @('exFAT','NTFS')) { throw 'Choose the Ventoy DATA volume (exFAT or NTFS).' }
             $target = Join-Path $USBRoot 'LAW'
             if (Test-Path -LiteralPath $target) { throw 'LAW folder exists; preserve it before copying a new version.' }
-            $isoPath = Read-Host ('Downloaded LAW ISO path [Enter = ' + $desktopISO + ']')
-            if ([string]::IsNullOrWhiteSpace($isoPath)) { $isoPath = $desktopISO }
+            $isoPath = Select-ISOPath
             $isoHash = Confirm-ISO $isoPath
             $isoTarget = Join-Path $USBRoot $isoName
             if ((Test-Path -LiteralPath $isoTarget) -or (Test-Path -LiteralPath ($isoTarget+'.sha256'))) { throw 'USB already contains this ISO/checksum; existing files preserved.' }
@@ -138,7 +193,14 @@ while ($true) {
             }
             [IO.File]::Copy($manifestPath, (Join-Path $target 'USB-PAYLOAD.json'), $false)
             [IO.File]::Copy($isoPath, $isoTarget, $false)
-            [IO.File]::Copy(($isoPath+'.sha256'), ($isoTarget+'.sha256'), $false)
+            # The checksum may come from the trusted pinned release instead of
+            # a separately downloaded source sidecar. Always write the digest
+            # that was actually verified; CreateNew preserves existing files.
+            $checksumFile = [IO.File]::Open(($isoTarget+'.sha256'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+            try {
+                $bytes = [Text.Encoding]::ASCII.GetBytes($isoHash.ToLowerInvariant() + '  ' + $isoName + "`n")
+                $checksumFile.Write($bytes, 0, $bytes.Length)
+            } finally { $checksumFile.Dispose() }
             if ((Confirm-ISO $isoTarget) -ine $isoHash) { throw 'USB ISO copy integrity failure.' }
             Write-Host 'USB copy verified. Boot ThinkCentre2 from Ventoy and select the LAW ISO. Confirm the target disk in Debian Installer.'
         }

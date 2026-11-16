@@ -30,6 +30,12 @@ This tools ZIP **is not bootable by itself and contains no Debian installer ISO*
 
 **Existing-system recovery:** if you choose to keep the current Debian installation instead, boot it normally and use sections 3–6. Do not launch the fresh installer for that path.
 
+### Selecting an existing ISO
+
+Option **3** accepts a complete ISO filename, its containing folder, or a path pasted with File Explorer's surrounding quotes. Enter **B** to browse for the ISO. After a successful option **2** download or verification, option **3** remembers that location for the current menu session. An existing ISO selected in option **2** is checked and reused instead of downloaded again.
+
+A browser download may not include the separate `.iso.sha256` file. The tools contain the verified SHA256 of the published `law-iso-d2ab3794cf9f` image, so that existing image can be verified without a sidecar or another 1 GB download. For another build, retain its matching checksum file or download through option **2**. Every ISO is hashed before copying and the USB copy is checked again. Missing ISO, invalid checksum, actual link, and hash mismatch now have separate errors. OneDrive data placeholders are distinguished from symbolic links; executable tool files retain their stricter link checks.
+
 ## 3. Install recovery tools offline on Debian
 
 At the physical Debian console, log in normally. Insert/mount the USB data partition using your existing mount workflow. Find its mount path with `lsblk -f`; do not guess a `/dev/sdX` device, format it, or mount an internal disk as a substitute. Example below assumes `/media/usb/LAW`; replace that with the actual mount point.

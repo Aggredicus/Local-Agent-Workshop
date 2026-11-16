@@ -48,3 +48,12 @@ Outcome: log-only update
 Observation: Cleanup still reparsed invalid state after shared validation; three regressions reproduced crashes. It now consumes the validated snapshot, and completed task refs were removed only after integration.
 Decision: Script correctness improved; no cleanup approval boundary changed. Existing local improvement draft records the API-blocked follow-up.
 Links: reports/overnight-quality/PASS-3.md; reports/overnight-quality/MORNING-REPORT.md
+
+## 2026-11-16 — USB ISO path correction
+
+Skill used: /repo-cleanup
+Used for: reviews/pending/usb-iso-paths.md
+Outcome: log-only update
+Observation: The ISO itself remains qualified; only the Windows selection/copy tools need a new artifact.
+Decision: Keep the fix on one branch and preserve prior artifact evidence. Local improvement issue candidate is recorded in the review card; live issue API is unavailable.
+Links: reviews/pending/usb-iso-paths.md

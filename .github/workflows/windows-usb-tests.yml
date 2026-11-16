@@ -20,6 +20,7 @@ jobs:
           try {
             & ./tests/usb/windows-launcher.ps1
             & ./tests/usb/windows-iso-checks.ps1
+            & ./tests/usb/windows-copy.ps1
             & ./tests/usb/windows-crypto.ps1
           } catch {
             $message = ($_ | Out-String).Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')

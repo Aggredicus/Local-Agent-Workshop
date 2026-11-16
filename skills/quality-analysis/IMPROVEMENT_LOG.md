@@ -48,3 +48,12 @@ Outcome: behavior updated
 Observation: The skill/protocol still described develop-to-main publication despite the canonical policy's existing reviewed-main release flow.
 Decision: Align that stale reference with the already-adopted Publish Protocol; approval requirements are unchanged. Local follow-up draft remains necessary because API issue creation is blocked.
 Links: reports/overnight-quality/PASS-3.md; docs/protocols/PUBLISH_PROTOCOL.md
+
+## 2026-11-16 — USB path-entry regression
+
+Skill used: /quality-analysis
+Used for: reviews/pending/usb-iso-paths.md
+Outcome: improve later
+Observation: Primitive checksum and download tests missed the actual successful option-3 copy and quoted/folder entry workflow.
+Decision: Add a native, isolated NTFS copy-flow regression now. Record a local follow-up issue candidate for the skill's user-flow checklist; live issue API is unavailable.
+Links: reviews/pending/usb-iso-paths.md

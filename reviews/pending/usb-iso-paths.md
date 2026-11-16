@@ -1,0 +1,9 @@
+# USB ISO path handling correction
+
+User report: option 3 fails at ISO/checksum lookup, although Ventoy D:\ is accepted. Found existing ISO under Documents/Linux Images rather than default OneDrive Desktop. Screenshot includes a directory path at a filename-only prompt; Copy as path supplies quotes that the old script does not remove.
+
+Scope/inputs: existing reviewed main 902d36d, Prepare-USB.ps1 and native Windows tests. Fix data-path normalization (file/folder/quotes), remember successful download location within the menu session, distinguish missing ISO/checksum/link/hash failures, support cloud data placeholders while retaining link rejection for executable source, and authenticate the already-published ISO when its sidecar was not separately downloaded. Keep existing ISO release and hashes; no 1 GB rebuild or real USB/disk mutation in cloud.
+
+Acceptance/evidence: native PowerShell 5.1 success and rejection cases, real option 3 using an isolated temporary NTFS subst drive with synthetic ISO/payload, matching copies plus existing-file preservation, current source contracts/tests and download-verified corrected ZIP. No Wi-Fi, credential, execution-policy or disk-formatting behavior changes. All ISO data must be SHA256 verified before copy; unknown/mismatched data remains rejected. Prior user authorization to fix/publish this USB work on main persists. Physical OneDrive sync and user's hardware are not available here.
+
+Quality baseline: proceed; prior test gap is real option 3 copying and real-world path entry. Single bounded patch, existing ISO stays valid. Follow-up skill issue candidates are local because GitHub API remains unavailable: cleanup should identify artifact-only follow-up work without repeating unrelated hardware qualification; quality analysis should require the successful end-user copy flow in addition to download/validation primitives. No live issue creation is claimed.
