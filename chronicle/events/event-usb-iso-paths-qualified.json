@@ -1,0 +1,9 @@
+{
+  "event_id": "event-usb-iso-paths-qualified",
+  "event_type": "usb.fix.qualified",
+  "summary": "Corrected quoted/folder ISO entry, existing download reuse, session location defaults and specific checksum diagnostics. Real native Windows option-3 copy passed on an isolated NTFS mapping; published ISO verified without a sidecar.",
+  "source_commit": "ed92308",
+  "evidence_path": "reports/usb-paths/review.md",
+  "authorization": "User requested help fixing USB preparation; prior explicit main/publication authorization persists.",
+  "physical_hardware_qualified": false
+}
