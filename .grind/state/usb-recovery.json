@@ -2,9 +2,9 @@
   "run_id": "usb-recovery",
   "branch": "main",
   "status": "published-operator-test-candidate",
-  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip",
-  "evidence": "reports/iso/delivery.json",
-  "next_safe_action": "Extract the updated ZIP and run LAW/START-USB.cmd; actions return to the menu, option 2 downloads the ISO, option 3 copies it and LAW tools to an operator-prepared Ventoy USB",
+  "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-762be5e67445/LAW-USB-Tools.zip",
+  "evidence": "reports/usb-paths/delivery.json",
+  "next_safe_action": "Extract the corrected tools ZIP in a new folder, run LAW/START-USB.cmd, choose 2 and select the existing ISO folder to verify/reuse it; then choose 3, D:\\, Enter and COPY. Quoted file/folder paths are supported.",
   "limitations": [
     "ISO is a separate download; production preseed retains disk/account confirmation",
     "Native Windows and disconnected BIOS install/rootless Docker/UEFI boot passed; physical USB, Secure Boot and Wi-Fi/firmware still need hardware testing"

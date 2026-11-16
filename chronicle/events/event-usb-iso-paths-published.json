@@ -1,0 +1,9 @@
+{
+  "event_id": "event-usb-iso-paths-published",
+  "event_type": "release.published",
+  "source_commit": "762be5e6744528d7d163bba997d551f1519b0d95",
+  "summary": "Published and anonymously download-verified the corrected Windows USB ZIP. Native option-3 copy, quotes/folders, existing-file reuse, session defaults, checksum fallback and prior security checks passed; existing installer ISO is preserved.",
+  "evidence_path": "reports/usb-paths/delivery.json",
+  "authorization": "User requested correcting USB preparation; prior main/publication authorization persists.",
+  "physical_hardware_qualified": false
+}

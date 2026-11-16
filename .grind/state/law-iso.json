@@ -14,5 +14,6 @@
   "real_server_modified": false,
   "last_source_commit": "d2ab3794cf9f3c7057675649d8191fbfcf9eed39",
   "artifact": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso",
-  "windows_tools": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-d2ab3794cf9f/LAW-USB-Tools.zip"
+  "windows_tools": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-762be5e67445/LAW-USB-Tools.zip",
+  "windows_tools_source_commit": "762be5e6744528d7d163bba997d551f1519b0d95"
 }

@@ -1,0 +1,13 @@
+{
+  "source_commit": "762be5e6744528d7d163bba997d551f1519b0d95",
+  "url": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/usb-recovery-762be5e67445/LAW-USB-Tools.zip",
+  "sha256": "e776cc3c222ab1fa8084e689e236edc074de5a2068e5e2336500d7fed02fc0ac",
+  "bytes": 89524969,
+  "entries": 230,
+  "anonymous_download_zip_manifest_source_checks": "passed",
+  "ci": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43782385989",
+  "native_windows_and_package_release_workflow": "https://github.com/Aggredicus/Local-Agent-Workshop/actions/runs/43782385954",
+  "iso_unchanged": "https://github.com/Aggredicus/Local-Agent-Workshop/releases/download/law-iso-d2ab3794cf9f/LAW-Debian-13.7.0-amd64.iso",
+  "existing_published_iso_without_sidecar": "verified using production fallback; SHA256 360b0048d297d425dd7bc4c4e801c7f9aa1f5e6dc804b3ba7948c0e640ec7844",
+  "physical_usb_or_onedrive_tested": false
+}
