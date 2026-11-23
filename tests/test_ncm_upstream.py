@@ -7,7 +7,7 @@ import subprocess
 import pytest
 
 from workshop.ncm_lab import NcmLabError
-from workshop.ncm_upstream import prepare_upstream, run_tinystories
+from workshop.ncm_upstream import prepare_upstream, require_clean_checkout, run_tinystories
 
 
 def fake_checkout(tmp_path):
@@ -35,6 +35,7 @@ def parameters(tmp_path, root, generator, tokenizer):
 def test_revision_and_checkpoint_hashes_are_mandatory(tmp_path, monkeypatch):
     root, generator, tokenizer = fake_checkout(tmp_path)
     monkeypatch.setattr("workshop.ncm_upstream.git_revision", lambda _: "a" * 40)
+    monkeypatch.setattr("workshop.ncm_upstream.require_clean_checkout", lambda _: None)
     result = prepare_upstream(root, "a" * 40, generator, tokenizer)
     assert result["commit"] == "a" * 40
     with pytest.raises(NcmLabError, match="generator checkpoint"):
@@ -69,6 +70,7 @@ def test_bounded_samples_and_timeout(tmp_path):
 def test_cannot_overwrite_existing_evidence(tmp_path, monkeypatch):
     root, generator, tokenizer = fake_checkout(tmp_path)
     monkeypatch.setattr("workshop.ncm_upstream.git_revision", lambda _: "a" * 40)
+    monkeypatch.setattr("workshop.ncm_upstream.require_clean_checkout", lambda _: None)
     args = parameters(tmp_path, root, generator, tokenizer)
     args.output.write_text("historical run")
     with pytest.raises(NcmLabError, match="already exists"):
@@ -79,6 +81,7 @@ def test_cannot_overwrite_existing_evidence(tmp_path, monkeypatch):
 def test_opt_in_exec_records_loading_inclusive_runtime_without_claiming_benchmark(tmp_path, monkeypatch):
     root, generator, tokenizer = fake_checkout(tmp_path)
     monkeypatch.setattr("workshop.ncm_upstream.git_revision", lambda _: "a" * 40)
+    monkeypatch.setattr("workshop.ncm_upstream.require_clean_checkout", lambda _: None)
     monkeypatch.setenv("GITHUB_TOKEN", "never-forward-this")
     args = parameters(tmp_path, root, generator, tokenizer)
 
@@ -97,3 +100,12 @@ def test_opt_in_exec_records_loading_inclusive_runtime_without_claiming_benchmar
     assert result["benchmark_compatible"] is False
     assert result["source_commit"] == "a" * 40
     assert args.report.exists()
+
+
+def test_dirty_upstream_checkout_rejected(tmp_path, monkeypatch):
+    def status(command, **kwargs):
+        assert command[-3:] == ["status", "--porcelain", "--untracked-files=all"]
+        return subprocess.CompletedProcess(command, 0, stdout=" M generate.py\n", stderr="")
+    monkeypatch.setattr("workshop.ncm_upstream.subprocess.run", status)
+    with pytest.raises(NcmLabError, match="dirty"):
+        require_clean_checkout(tmp_path)
