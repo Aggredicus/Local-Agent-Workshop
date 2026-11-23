@@ -105,7 +105,7 @@ def run_tinystories(args) -> dict:
         exit_code = proc.returncode
         stderr = proc.stderr[-10000:]
         stdout = proc.stdout[-10000:]
-    except subprocess.TimeoutExpired as exc:
+    except subprocess.TimeoutExpired:
         exit_code = 124
         stderr = "upstream generation timed out"
         stdout = ""
