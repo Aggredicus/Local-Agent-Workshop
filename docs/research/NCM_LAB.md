@@ -1,13 +1,13 @@
 # NCM Lab v0.1 — guarded planning and side-by-side benchmarking
 
-Status: **experimental, opt-in, not an NCM inference engine.**
+Status: **experimental, opt-in. Native NCM runs only through a manually installed, pinned upstream checkout.**
 
 Upstream: [HazyResearch/ncm](https://github.com/HazyResearch/ncm) and
 [Stanford's NCM explanation](https://hazyresearch.stanford.edu/blog/2026-10-12-ncm).
 
 ## Scope
 
-This branch adds two useful, dependency-free components:
+This branch adds three dependency-free LAW-side components:
 
 1. **Critical-fact integrity gate**: reject changes to names, numerals,
    identifiers and explicit constraints across `outline → plan → detail`
@@ -16,9 +16,7 @@ This branch adds two useful, dependency-free components:
    import JSON measured results; compare models in columns and bars; export
    filtered CSV; never conflate separate hardware/tasks/evaluation settings.
 
-**No code in this slice downloads or executes Stanford NCM, PyTorch or model
-weights.** A future opt-in backend must be independently reviewed and its
-checkpoint hashes pinned. Current examples are deliberately synthetic.
+3. **Optional upstream NCM runner**: a manually acknowledged TinyStories smoke run that verifies the upstream Git commit and both checkpoint SHA-256 digests before executing an external Python environment. No downloads or automatic execution occur. Current dashboard examples are deliberately synthetic.
 
 ## Commands
 
@@ -40,6 +38,41 @@ workshop ncm validate-runs \
   --input experiments/ncm/fixtures/synthetic-benchmarks.json \
   --output reports/ncm/validation.json
 ```
+
+## Optional native NCM smoke run (not a benchmark)
+
+Manually obtain and review a specific commit of [HazyResearch/ncm](https://github.com/HazyResearch/ncm),
+install its dependencies into a **separate** environment, and verify the
+provenance and hashes of \`artifacts/tinystories/generator.pt\` and
+\`tokenizer.pt\` independently. Do not treat self-calculated hashes of an
+untrusted download as authenticity evidence.
+
+\`\`\`bash
+mkdir -p reports/ncm
+workshop ncm run-tinystories \
+  --root /path/to/reviewed/ncm \
+  --expected-commit FULL_40_CHARACTER_COMMIT_SHA \
+  --generator-sha256 VERIFIED_64_CHARACTER_DIGEST \
+  --tokenizer-sha256 VERIFIED_64_CHARACTER_DIGEST \
+  --python /path/to/ncm/.venv/bin/python \
+  --samples 1 --seed 42 --timeout 120 \
+  --output reports/ncm/samples-unique.jsonl \
+  --report reports/ncm/trajectory-unique.json \
+  --acknowledge-third-party-code
+\`\`\`
+
+These placeholders are intentional: LAW does not supply unaudited trust
+anchors. The runner only supports the upstream TinyStories generation
+entry point, passes \`--trajectory\`, enforces a small sample/time limit,
+scrubs common credential-bearing environment variables, and refuses to
+overwrite output files. It records whole-process elapsed time including
+model loading and reports it as **not benchmark-compatible**.
+
+**Security warning:** executing third-party code with \`subprocess\` is
+not sandboxing it. The offline environment flags are not an operating-system
+network block. Use an isolated, least-privilege machine or container with
+network disabled and restricted filesystem mounts. Running the adapter is
+never a prerequisite for LAW's normal operation or CI.
 
 Open `experiments/ncm/dashboard/index.html` directly with a local browser.
 Use the **Load benchmark JSON** control to select one or more version 0.1
