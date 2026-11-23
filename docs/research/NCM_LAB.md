@@ -62,8 +62,7 @@ workshop ncm run-tinystories \
 \`\`\`
 
 These placeholders are intentional: LAW does not supply unaudited trust
-anchors. The runner only supports the upstream TinyStories generation
-entry point, passes \`--trajectory\`, enforces a small sample/time limit,
+anchors. The runner rejects modified or unexpected untracked upstream source files.\nIt only supports the upstream TinyStories generation entry point, passes \`--trajectory\`, enforces a small sample/time limit,
 scrubs common credential-bearing environment variables, and refuses to
 overwrite output files. It records whole-process elapsed time including
 model loading and reports it as **not benchmark-compatible**.
