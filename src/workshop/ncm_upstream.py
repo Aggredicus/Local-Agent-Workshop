@@ -133,5 +133,5 @@ def run_tinystories(args) -> dict:
     }
     with report_path.open("x", encoding="utf-8") as handle:
         json.dump(result, handle, ensure_ascii=False, indent=2)
-        handle.write("\\n")
+        handle.write("\n")
     return result
