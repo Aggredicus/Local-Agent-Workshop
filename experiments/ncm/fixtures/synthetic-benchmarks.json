@@ -1,0 +1,132 @@
+{
+  "schema_version": "0.1",
+  "description": "DEMONSTRATION DATA ONLY. Every figure in this file is invented for UI testing and MUST NOT be cited as experimental evidence.",
+  "runs": [
+    {
+      "run_id": "demo-s-1",
+      "model_id": "NCM • illustrative",
+      "method": "ncm",
+      "task_id": "synthetic-summary",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 360,
+        "tokens_per_second": 320,
+        "peak_ram_mb": 210,
+        "energy_wh": 0.2,
+        "success_rate": 0.78,
+        "name_integrity_rate": 0.88,
+        "number_integrity_rate": 0.72
+      }
+    },
+    {
+      "run_id": "demo-s-2",
+      "model_id": "AR • illustrative",
+      "method": "autoregressive",
+      "task_id": "synthetic-summary",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 950,
+        "tokens_per_second": 80,
+        "peak_ram_mb": 450,
+        "energy_wh": 0.46,
+        "success_rate": 0.91,
+        "name_integrity_rate": 0.99,
+        "number_integrity_rate": 0.98
+      }
+    },
+    {
+      "run_id": "demo-s-3",
+      "model_id": "Diffusion • illustrative",
+      "method": "diffusion",
+      "task_id": "synthetic-summary",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 720,
+        "tokens_per_second": 115,
+        "peak_ram_mb": 390,
+        "energy_wh": 0.38,
+        "success_rate": 0.85,
+        "name_integrity_rate": 0.94,
+        "number_integrity_rate": 0.88
+      }
+    },
+    {
+      "run_id": "demo-p-1",
+      "model_id": "NCM • illustrative",
+      "method": "ncm",
+      "task_id": "synthetic-planning",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 612,
+        "tokens_per_second": 188,
+        "peak_ram_mb": 210,
+        "energy_wh": 0.34,
+        "success_rate": 0.72,
+        "name_integrity_rate": 0.8,
+        "number_integrity_rate": 0.61
+      }
+    },
+    {
+      "run_id": "demo-p-2",
+      "model_id": "AR • illustrative",
+      "method": "autoregressive",
+      "task_id": "synthetic-planning",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 1615,
+        "tokens_per_second": 47,
+        "peak_ram_mb": 450,
+        "energy_wh": 0.78,
+        "success_rate": 0.85,
+        "name_integrity_rate": 0.91,
+        "number_integrity_rate": 0.87
+      }
+    },
+    {
+      "run_id": "demo-p-3",
+      "model_id": "Diffusion • illustrative",
+      "method": "diffusion",
+      "task_id": "synthetic-planning",
+      "hardware_id": "virtual-demo-hardware",
+      "evaluation_id": "demo-eval-v1",
+      "config_id": "demo-equal-budget-v1",
+      "evidence_type": "synthetic",
+      "evidence_ref": "illustrative fixture; not measured",
+      "samples": 20,
+      "metrics": {
+        "latency_ms": 1224,
+        "tokens_per_second": 68,
+        "peak_ram_mb": 390,
+        "energy_wh": 0.65,
+        "success_rate": 0.79,
+        "name_integrity_rate": 0.86,
+        "number_integrity_rate": 0.77
+      }
+    }
+  ]
+}
