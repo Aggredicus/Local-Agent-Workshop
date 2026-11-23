@@ -31,8 +31,14 @@ def _occurs(text: str, value: str) -> bool:
     value = normalize(value)
     if not value:
         return False
-    boundary = r"[\w.]" if re.search(r"\d", value) else r"\w"
-    return re.search(r"(?<!" + boundary + r")" + re.escape(value) + r"(?!" + boundary + r")", normalize(text)) is not None
+    if re.search(r"\d", value):
+        # A trailing full stop is punctuation; a decimal suffix such as
+        # 500.0, a longer integer (5000), or a grouped numeral (1,500)
+        # is not the protected number 500.
+        pattern = r"(?<![\w.,])" + re.escape(value) + r"(?![\w]|[.,]\d)"
+    else:
+        pattern = r"(?<!\w)" + re.escape(value) + r"(?!\w)"
+    return re.search(pattern, normalize(text)) is not None
 
 
 def audit_trace(contract: dict[str, Any], trace: dict[str, Any]) -> dict[str, Any]:
