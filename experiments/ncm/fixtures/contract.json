@@ -1,0 +1,12 @@
+{
+  "contract_id": "garden-001",
+  "source": "For Connor, plan a 4-bed garden in ZIP 49505 with a ceiling of $500. Keep work on ThinkCentre2 only.",
+  "required_stages": ["outline", "plan", "detail"],
+  "anchors": [
+    {"id": "client", "kind": "name", "value": "Connor"},
+    {"id": "beds", "kind": "number", "value": "4"},
+    {"id": "zipcode", "kind": "identifier", "value": "49505"},
+    {"id": "budget", "kind": "number", "value": "500"},
+    {"id": "machine", "kind": "identifier", "value": "ThinkCentre2"}
+  ]
+}

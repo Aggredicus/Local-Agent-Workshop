@@ -1,0 +1,9 @@
+{
+  "contract_id": "garden-001",
+  "source_sha256": "0f0eea1d3ad1a57131bae1996bde29205f4ca012f9400a29e23afbf79c4d3b32",
+  "stages": [
+    {"name": "outline", "source_sha256": "0f0eea1d3ad1a57131bae1996bde29205f4ca012f9400a29e23afbf79c4d3b32", "text": "Conner; 5 beds; ZIP 49550; budget $600; use ThinkCentre1.", "anchors": {"client": "Conner", "beds": "5", "zipcode": "49550", "budget": "600", "machine": "ThinkCentre1"}},
+    {"name": "plan", "source_sha256": "0f0eea1d3ad1a57131bae1996bde29205f4ca012f9400a29e23afbf79c4d3b32", "text": "For Conner, build 5 beds in ZIP 49550 within $600; execute only on ThinkCentre1.", "anchors": {"client": "Conner", "beds": "5", "zipcode": "49550", "budget": "600", "machine": "ThinkCentre1"}},
+    {"name": "detail", "source_sha256": "0f0eea1d3ad1a57131bae1996bde29205f4ca012f9400a29e23afbf79c4d3b32", "text": "Conner: 5 beds, 49550, $600, ThinkCentre1.", "anchors": {"client": "Conner", "beds": "5", "zipcode": "49550", "budget": "600", "machine": "ThinkCentre1"}}
+  ]
+}

@@ -22,6 +22,7 @@ from workshop.hyperkanban.state import (
 )
 from workshop.skills import discover_skills, select_skills, sync_skills
 from workshop.usb.cli import add_parser as add_usb_parser, handle as handle_usb
+from workshop.ncm_cli import add_parser as add_ncm_parser, handle as handle_ncm
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -77,6 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Legacy unverified exception annotation; does not establish human approval",
     )
 
+    add_ncm_parser(subparsers)
     add_usb_parser(subparsers)
     iso = subparsers.add_parser('iso', help='Build the authenticated offline Debian + LAW installer (Linux/Docker)')
     iso.add_argument('iso_args', nargs=argparse.REMAINDER, help='Use: build --output NEW_DIRECTORY')
@@ -198,6 +200,9 @@ def handle_hk(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "ncm":
+        return handle_ncm(args)
 
     if args.command == "usb":
         return handle_usb(args)
