@@ -43,11 +43,11 @@ workshop ncm validate-runs \
 
 Manually obtain and review a specific commit of [HazyResearch/ncm](https://github.com/HazyResearch/ncm),
 install its dependencies into a **separate** environment, and verify the
-provenance and hashes of \`artifacts/tinystories/generator.pt\` and
-\`tokenizer.pt\` independently. Do not treat self-calculated hashes of an
+provenance and hashes of `artifacts/tinystories/generator.pt` and
+`tokenizer.pt` independently. Do not treat self-calculated hashes of an
 untrusted download as authenticity evidence.
 
-\`\`\`bash
+```bash
 mkdir -p reports/ncm
 workshop ncm run-tinystories \
   --root /path/to/reviewed/ncm \
@@ -59,15 +59,16 @@ workshop ncm run-tinystories \
   --output reports/ncm/samples-unique.jsonl \
   --report reports/ncm/trajectory-unique.json \
   --acknowledge-third-party-code
-\`\`\`
+```
 
 These placeholders are intentional: LAW does not supply unaudited trust
-anchors. The runner rejects modified or unexpected untracked upstream source files.\nIt only supports the upstream TinyStories generation entry point, passes \`--trajectory\`, enforces a small sample/time limit,
+anchors. The runner rejects modified or unexpected untracked upstream source files.
+It only supports the upstream TinyStories generation entry point, passes `--trajectory`, enforces a small sample/time limit,
 scrubs common credential-bearing environment variables, and refuses to
 overwrite output files. It records whole-process elapsed time including
 model loading and reports it as **not benchmark-compatible**.
 
-**Security warning:** executing third-party code with \`subprocess\` is
+**Security warning:** executing third-party code with `subprocess` is
 not sandboxing it. The offline environment flags are not an operating-system
 network block. Use an isolated, least-privilege machine or container with
 network disabled and restricted filesystem mounts. Running the adapter is
