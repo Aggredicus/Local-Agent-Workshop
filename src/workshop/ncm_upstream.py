@@ -35,6 +35,19 @@ def git_revision(root: Path) -> str:
     return result.stdout.strip()
 
 
+def require_clean_checkout(root: Path) -> None:
+    """Reject dirty or unexpected non-ignored files that could alter imported code."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=all"],
+            check=True, capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise NcmLabError("cannot check upstream checkout cleanliness") from exc
+    if result.stdout.strip():
+        raise NcmLabError("upstream source checkout is dirty or contains untracked files")
+
+
 def prepare_upstream(
     root: Path, expected_commit: str, generator_sha256: str, tokenizer_sha256: str
 ) -> dict[str, str]:
@@ -54,6 +67,7 @@ def prepare_upstream(
     if not all(p.is_file() for p in (script, config, generator, tokenizer)):
         raise NcmLabError("upstream TinyStories code/config/weights not found; no downloads were attempted")
     actual_revision = git_revision(root)
+    require_clean_checkout(root)
     if actual_revision.lower() != expected_commit.lower():
         raise NcmLabError("upstream checkout differs from pinned expected_commit")
     if sha256_file(generator).lower() != generator_sha256.lower():
