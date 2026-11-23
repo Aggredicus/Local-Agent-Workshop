@@ -13,7 +13,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from workshop.ncm_lab import NcmLabError, save_json
+from workshop.ncm_lab import NcmLabError
 
 
 def sha256_file(path: Path) -> str:
@@ -88,7 +88,7 @@ def run_tinystories(args) -> dict:
     allowed = {
         "PATH", "HOME", "USERPROFILE", "SYSTEMROOT", "WINDIR", "TEMP", "TMP",
         "TMPDIR", "LOCALAPPDATA", "APPDATA", "VIRTUAL_ENV", "CUDA_VISIBLE_DEVICES",
-        "LD_LIBRARY_PATH", "PYTHONPATH", "CUDA_PATH",
+        "LD_LIBRARY_PATH", "CUDA_PATH",
     }
     environment = {k: v for k, v in os.environ.items() if k in allowed}
     environment.update({
@@ -131,5 +131,7 @@ def run_tinystories(args) -> dict:
         "stdout_tail": stdout, "stderr_tail": stderr,
         "output_jsonl": str(output) if output.exists() else None,
     }
-    save_json(report_path, result)
+    with report_path.open("x", encoding="utf-8") as handle:
+        json.dump(result, handle, ensure_ascii=False, indent=2)
+        handle.write("\\n")
     return result
