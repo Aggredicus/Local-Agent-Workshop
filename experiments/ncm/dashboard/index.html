@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>NCM Lab — Model Benchmark Observatory</title>
+<style>
+:root{font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:#e7f3f3;background:#08151d;--panel:#10242e;--line:#25414e;--muted:#9eb7bf;--teal:#58e2c4;--amber:#ffd087;--red:#ff9b9e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#163848 0,transparent 43%),#08151d;min-height:100vh}
+button,select,input{font:inherit}button,select{border:1px solid #3a5963;color:#e6fbfa;background:#16323d;border-radius:10px;padding:.65rem .8rem;min-height:42px}
+button{cursor:pointer}button:hover{border-color:var(--teal)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+button:disabled{opacity:.5;cursor:default}a{color:var(--teal)}.wrap{max-width:1480px;padding:clamp(16px,3vw,38px);margin:auto}
+.header{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start;margin:6px 0 20px}
+.kicker{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);font-weight:700}
+h1{font-size:clamp(1.6rem,4.5vw,3.1rem);line-height:1.12;margin:.35rem 0 .6rem;letter-spacing:-.04em}h2{font-size:1.15rem;margin:0 0 8px}p{margin:0;color:var(--muted)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:18px 0}
+.control{display:flex;flex-direction:column;gap:6px;font-size:.8rem;font-weight:650;color:#b7d1d5}
+.control select{width:100%;max-width:100%}input[type=file]{max-width:100%;font-size:.83rem;color:#c7e4e1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn-primary{background:#167c70;color:#fff;border-color:#209c8d}
+.status{border:1px solid #547078;border-radius:50px;padding:6px 12px;font-size:.8rem;letter-spacing:.02em;font-weight:700;color:var(--amber);display:inline-block}
+.status.measured{color:var(--teal);border-color:#278a7b}.status.mixed{color:var(--amber)}.status.empty{color:var(--red)}
+.panel{background:linear-gradient(160deg,rgba(28,63,76,.73),rgba(12,35,44,.88));border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0;box-shadow:0 6px 32px #03101645;margin:0 0 15px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:20px;padding:2px 8px;background:#234952;color:#9ff1dc;font-size:.72rem;font-weight:650}
+.note{padding:10px 13px;border:1px solid #68562e;background:#3a2e184d;color:#ffdfa4;border-radius:10px;font-size:.82rem;margin:10px 0}
+.note.ok{border-color:#226f64;background:#0e4a3b4d;color:#92f5d8}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.stat{padding:15px;border:1px solid var(--line);background:#102a34;border-radius:13px}.stat b{display:block;font-size:1.7rem;font-variant-numeric:tabular-nums}.stat span{color:var(--muted);font-size:.81rem}
+.meter{height:11px;border-radius:20px;background:#19343e;overflow:hidden;border:1px solid #385360;flex:1}.meter-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#157f76,#58e2c4)}
+.metric-row{display:grid;grid-template-columns:minmax(135px,1fr) minmax(140px,3fr) minmax(75px,.5fr);gap:12px;align-items:center;margin:13px 0}
+.metric-row .name{font-size:.83rem;overflow-wrap:anywhere}.metric-row .value{font-size:.84rem;font-variant-numeric:tabular-nums;text-align:right}
+.group-title{margin-top:10px}.group-sub{font-size:.79rem;color:var(--muted);overflow-wrap:anywhere;margin-bottom:14px}
+.scroll{width:100%;overflow:auto;border-radius:9px;border:1px solid var(--line)}
+table{border-collapse:collapse;min-width:760px;width:100%;font-size:.83rem;text-align:right}th,td{border-bottom:1px solid var(--line);padding:10px 11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+thead th{position:sticky;top:0;background:#20404b;color:#e6ffff}tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}tbody th{text-align:left;color:#c9dcdf;background:#102933;position:sticky;left:0}thead th:first-child{position:sticky;left:0;z-index:2;text-align:left}
+.warning{color:var(--amber);font-weight:700}.good{color:var(--teal)}.small{font-size:.76rem;color:var(--muted)}
+.footer{font-size:.8rem;color:var(--muted);padding:18px 0 40px}
+details summary{cursor:pointer;font-weight:650}details p{margin:10px 0}
+.empty-state{padding:35px 10px;text-align:center;color:var(--muted)}
+@media(max-width:650px){.metric-row{grid-template-columns:100px 1fr 65px;gap:6px}.panel{padding:12px}.wrap{padding:14px}.header{gap:10px}.metric-row .name,.metric-row .value{font-size:.74rem}}
+@media(prefers-reduced-motion:no-preference){button,.meter-fill{transition:width .18s,background .18s,border-color .18s}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="header">
+ <div><div class="kicker">Local Agent Workshop / Research</div><h1>NCM <span style="color:var(--teal)">Benchmark Observatory</span></h1>
+ <p>Compare inference methods side by side. Inspect speed, resource use, and evidence-preserving accuracy.</p></div>
+ <div><span class="status" id="evidence-badge">SYNTHETIC DEMO • NOT MEASURED</span></div>
+</header>
+<section class="panel" aria-label="Benchmark controls">
+ <div class="row">
+  <div><h2>Experiment console</h2><p>Everything runs in this browser. No uploads to a server, no external dependencies.</p></div>
+  <div class="actions"><button id="reset">Restore demo</button><button id="export" class="btn-primary">Export filtered CSV</button></div>
+ </div>
+ <div class="controls">
+  <label class="control">Load benchmark JSON <input type="file" accept=".json,application/json" id="file" multiple></label>
+  <label class="control">Task <select id="task"></select></label>
+  <label class="control">Hardware <select id="hardware"></select></label>
+  <label class="control">Evidence <select id="evidence"><option value="all">All evidence types</option><option value="measured">Measured only</option><option value="synthetic">Synthetic only</option></select></label>
+  <label class="control">Chart metric <select id="metric">
+   <option value="latency_ms">Latency (lower is better)</option>
+   <option value="success_rate">Task success rate</option>
+   <option value="name_integrity_rate">Name integrity</option>
+   <option value="number_integrity_rate">Number integrity</option>
+   <option value="tokens_per_second">Throughput</option>
+   <option value="peak_ram_mb">Peak RAM (lower is better)</option>
+   <option value="peak_vram_mb">Peak VRAM (lower is better)</option>
+   <option value="energy_wh">Energy (lower is better)</option>
+  </select></label>
+ </div>
+ <div id="message" class="note" role="status" aria-live="polite">All initial numbers are fabricated UI examples, NOT Stanford or local benchmark results. Load recorded JSON to compare actual runs.</div>
+ <details><summary>Evidence contract &amp; fair-comparison rules</summary>
+  <p>A comparable group requires the same task, hardware, evaluation method, generation configuration and evidence type. Mixed groups are deliberately split, not ranked together. Sample sizes and missing metrics remain visible.</p>
+  <p>Measured runs require an <code>evidence_ref</code>. A declaration alone cannot prove that data was measured: retain raw outputs, seeds, model hashes, prompts, task sources and calibration settings externally. Hardware/environment differences and evaluation criteria can invalidate conclusions.</p>
+  <p>Expected JSON: <code>{"schema_version":"0.1","runs":[{"run_id":"...","model_id":"...","task_id":"...","hardware_id":"...","evaluation_id":"...","config_id":"...","evidence_type":"measured","evidence_ref":"reports/raw/run.json","samples":10,"metrics":{"latency_ms":120,"name_integrity_rate":1}}]}</code>.</p>
+ </details>
+</section>
+<div class="stats" id="stats" aria-live="polite"></div>
+<section id="groups" aria-label="Side-by-side comparison groups"></section>
+<div class="panel"><h2>Quality gate interpretation</h2><p>Name and number integrity measure exact protected-fact preservation on the chosen benchmark tasks; they do not prove that a plan is semantically correct. Never deploy a failed critical-fact plan. A pass also requires independent source validation and domain tests.</p></div>
+<footer class="footer">NCM Lab v0.1 · Local-only HTML · <a href="https://github.com/Aggredicus/Local-Agent-Workshop">Local Agent Workshop</a> · Unverified or synthetic data is never presented as research evidence.</footer>
+</main>
+<script>
+"use strict";
+const DEMO = {schema_version:"0.1",runs:[]};
+const demoDefinitions = [
+ ["NCM — illustrative","ncm",360,.78,.88,.72,320,210,.20],
+ ["Autoregressive — illustrative","autoregressive",950,.91,.99,.98,80,450,.46],
+ ["Diffusion — illustrative","diffusion",720,.85,.94,.88,115,390,.38]
+];
+for (const tuple of [["synthetic-summary",1,"s"],["synthetic-planning",1.7,"p"]]) {
+ const [task,mul,prefix]=tuple;
+ demoDefinitions.forEach((d,i)=>DEMO.runs.push({
+ run_id:"demo-"+prefix+"-"+(i+1),model_id:d[0],method:d[1],task_id:task,
+ hardware_id:"virtual-demo-hardware",evaluation_id:"demo-eval-v1",config_id:"demo-equal-budget-v1",
+ evidence_type:"synthetic",evidence_ref:"illustrative fixture; not measured",samples:20,
+ metrics:{latency_ms:Math.round(d[2]*mul),tokens_per_second:Math.round(d[6]/mul),
+ peak_ram_mb:d[7],energy_wh:+(d[8]*mul).toFixed(2),
+ success_rate:+Math.max(.1,d[3]-(prefix==="p"?.06:0)).toFixed(2),
+ name_integrity_rate:+Math.max(.1,d[4]-(prefix==="p"?.08:0)).toFixed(2),
+ number_integrity_rate:+Math.max(.1,d[5]-(prefix==="p"?.11:0)).toFixed(2)}
+ }));
+}
+let data=DEMO.runs.slice();
+const el=id=>document.getElementById(id);
+const metrics={
+ latency_ms:["Latency","ms",false],success_rate:["Task success","%",true],
+ name_integrity_rate:["Name integrity","%",true],number_integrity_rate:["Number integrity","%",true],
+ tokens_per_second:["Throughput","tokens/s",true],peak_ram_mb:["Peak RAM","MB",false],
+ peak_vram_mb:["Peak VRAM","MB",false],energy_wh:["Energy","Wh",false]
+};
+function node(tag,className,text){
+ const e=document.createElement(tag);if(className)e.className=className;
+ if(text!==undefined)e.textContent=String(text);return e;
+}
+function format(key,value){
+ if(value===undefined||value===null)return "—";
+ return key.endsWith("_rate")?(100*value).toFixed(1)+"%":Number(value).toLocaleString(undefined,{maximumFractionDigits:2})+" "+metrics[key][1];
+}
+function validRun(run){
+ if(!run||typeof run!=="object"||Array.isArray(run))return false;
+ for(const k of ["run_id","model_id","task_id","hardware_id","evaluation_id","config_id"]){
+  if(typeof run[k]!=="string"||!run[k].trim())return false;
+ }
+ if(!["measured","synthetic"].includes(run.evidence_type))return false;
+ if(run.evidence_type==="measured" && (typeof run.evidence_ref!=="string"||!run.evidence_ref.trim()))return false;
+ if(!Number.isInteger(run.samples)||run.samples<1)return false;
+ if(!run.metrics||typeof run.metrics!=="object"||Array.isArray(run.metrics)||!Object.keys(run.metrics).length)return false;
+ for(const [k,v] of Object.entries(run.metrics)){
+  if(!metrics[k]||typeof v!=="number"||!Number.isFinite(v)||v<0||(k.endsWith("_rate")&&v>1))return false;
+ }
+ return true;
+}
+function populate(id, values){
+ const e=el(id), old=e.value;e.replaceChildren();
+ const all=node("option",null,"All "+(id==="task"?"tasks":"hardware"));all.value="all";e.append(all);
+ [...new Set(values)].sort().forEach(v=>{const o=node("option",null,v);o.value=v;e.append(o);});
+ e.value=[...e.options].some(o=>o.value===old)?old:"all";
+}
+function filtered(){
+ return data.filter(r=>(el("task").value==="all"||r.task_id===el("task").value)&&
+ (el("hardware").value==="all"||r.hardware_id===el("hardware").value)&&
+ (el("evidence").value==="all"||r.evidence_type===el("evidence").value));
+}
+function groupRuns(runs){
+ const groups=new Map();
+ runs.forEach(r=>{
+  const k=JSON.stringify([r.task_id,r.hardware_id,r.evaluation_id,r.config_id,r.evidence_type]);
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(r);
+ });
+ return groups;
+}
+function qualityCell(key,value){
+ const td=node("td",value!==undefined&&key.endsWith("integrity_rate")&&value<1?"warning":"",format(key,value));
+ return td;
+}
+function renderGroup(k,runs){
+ const [task,hardware,evaluation,config,type]=JSON.parse(k);
+ const panel=node("article","panel");
+ const top=node("div","row");
+ const title=node("h2","group-title",task);top.append(title,node("span","pill",type.toUpperCase()));
+ panel.append(top,node("div","group-sub","Hardware: "+hardware+" · Evaluation: "+evaluation+" · Config: "+config));
+ const chartMetric=el("metric").value;
+ panel.append(node("div","small",metrics[chartMetric][0]+" • "+(metrics[chartMetric][2]?"higher is better":"lower is better")+
+ " • bars show raw magnitude, not quality score"));
+ const values=runs.map(r=>r.metrics[chartMetric]).filter(v=>typeof v==="number");
+ const high=Math.max(...values,0);
+ if(values.length===0)panel.append(node("div","empty-state","This metric is unavailable in the selected runs."));
+ else runs.forEach(r=>{
+  const row=node("div","metric-row"),name=node("div","name",r.model_id);
+  const meter=node("div","meter"),value=r.metrics[chartMetric];
+  if(typeof value==="number"){
+   const bar=node("div","meter-fill");bar.style.width=(high>0?100*value/high:0)+"%";meter.append(bar);
+  }
+  const caption=node("div","value",format(chartMetric,value));
+  row.append(name,meter,caption);panel.append(row);
+ });
+ const container=node("div","scroll"),table=node("table");
+ const thead=node("thead"),head=node("tr");
+ head.append(node("th",null,"Metric / model"));
+ runs.forEach(r=>{const h=node("th",null,r.model_id);h.title=r.run_id;head.append(h);});
+ thead.append(head);table.append(thead);
+ const body=node("tbody");
+ function addRow(label,key){
+  const tr=node("tr");tr.append(node("th",null,label));
+  runs.forEach(r=>tr.append(qualityCell(key,r.metrics[key])));body.append(tr);
+ }
+ addRow("Latency","latency_ms");addRow("Success rate","success_rate");
+ addRow("Protected names","name_integrity_rate");addRow("Protected numbers","number_integrity_rate");
+ addRow("Throughput","tokens_per_second");addRow("Peak RAM","peak_ram_mb");
+ addRow("Peak VRAM","peak_vram_mb");addRow("Energy","energy_wh");
+ const sr=node("tr");sr.append(node("th",null,"Samples"));
+ runs.forEach(r=>sr.append(node("td",null,r.samples)));body.append(sr);
+ const er=node("tr");er.append(node("th",null,"Run ID"));
+ runs.forEach(r=>{const td=node("td",null,r.run_id);td.title=r.evidence_ref||"No evidence ref";er.append(td);});body.append(er);
+ table.append(body);container.append(table);panel.append(container);
+ panel.append(node("p","small","Only the runs within this panel share comparison conditions. A declared evidence type does not independently verify a run."));
+ return panel;
+}
+function render(){
+ const selected=filtered();
+ const measured=selected.filter(r=>r.evidence_type==="measured").length;
+ const synthetic=selected.length-measured;
+ const badge=el("evidence-badge");
+ badge.className="status "+(!selected.length?"empty":synthetic&&measured?"mixed":measured?"measured":"");
+ badge.textContent=!selected.length?"NO RUNS":synthetic&&!measured?"SYNTHETIC • NOT MEASURED":measured&&!synthetic?"DECLARED MEASURED • VERIFY SOURCE":"MIXED EVIDENCE • SEPARATED";
+ const stats=el("stats");stats.replaceChildren();
+ const groupCount=groupRuns(selected).size;
+ const qualityValues=selected.map(r=>r.metrics.name_integrity_rate).filter(v=>typeof v==="number");
+ const qNumbers=selected.map(r=>r.metrics.number_integrity_rate).filter(v=>typeof v==="number");
+ const items=[["Runs",selected.length],["Models",new Set(selected.map(r=>r.model_id)).size],
+ ["Comparable groups",groupCount],["Measured / synthetic",measured+" / "+synthetic],
+ ["Minimum name integrity",qualityValues.length?(Math.min(...qualityValues)*100).toFixed(1)+"%":"—"],
+ ["Minimum number integrity",qNumbers.length?(Math.min(...qNumbers)*100).toFixed(1)+"%":"—"]];
+ items.forEach(([title,value])=>{const card=node("div","stat");card.append(node("b",null,value),node("span",null,title));stats.append(card);});
+ const area=el("groups");area.replaceChildren();
+ if(!selected.length){area.append(node("div","panel empty-state","No matching runs. Adjust filters or load another JSON file."));return;}
+ groupRuns(selected).forEach((runs,k)=>area.append(renderGroup(k,runs)));
+}
+function refreshChoices(){populate("task",data.map(r=>r.task_id));populate("hardware",data.map(r=>r.hardware_id));render();}
+function notice(message,good=false){el("message").textContent=message;el("message").className="note"+(good?" ok":"");}
+async function importFiles(files){
+ if(!files.length)return;
+ const loaded=[];const ids=new Set();
+ try{
+  for(const file of files){
+   if(file.size>5_000_000)throw new Error("A file exceeds the 5 MB safety limit.");
+   const doc=JSON.parse(await file.text());
+   if(doc.schema_version!=="0.1"||!Array.isArray(doc.runs)||doc.runs.length>10000)throw new Error("File must contain schema_version 0.1 and a runs array (max 10000).");
+   for(const r of doc.runs){
+    if(!validRun(r))throw new Error("Invalid run in "+file.name+"; check metrics, evidence, and required IDs.");
+    if(ids.has(r.run_id))throw new Error("Duplicate run ID: "+r.run_id);
+    ids.add(r.run_id);loaded.push(r);
+   }
+  }
+  if(!loaded.length)throw new Error("No benchmark runs were found.");
+  data=loaded;refreshChoices();
+  notice("Loaded "+data.length+" run(s) from "+files.length+" file(s). Provenance is declared by each file, not independently verified.",true);
+ }catch(err){notice("Import rejected: "+err.message+" Existing results retained.");}
+}
+function csvValue(value){const s=String(value??"");return '"'+( /^[=+@\-\t\r]/.test(s)?"'":"")+s.replaceAll('"','""')+'"';}
+function exportCsv(){
+ const rows=[["run_id","model_id","task_id","hardware_id","evaluation_id","config_id","evidence_type","evidence_ref","samples",...Object.keys(metrics)]];
+ filtered().forEach(r=>rows.push([r.run_id,r.model_id,r.task_id,r.hardware_id,r.evaluation_id,r.config_id,r.evidence_type,r.evidence_ref||"",r.samples,...Object.keys(metrics).map(k=>r.metrics[k]??"")]));
+ const csv=rows.map(row=>row.map(csvValue).join(",")).join("\r\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);const a=node("a");a.href=url;a.download="ncm-lab-comparison.csv";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+el("file").addEventListener("change",e=>importFiles([...e.target.files]));
+el("reset").addEventListener("click",()=>{data=DEMO.runs.slice();el("file").value="";el("evidence").value="all";refreshChoices();notice("Illustrative examples restored. These figures are synthetic and have never been measured.");});
+el("export").addEventListener("click",exportCsv);
+["task","hardware","evidence","metric"].forEach(id=>el(id).addEventListener("change",render));
+refreshChoices();
+</script>
+</body>
+</html>
